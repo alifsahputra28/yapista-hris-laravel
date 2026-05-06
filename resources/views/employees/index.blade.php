@@ -24,9 +24,15 @@
         ];
         $verificationStatuses = [
             'draft' => 'Draft',
-            'submitted' => 'Submitted',
-            'verified' => 'Verified',
-            'rejected' => 'Rejected',
+            'submitted' => 'Menunggu Verifikasi',
+            'verified' => 'Terverifikasi',
+            'rejected' => 'Ditolak',
+        ];
+        $verificationClasses = [
+            'draft' => 'bg-light-secondary text-secondary',
+            'submitted' => 'bg-light-warning text-warning',
+            'verified' => 'bg-light-success text-success',
+            'rejected' => 'bg-light-danger text-danger',
         ];
     @endphp
 
@@ -142,6 +148,7 @@
                         <tr>
                             <th style="width: 70px;">No</th>
                             <th>Nama Pegawai</th>
+                            <th>Nomor Pegawai</th>
                             <th>Unit Kerja</th>
                             <th>Jabatan</th>
                             <th>Email/HP</th>
@@ -157,7 +164,19 @@
                                 <td>{{ $employees->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee->full_name }}</div>
-                                    <small class="text-muted">{{ $employee->employee_number ?? 'Belum ada nomor pegawai' }}</small>
+                                </td>
+                                <td>
+                                    @if ($employee->employee_number)
+                                        <div>{{ $employee->employee_number }}</div>
+                                    @else
+                                        <span class="badge bg-light-secondary text-secondary">Belum dibuat</span>
+                                    @endif
+
+                                    @if ($employee->foundation_registry_number)
+                                        <div class="small text-muted">
+                                            No. Buku: {{ $employee->foundation_registry_number }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td>{{ $employee->institution?->name ?? '-' }}</td>
                                 <td>{{ $employee->position?->name ?? '-' }}</td>
@@ -172,7 +191,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge {{ $employee->verification_status === 'verified' ? 'bg-light-success text-success' : 'bg-light-warning text-warning' }}">
+                                    <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
                                         {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
                                     </span>
                                 </td>
@@ -186,6 +205,13 @@
                                         <i class="ti ti-edit"></i>
                                         Edit
                                     </a>
+
+                                    @if ($employee->isSubmitted())
+                                        <a href="{{ route('verifications.show', $employee) }}" class="btn btn-sm btn-light-success">
+                                            <i class="ti ti-user-check"></i>
+                                            Verifikasi
+                                        </a>
+                                    @endif
 
                                     @if ($employee->user_id === null)
                                         <form action="{{ route('employees.invitations.generate', $employee) }}" method="POST" class="d-inline">
@@ -211,7 +237,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center text-muted">Belum ada data pegawai.</td>
+                                <td colspan="10" class="text-center text-muted">Belum ada data pegawai.</td>
                             </tr>
                         @endforelse
                     </tbody>

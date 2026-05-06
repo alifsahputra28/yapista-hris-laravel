@@ -13,7 +13,7 @@
     <div class="navbar-wrapper">
         <div class="m-header">
             <a href="{{ route($dashboardRoute) }}" class="b-brand text-primary">
-                <img src="{{ asset('assets/images/logo-dark.svg') }}" class="img-fluid logo-lg" alt="logo">
+                <img src="{{ asset('assets/images/logo-yapista-hris.png') }}" class="img-fluid logo-lg" alt="logo">
             </a>
         </div>
 
@@ -55,6 +55,13 @@
                         <a href="{{ route('employees.index') }}" class="pc-link">
                             <span class="pc-micon"><i class="ti ti-users"></i></span>
                             <span class="pc-mtext">Data Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('verifications.*') ? 'active' : '' }}">
+                        <a href="{{ route('verifications.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-user-check"></i></span>
+                            <span class="pc-mtext">Verifikasi Pegawai</span>
                         </a>
                     </li>
 

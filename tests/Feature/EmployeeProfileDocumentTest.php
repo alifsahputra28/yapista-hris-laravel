@@ -39,6 +39,7 @@ class EmployeeProfileDocumentTest extends TestCase
                 'institution_id' => 999,
                 'verification_status' => 'verified',
                 'photo' => UploadedFile::fake()->image('profile.jpg'),
+                'foundation_registry_number' => 999,
             ])
             ->assertRedirect(route('pegawai.profile.show', absolute: false));
 
@@ -46,6 +47,7 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->assertSame('Ahmad Fauzi Update', $employee->full_name);
         $this->assertSame('draft', $employee->verification_status);
         $this->assertNotSame(999, $employee->institution_id);
+        $this->assertNull($employee->foundation_registry_number);
         $this->assertNotNull($employee->photo);
         Storage::disk('public')->assertExists($employee->photo);
 

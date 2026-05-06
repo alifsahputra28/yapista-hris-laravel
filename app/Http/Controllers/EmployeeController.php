@@ -150,6 +150,7 @@ class EmployeeController extends Controller
             'employee_type' => ['required', 'string', 'max:100'],
             'employment_status' => ['required', 'string', 'max:100'],
             'join_date' => ['nullable', 'date'],
+            'foundation_registry_number' => ['nullable', 'integer', 'min:1'],
             'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 

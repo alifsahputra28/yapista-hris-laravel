@@ -161,8 +161,12 @@
                             {{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Tanggal Mulai Kerja</small>
+                            <small class="text-muted d-block">Tanggal Masuk</small>
                             {{ $employee->join_date?->format('d M Y') ?? '-' }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Nomor Urut Buku Yayasan</small>
+                            {{ $employee->foundation_registry_number ?? '-' }}
                         </div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Nomor Pegawai</small>

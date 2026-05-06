@@ -32,7 +32,7 @@
             <div class="auth-form">
                 <div class="auth-header">
                     <a href="{{ url('/') }}">
-                        <img src="{{ asset('assets/images/logo-dark.svg') }}" alt="YAPISTA HRIS">
+                        <img src="{{ asset('assets/images/logo-yapista-hris.png') }}" alt="YAPISTA HRIS">
                     </a>
                 </div>
 

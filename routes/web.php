@@ -4,6 +4,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\EmployeeVerificationController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
@@ -32,6 +33,12 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::get('/invitations', [EmployeeInvitationController::class, 'index'])->name('invitations.index');
     Route::post('/employees/{employee}/invitations/generate', [EmployeeInvitationController::class, 'generate'])->name('employees.invitations.generate');
     Route::patch('/invitations/{invitation}/revoke', [EmployeeInvitationController::class, 'revoke'])->name('invitations.revoke');
+
+    Route::get('/verifications', [EmployeeVerificationController::class, 'index'])->name('verifications.index');
+    Route::get('/verifications/{employee}', [EmployeeVerificationController::class, 'show'])->name('verifications.show');
+    Route::post('/verifications/{employee}/approve', [EmployeeVerificationController::class, 'approve'])->name('verifications.approve');
+    Route::post('/verifications/{employee}/reject', [EmployeeVerificationController::class, 'reject'])->name('verifications.reject');
+    Route::patch('/employee-documents/{document}/status', [EmployeeVerificationController::class, 'updateDocumentStatus'])->name('employee-documents.update-status');
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {

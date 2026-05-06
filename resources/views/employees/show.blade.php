@@ -62,7 +62,7 @@
                 <div class="card-body text-center">
                     <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
                     <h4 class="mb-1">{{ $employee->full_name }}</h4>
-                    <p class="text-muted mb-2">{{ $employee->employee_number ?? 'Belum ada nomor pegawai' }}</p>
+                    <p class="text-muted mb-2">{{ $employee->employee_number ?? 'Belum dibuat' }}</p>
                     <span class="badge {{ $employee->employment_status === 'aktif' ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary' }}">
                         {{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}
                     </span>
@@ -98,8 +98,12 @@
                             {{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Tanggal Mulai Kerja</small>
+                            <small class="text-muted d-block">Tanggal Masuk</small>
                             {{ $employee->join_date?->format('d M Y') ?? '-' }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Nomor Urut Buku Yayasan</small>
+                            {{ $employee->foundation_registry_number ?? '-' }}
                         </div>
                     </div>
                 </div>
@@ -169,6 +173,7 @@
                             <thead>
                                 <tr>
                                     <th>Jenis Dokumen</th>
+                                    <th>Nama File</th>
                                     <th>Status</th>
                                     <th>Tanggal Upload</th>
                                     <th>Catatan</th>
@@ -179,6 +184,7 @@
                                 @forelse ($employee->documents as $document)
                                     <tr>
                                         <td>{{ $document->document_type_label }}</td>
+                                        <td>{{ $document->original_name ?? '-' }}</td>
                                         <td>
                                             <span class="badge {{ $documentStatusClasses[$document->status] ?? 'bg-light-secondary text-secondary' }}">
                                                 {{ $document->status }}
@@ -195,7 +201,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">Belum ada dokumen.</td>
+                                        <td colspan="6" class="text-center text-muted">Belum ada dokumen.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

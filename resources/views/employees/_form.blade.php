@@ -159,6 +159,25 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
+            <label for="foundation_registry_number" class="form-label">Nomor Urut Buku Yayasan</label>
+            <input
+                id="foundation_registry_number"
+                type="number"
+                name="foundation_registry_number"
+                value="{{ old('foundation_registry_number', $employee->foundation_registry_number) }}"
+                min="1"
+                placeholder="25"
+                class="form-control @error('foundation_registry_number') is-invalid @enderror"
+            >
+
+            @error('foundation_registry_number')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="form-group mb-3">
             <label for="institution_id" class="form-label">Unit Kerja</label>
             <select id="institution_id" name="institution_id" class="form-select @error('institution_id') is-invalid @enderror" required>
                 <option value="">Pilih unit kerja</option>

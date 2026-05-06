@@ -43,6 +43,7 @@ class EmployeeManagementTest extends TestCase
                 'employee_type' => 'guru',
                 'employment_status' => 'aktif',
                 'join_date' => '2024-07-01',
+                'foundation_registry_number' => 25,
                 'photo' => UploadedFile::fake()->image('pegawai.jpg'),
             ])
             ->assertRedirect(route('employees.index', absolute: false));
@@ -73,6 +74,7 @@ class EmployeeManagementTest extends TestCase
                 'employee_type' => 'guru',
                 'employment_status' => 'kontrak',
                 'join_date' => '2024-07-01',
+                'foundation_registry_number' => 26,
             ])
             ->assertRedirect(route('employees.index', absolute: false));
 
@@ -80,6 +82,7 @@ class EmployeeManagementTest extends TestCase
             'id' => $employee->id,
             'full_name' => 'Ahmad Fauzi Update',
             'employment_status' => 'kontrak',
+            'foundation_registry_number' => 26,
         ]);
 
         $this->actingAs($admin)

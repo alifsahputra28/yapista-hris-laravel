@@ -17,6 +17,7 @@ class Employee extends Model
         'institution_id',
         'position_id',
         'employee_number',
+        'foundation_registry_number',
         'full_name',
         'email',
         'nik',
