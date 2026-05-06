@@ -40,10 +40,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-end mb-4">
                             <h3 class="mb-0"><b>Login</b></h3>
-
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="link-primary">Buat akun</a>
-                            @endif
+                            <span class="text-muted">Registrasi via undangan</span>
                         </div>
 
                         @if (session('status'))

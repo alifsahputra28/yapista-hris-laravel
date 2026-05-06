@@ -1,9 +1,12 @@
 @php
-    $dashboardRoute = match (Auth::user()?->role) {
+    $user = Auth::user();
+    $dashboardRoute = match ($user?->role) {
         'panitia' => 'scanner.dashboard',
         'pegawai' => 'pegawai.dashboard',
         default => 'dashboard',
     };
+    $isAdmin = $user?->isSuperAdmin() || $user?->isHrAdmin();
+    $isPegawai = $user?->isPegawai();
 @endphp
 
 <nav class="pc-sidebar">
@@ -16,85 +19,73 @@
 
         <div class="navbar-content">
             <ul class="pc-navbar">
-                <li class="pc-item">
+                <li class="pc-item {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
                     <a href="{{ route($dashboardRoute) }}" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
                         <span class="pc-mtext">Dashboard</span>
                     </a>
                 </li>
 
-                <li class="pc-item pc-caption">
-                    <label>HRIS YAPISTA</label>
-                    <i class="ti ti-users"></i>
-                </li>
+                @if ($isAdmin)
+                    <li class="pc-item pc-caption">
+                        <label>Master Data</label>
+                        <i class="ti ti-database"></i>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-user-plus"></i></span>
-                        <span class="pc-mtext">Registrasi Pegawai</span>
-                    </a>
-                </li>
+                    <li class="pc-item {{ request()->routeIs('institutions.*') ? 'active' : '' }}">
+                        <a href="{{ route('institutions.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-building"></i></span>
+                            <span class="pc-mtext">Unit Kerja</span>
+                        </a>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-users"></i></span>
-                        <span class="pc-mtext">Data Pegawai</span>
-                    </a>
-                </li>
+                    <li class="pc-item {{ request()->routeIs('positions.*') ? 'active' : '' }}">
+                        <a href="{{ route('positions.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-briefcase"></i></span>
+                            <span class="pc-mtext">Jabatan</span>
+                        </a>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-id"></i></span>
-                        <span class="pc-mtext">ID Card</span>
-                    </a>
-                </li>
+                    <li class="pc-item pc-caption">
+                        <label>Pegawai</label>
+                        <i class="ti ti-users"></i>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
-                        <span class="pc-mtext">Kegiatan</span>
-                    </a>
-                </li>
+                    <li class="pc-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                        <a href="{{ route('employees.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-users"></i></span>
+                            <span class="pc-mtext">Data Pegawai</span>
+                        </a>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-qrcode"></i></span>
-                        <span class="pc-mtext">Scan Absensi</span>
-                    </a>
-                </li>
+                    <li class="pc-item pc-caption">
+                        <label>Registrasi</label>
+                        <i class="ti ti-mail"></i>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-file-report"></i></span>
-                        <span class="pc-mtext">Laporan</span>
-                    </a>
-                </li>
+                    <li class="pc-item {{ request()->routeIs('invitations.*') ? 'active' : '' }}">
+                        <a href="{{ route('invitations.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-mail"></i></span>
+                            <span class="pc-mtext">Undangan Pegawai</span>
+                        </a>
+                    </li>
+                @endif
 
-                <li class="pc-item pc-caption">
-                    <label>Pengaturan</label>
-                    <i class="ti ti-settings"></i>
-                </li>
+                @if ($isPegawai)
+                    <li class="pc-item {{ request()->routeIs('pegawai.profile.*') ? 'active' : '' }}">
+                        <a href="{{ route('pegawai.profile.show') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-user"></i></span>
+                            <span class="pc-mtext">Profil Saya</span>
+                        </a>
+                    </li>
 
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-building"></i></span>
-                        <span class="pc-mtext">Unit Kerja</span>
-                    </a>
-                </li>
-
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-briefcase"></i></span>
-                        <span class="pc-mtext">Jabatan</span>
-                    </a>
-                </li>
-
-                <li class="pc-item">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-shield-lock"></i></span>
-                        <span class="pc-mtext">Role & User</span>
-                    </a>
-                </li>
+                    <li class="pc-item {{ request()->routeIs('pegawai.documents.*') ? 'active' : '' }}">
+                        <a href="{{ route('pegawai.documents.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-files"></i></span>
+                            <span class="pc-mtext">Dokumen Saya</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
     </div>

@@ -3,6 +3,22 @@
 @section('title', 'Dashboard Pegawai | YAPISTA HRIS')
 
 @section('content')
+    @php
+        $employee = Auth::user()?->employee;
+        $verificationStatuses = [
+            'draft' => 'Draft',
+            'submitted' => 'Menunggu Verifikasi',
+            'verified' => 'Terverifikasi',
+            'rejected' => 'Ditolak',
+        ];
+        $verificationClasses = [
+            'draft' => 'bg-light-secondary text-secondary',
+            'submitted' => 'bg-light-warning text-warning',
+            'verified' => 'bg-light-success text-success',
+            'rejected' => 'bg-light-danger text-danger',
+        ];
+    @endphp
+
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
@@ -20,16 +36,50 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="mb-2">Dashboard Pegawai</h4>
-                    <p class="mb-0 text-muted">
-                        Area awal untuk role Pegawai.
-                    </p>
+    @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    @if (! $employee)
+        <div class="alert alert-warning">Data pegawai Anda belum terhubung. Silakan hubungi HR/Admin.</div>
+    @else
+        <div class="row">
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="mb-2">Status Verifikasi</h5>
+                        <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
+                            {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="mb-2">Profil Saya</h5>
+                        <p class="text-muted">Lengkapi biodata pribadi Anda.</p>
+                        <a href="{{ route('pegawai.profile.show') }}" class="btn btn-primary">
+                            <i class="ti ti-user"></i>
+                            Buka Profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="mb-2">Dokumen Saya</h5>
+                        <p class="text-muted">Upload KTP dan dokumen pendukung.</p>
+                        <a href="{{ route('pegawai.documents.index') }}" class="btn btn-light-primary">
+                            <i class="ti ti-files"></i>
+                            Buka Dokumen
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 @endsection
