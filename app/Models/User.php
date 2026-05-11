@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(EmployeeInvitation::class, 'created_by');
     }
+
+    public function createdEvents(): HasMany
+    {
+        return $this->hasMany(Event::class, 'created_by');
+    }
 }

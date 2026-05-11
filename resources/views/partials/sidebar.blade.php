@@ -76,6 +76,18 @@
                             <span class="pc-mtext">Undangan Pegawai</span>
                         </a>
                     </li>
+
+                    <li class="pc-item pc-caption">
+                        <label>Kegiatan</label>
+                        <i class="ti ti-calendar-event"></i>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('events.*') || request()->routeIs('event-participants.*') ? 'active' : '' }}">
+                        <a href="{{ route('events.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
+                            <span class="pc-mtext">Data Kegiatan</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($isPegawai)

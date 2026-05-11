@@ -5,6 +5,8 @@ use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeVerificationController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventParticipantController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
@@ -39,6 +41,16 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::post('/verifications/{employee}/approve', [EmployeeVerificationController::class, 'approve'])->name('verifications.approve');
     Route::post('/verifications/{employee}/reject', [EmployeeVerificationController::class, 'reject'])->name('verifications.reject');
     Route::patch('/employee-documents/{document}/status', [EmployeeVerificationController::class, 'updateDocumentStatus'])->name('employee-documents.update-status');
+
+    Route::resource('events', EventController::class);
+    Route::post('/events/{event}/activate', [EventController::class, 'activate'])->name('events.activate');
+    Route::post('/events/{event}/close', [EventController::class, 'close'])->name('events.close');
+    Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
+
+    Route::get('/events/{event}/participants', [EventParticipantController::class, 'index'])->name('events.participants.index');
+    Route::post('/events/{event}/participants/generate', [EventParticipantController::class, 'generate'])->name('events.participants.generate');
+    Route::post('/events/{event}/participants/manual', [EventParticipantController::class, 'storeManual'])->name('events.participants.manual');
+    Route::delete('/event-participants/{participant}', [EventParticipantController::class, 'destroy'])->name('event-participants.destroy');
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {

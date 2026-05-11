@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -91,6 +93,26 @@ class Employee extends Model
     {
         return $this->hasOne(EmployeeDocument::class)
             ->where('document_type', 'ktp');
+    }
+
+    public function eventParticipants(): HasMany
+    {
+        return $this->hasMany(EventParticipant::class);
+    }
+
+    public function events(): BelongsToMany
+    {
+        return $this->belongsToMany(Event::class, 'event_participants')
+            ->withPivot('participant_status')
+            ->withTimestamps();
+    }
+
+    public function scopeEligibleForEvents(Builder $query): Builder
+    {
+        return $query
+            ->where('verification_status', 'verified')
+            ->whereNotNull('employee_number')
+            ->whereNotIn('employment_status', ['nonaktif', 'resign']);
     }
 
     public function isDraft(): bool
