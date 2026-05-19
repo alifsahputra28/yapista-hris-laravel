@@ -21,7 +21,7 @@
 
 @csrf
 
-<div class="row">
+<div class="row g-3">
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="full_name" class="form-label">Nama Lengkap</label>
@@ -31,6 +31,7 @@
                 name="full_name"
                 value="{{ old('full_name', $employee->full_name) }}"
                 class="form-control @error('full_name') is-invalid @enderror"
+                placeholder="Nama lengkap sesuai identitas"
                 required
             >
 
@@ -49,6 +50,7 @@
                 name="email"
                 value="{{ old('email', $employee->email) }}"
                 class="form-control @error('email') is-invalid @enderror"
+                placeholder="nama@yapista.test"
             >
 
             @error('email')
@@ -66,6 +68,7 @@
                 name="nik"
                 value="{{ old('nik', $employee->nik) }}"
                 class="form-control @error('nik') is-invalid @enderror"
+                placeholder="Nomor induk kependudukan"
             >
 
             @error('nik')
@@ -98,6 +101,7 @@
                 name="birth_place"
                 value="{{ old('birth_place', $employee->birth_place) }}"
                 class="form-control @error('birth_place') is-invalid @enderror"
+                placeholder="Tempat lahir"
             >
 
             @error('birth_place')
@@ -132,6 +136,7 @@
                 name="phone"
                 value="{{ old('phone', $employee->phone) }}"
                 class="form-control @error('phone') is-invalid @enderror"
+                placeholder="Nomor HP aktif"
             >
 
             @error('phone')
@@ -255,6 +260,7 @@
                 name="address"
                 rows="4"
                 class="form-control @error('address') is-invalid @enderror"
+                placeholder="Alamat domisili pegawai"
             >{{ old('address', $employee->address) }}</textarea>
 
             @error('address')

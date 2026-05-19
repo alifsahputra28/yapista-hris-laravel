@@ -46,8 +46,21 @@ class EmployeeController extends Controller
 
         $institutions = Institution::query()->orderBy('name')->get();
         $positions = Position::query()->with('institution')->orderBy('name')->get();
+        $totalEmployees = Employee::query()->count();
+        $activeEmployees = Employee::query()->where('employment_status', 'aktif')->count();
+        $submittedEmployees = Employee::query()->where('verification_status', 'submitted')->count();
+        $registeredEmployees = Employee::query()->whereNotNull('user_id')->count();
 
-        return view('employees.index', compact('employees', 'institutions', 'positions', 'search'));
+        return view('employees.index', compact(
+            'employees',
+            'institutions',
+            'positions',
+            'search',
+            'totalEmployees',
+            'activeEmployees',
+            'submittedEmployees',
+            'registeredEmployees'
+        ));
     }
 
     public function create(): View

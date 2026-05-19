@@ -5,16 +5,16 @@
 @section('content')
     @php
         $statuses = [
-            'unused' => 'Unused',
-            'used' => 'Used',
-            'expired' => 'Expired',
-            'revoked' => 'Revoked',
+            'unused' => ['label' => 'Belum Digunakan', 'class' => 'bg-light-primary text-primary'],
+            'used' => ['label' => 'Sudah Digunakan', 'class' => 'bg-light-success text-success'],
+            'expired' => ['label' => 'Kedaluwarsa', 'class' => 'bg-light-warning text-warning'],
+            'revoked' => ['label' => 'Dibatalkan', 'class' => 'bg-light-danger text-danger'],
         ];
-        $statusClasses = [
-            'unused' => 'bg-light-primary text-primary',
-            'used' => 'bg-light-success text-success',
-            'expired' => 'bg-light-warning text-warning',
-            'revoked' => 'bg-light-danger text-danger',
+        $summaryCards = [
+            ['label' => 'Belum Digunakan', 'value' => $unusedInvitations ?? 0, 'icon' => 'ti-mail', 'class' => 'bg-light-primary text-primary'],
+            ['label' => 'Sudah Digunakan', 'value' => $usedInvitations ?? 0, 'icon' => 'ti-mail-check', 'class' => 'bg-light-success text-success'],
+            ['label' => 'Kedaluwarsa', 'value' => $expiredInvitations ?? 0, 'icon' => 'ti-clock-exclamation', 'class' => 'bg-light-warning text-warning'],
+            ['label' => 'Dibatalkan', 'value' => $revokedInvitations ?? 0, 'icon' => 'ti-ban', 'class' => 'bg-light-danger text-danger'],
         ];
     @endphp
 
@@ -22,10 +22,6 @@
         <div class="page-block">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Undangan Registrasi Pegawai</h5>
-                    </div>
-
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item" aria-current="page">Undangan Registrasi</li>
@@ -50,36 +46,66 @@
         </div>
     @endif
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Daftar Undangan</h5>
-        </div>
-
+    <div class="card page-intro-card">
         <div class="card-body">
-            <form method="GET" action="{{ route('invitations.index') }}" class="row g-2 mb-3">
-                <div class="col-md-5">
-                    <input
-                        type="search"
-                        name="search"
-                        value="{{ $search }}"
-                        class="form-control"
-                        placeholder="Cari nama, email, HP, atau kode undangan"
-                    >
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h4 class="mb-1">Undangan Registrasi Pegawai</h4>
+                    <p class="mb-0 text-muted">Pantau kode undangan, link registrasi, masa berlaku, dan status pemakaian pegawai.</p>
                 </div>
 
-                <div class="col-md-3">
-                    <select name="status" class="form-select">
+                <a href="{{ route('employees.index') }}" class="btn btn-primary">
+                    <i class="ti ti-users"></i>
+                    Data Pegawai
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach ($summaryCards as $card)
+            <div class="col-md-6 col-xl-3">
+                <div class="card summary-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avtar avtar-s {{ $card['class'] }}">
+                                <i class="ti {{ $card['icon'] }} f-20"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small">{{ $card['label'] }}</div>
+                                <h4 class="mb-0">{{ number_format($card['value']) }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <div class="card filter-card">
+        <div class="card-header">
+            <h5 class="mb-0">Filter Undangan</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('invitations.index') }}" class="row g-3">
+                <div class="col-lg-5">
+                    <label for="search" class="form-label">Pencarian</label>
+                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, atau kode undangan">
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-select">
                         <option value="">Semua status</option>
-                        @foreach ($statuses as $value => $label)
-                            <option value="{{ $value }}" @selected(request('status') === $value)>
-                                {{ $label }}
-                            </option>
+                        @foreach ($statuses as $value => $status)
+                            <option value="{{ $value }}" @selected(request('status') === $value)>{{ $status['label'] }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <select name="institution_id" class="form-select">
+                <div class="col-md-6 col-lg-3">
+                    <label for="institution_id" class="form-label">Unit Kerja</label>
+                    <select id="institution_id" name="institution_id" class="form-select">
                         <option value="">Semua unit kerja</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected((string) request('institution_id') === (string) $institution->id)>
@@ -89,79 +115,109 @@
                     </select>
                 </div>
 
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-outline-primary w-100">
+                <div class="col-lg-1 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
                         <i class="ti ti-filter"></i>
                     </button>
                 </div>
-            </form>
 
+                <div class="col-12">
+                    <a href="{{ route('invitations.index') }}" class="btn btn-light-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                <h5 class="mb-0">Daftar Undangan</h5>
+                <span class="text-muted small">{{ $invitations->total() }} data berdasarkan filter saat ini</span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover table-borderless mb-0">
+                <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 70px;">No</th>
-                            <th>Nama Pegawai</th>
-                            <th>Unit Kerja</th>
-                            <th>Jabatan</th>
-                            <th>Kode Undangan</th>
-                            <th>Link Register</th>
+                            <th class="ps-4" style="width: 70px;">No</th>
+                            <th>Pegawai</th>
+                            <th>Kode & Link</th>
                             <th>Status</th>
-                            <th>Expired At</th>
-                            <th>Created By</th>
-                            <th class="text-end" style="width: 160px;">Aksi</th>
+                            <th>Masa Berlaku</th>
+                            <th>Dibuat Oleh</th>
+                            <th class="text-end pe-4" style="width: 160px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($invitations as $invitation)
                             @php
                                 $registerLink = route('invitation.register.show', $invitation->invitation_code);
+                                $status = $statuses[$invitation->status] ?? ['label' => $invitation->status, 'class' => 'bg-light-secondary text-secondary'];
                             @endphp
                             <tr>
-                                <td>{{ $invitations->firstItem() + $loop->index }}</td>
-                                <td>{{ $invitation->employee?->full_name ?? '-' }}</td>
-                                <td>{{ $invitation->employee?->institution?->name ?? '-' }}</td>
-                                <td>{{ $invitation->employee?->position?->name ?? '-' }}</td>
-                                <td><code>{{ $invitation->invitation_code }}</code></td>
-                                <td class="text-break">{{ $registerLink }}</td>
+                                <td class="ps-4">{{ $invitations->firstItem() + $loop->index }}</td>
                                 <td>
-                                    <span class="badge {{ $statusClasses[$invitation->status] ?? 'bg-light-secondary text-secondary' }}">
-                                        {{ $statuses[$invitation->status] ?? $invitation->status }}
-                                    </span>
+                                    <div class="fw-semibold">{{ $invitation->employee?->full_name ?? '-' }}</div>
+                                    <div class="data-meta">{{ $invitation->employee?->institution?->name ?? '-' }}</div>
+                                    <div class="data-meta">{{ $invitation->employee?->position?->name ?? '-' }}</div>
+                                </td>
+                                <td style="min-width: 260px;">
+                                    <code>{{ $invitation->invitation_code }}</code>
+                                    <div class="data-meta text-break mt-1">{{ $registerLink }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge {{ $status['class'] }}">{{ $status['label'] }}</span>
                                 </td>
                                 <td>{{ $invitation->expired_at?->format('d M Y H:i') ?? '-' }}</td>
                                 <td>{{ $invitation->creator?->name ?? '-' }}</td>
-                                <td class="text-end">
-                                    <button type="button" class="btn btn-sm btn-light-primary js-copy-link" data-link="{{ $registerLink }}">
-                                        <i class="ti ti-copy"></i>
-                                        Copy
-                                    </button>
+                                <td class="text-end pe-4">
+                                    <div class="table-actions">
+                                        <button type="button" class="btn btn-sm btn-light-primary js-copy-link" data-link="{{ $registerLink }}">
+                                            <i class="ti ti-copy"></i>
+                                            Copy
+                                        </button>
 
-                                    @if ($invitation->isUnused())
-                                        <form action="{{ route('invitations.revoke', $invitation) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan undangan ini?')">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-light-danger">
-                                                <i class="ti ti-ban"></i>
-                                                Revoke
-                                            </button>
-                                        </form>
-                                    @endif
+                                        @if ($invitation->isUnused())
+                                            <form action="{{ route('invitations.revoke', $invitation) }}" method="POST" onsubmit="return confirm('Batalkan undangan ini?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-sm btn-light-danger btn-icon" title="Batalkan">
+                                                    <i class="ti ti-ban"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted">Belum ada undangan registrasi.</td>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="avtar avtar-l bg-light-secondary text-secondary">
+                                            <i class="ti ti-mail-off f-28"></i>
+                                        </div>
+                                        <h5 class="mb-1">Belum ada undangan registrasi.</h5>
+                                        <p class="text-muted mb-3">Buat undangan dari halaman Data Pegawai untuk pegawai yang belum punya akun.</p>
+                                        <a href="{{ route('employees.index') }}" class="btn btn-primary">
+                                            <i class="ti ti-users"></i>
+                                            Buka Data Pegawai
+                                        </a>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+        </div>
 
-            <div class="mt-3">
+        @if ($invitations->hasPages())
+            <div class="card-footer">
                 {{ $invitations->links('pagination::bootstrap-5') }}
             </div>
-        </div>
+        @endif
     </div>
 @endsection
 
@@ -170,7 +226,7 @@
         document.querySelectorAll('.js-copy-link').forEach((button) => {
             button.addEventListener('click', async () => {
                 await navigator.clipboard.writeText(button.dataset.link);
-                button.innerText = 'Copied';
+                button.innerHTML = '<i class="ti ti-check"></i> Copied';
             });
         });
     </script>

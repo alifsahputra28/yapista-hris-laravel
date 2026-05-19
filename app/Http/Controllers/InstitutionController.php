@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institution;
+use App\Models\Position;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -26,7 +27,19 @@ class InstitutionController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('institutions.index', compact('institutions', 'search'));
+        $totalInstitutions = Institution::query()->count();
+        $activeInstitutions = Institution::query()->where('status', 'active')->count();
+        $inactiveInstitutions = Institution::query()->where('status', 'inactive')->count();
+        $totalPositions = Position::query()->count();
+
+        return view('institutions.index', compact(
+            'institutions',
+            'search',
+            'totalInstitutions',
+            'activeInstitutions',
+            'inactiveInstitutions',
+            'totalPositions'
+        ));
     }
 
     public function create(): View

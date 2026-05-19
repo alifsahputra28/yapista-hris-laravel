@@ -33,7 +33,10 @@
 
                 <div class="card my-5">
                     <div class="card-body">
-                        <h3 class="mb-3"><b>Registrasi Pegawai YAPISTA</b></h3>
+                        <div class="text-center mb-4">
+                            <h3 class="mb-2"><b>Registrasi Pegawai YAPISTA</b></h3>
+                            <p class="text-muted mb-0">Buat akun pegawai menggunakan kode undangan resmi dari HR/Admin.</p>
+                        </div>
 
                         @if ($error)
                             <div class="alert alert-danger" role="alert">
@@ -48,23 +51,29 @@
                                 </div>
                             @endif
 
-                            <div class="alert alert-light border">
-                                <div class="fw-semibold">{{ $employee->full_name }}</div>
-                                <div>{{ $employee->institution?->name ?? '-' }}</div>
-                                <div class="text-muted">{{ $employee->position?->name ?? '-' }}</div>
+                            <div class="alert alert-light border d-flex gap-3 align-items-start">
+                                <div class="avtar avtar-s bg-light-primary text-primary">
+                                    <i class="ti ti-user"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ $employee->full_name }}</div>
+                                    <div>{{ $employee->institution?->name ?? '-' }}</div>
+                                    <div class="text-muted">{{ $employee->position?->name ?? '-' }}</div>
+                                </div>
                             </div>
 
                             <form method="POST" action="{{ route('invitation.register.store', $invitation->invitation_code) }}">
                                 @csrf
 
                                 <div class="form-group mb-3">
-                                    <label for="name" class="form-label">Name</label>
+                                    <label for="name" class="form-label">Nama</label>
                                     <input
                                         id="name"
                                         type="text"
                                         name="name"
                                         value="{{ old('name', $employee->full_name) }}"
                                         class="form-control @error('name') is-invalid @enderror"
+                                        placeholder="Nama lengkap"
                                         required
                                         autofocus
                                     >
@@ -82,6 +91,7 @@
                                         name="email"
                                         value="{{ old('email', $employee->email) }}"
                                         class="form-control @error('email') is-invalid @enderror"
+                                        placeholder="email@domain.com"
                                         required
                                         autocomplete="username"
                                     >
@@ -98,6 +108,7 @@
                                         type="password"
                                         name="password"
                                         class="form-control @error('password') is-invalid @enderror"
+                                        placeholder="Minimal 8 karakter"
                                         required
                                         autocomplete="new-password"
                                     >
@@ -108,12 +119,13 @@
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label for="password_confirmation" class="form-label">Password Confirmation</label>
+                                    <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
                                     <input
                                         id="password_confirmation"
                                         type="password"
                                         name="password_confirmation"
                                         class="form-control"
+                                        placeholder="Ulangi password"
                                         required
                                         autocomplete="new-password"
                                     >

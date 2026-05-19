@@ -52,7 +52,22 @@ class EmployeeVerificationController extends Controller
         $institutions = Institution::query()->orderBy('name')->get();
         $positions = Position::query()->with('institution')->orderBy('name')->get();
 
-        return view('verifications.index', compact('employees', 'institutions', 'positions', 'search', 'verificationStatus'));
+        $submittedEmployees = Employee::query()->where('verification_status', 'submitted')->count();
+        $verifiedEmployees = Employee::query()->where('verification_status', 'verified')->count();
+        $rejectedEmployees = Employee::query()->where('verification_status', 'rejected')->count();
+        $draftEmployees = Employee::query()->where('verification_status', 'draft')->count();
+
+        return view('verifications.index', compact(
+            'employees',
+            'institutions',
+            'positions',
+            'search',
+            'verificationStatus',
+            'submittedEmployees',
+            'verifiedEmployees',
+            'rejectedEmployees',
+            'draftEmployees'
+        ));
     }
 
     public function show(Employee $employee): View

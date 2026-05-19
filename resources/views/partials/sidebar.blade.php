@@ -91,6 +91,11 @@
                 @endif
 
                 @if ($isPegawai)
+                    <li class="pc-item pc-caption">
+                        <label>Akun Saya</label>
+                        <i class="ti ti-user-circle"></i>
+                    </li>
+
                     <li class="pc-item {{ request()->routeIs('pegawai.profile.*') ? 'active' : '' }}">
                         <a href="{{ route('pegawai.profile.show') }}" class="pc-link">
                             <span class="pc-micon"><i class="ti ti-user"></i></span>
@@ -104,6 +109,15 @@
                             <span class="pc-mtext">Dokumen Saya</span>
                         </a>
                     </li>
+
+                    @if (Route::has('pegawai.id-card.show'))
+                        <li class="pc-item {{ request()->routeIs('pegawai.id-card.*') ? 'active' : '' }}">
+                            <a href="{{ route('pegawai.id-card.show') }}" class="pc-link">
+                                <span class="pc-micon"><i class="ti ti-id"></i></span>
+                                <span class="pc-mtext">ID Card Saya</span>
+                            </a>
+                        </li>
+                    @endif
                 @endif
             </ul>
         </div>

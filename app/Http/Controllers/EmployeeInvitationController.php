@@ -48,7 +48,20 @@ class EmployeeInvitationController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('invitations.index', compact('invitations', 'institutions', 'search'));
+        $unusedInvitations = EmployeeInvitation::query()->where('status', 'unused')->count();
+        $usedInvitations = EmployeeInvitation::query()->where('status', 'used')->count();
+        $expiredInvitations = EmployeeInvitation::query()->where('status', 'expired')->count();
+        $revokedInvitations = EmployeeInvitation::query()->where('status', 'revoked')->count();
+
+        return view('invitations.index', compact(
+            'invitations',
+            'institutions',
+            'search',
+            'unusedInvitations',
+            'usedInvitations',
+            'expiredInvitations',
+            'revokedInvitations'
+        ));
     }
 
     public function generate(Employee $employee): RedirectResponse

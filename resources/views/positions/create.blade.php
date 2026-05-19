@@ -7,10 +7,6 @@
         <div class="page-block">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Tambah Jabatan</h5>
-                    </div>
-
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('positions.index') }}">Jabatan</a></li>
@@ -18,6 +14,13 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="card page-intro-card">
+        <div class="card-body">
+            <h4 class="mb-1">Tambah Jabatan</h4>
+            <p class="mb-0 text-muted">Tambahkan jabatan dan hubungkan dengan unit kerja yang sesuai.</p>
         </div>
     </div>
 

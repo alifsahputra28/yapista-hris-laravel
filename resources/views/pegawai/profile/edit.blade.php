@@ -7,10 +7,6 @@
         <div class="page-block">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Edit Biodata</h5>
-                    </div>
-
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('pegawai.dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('pegawai.profile.show') }}">Profil Saya</a></li>
@@ -18,6 +14,13 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="card page-intro-card">
+        <div class="card-body">
+            <h4 class="mb-1">Edit Biodata</h4>
+            <p class="mb-0 text-muted">Lengkapi data pribadi yang diperlukan untuk proses verifikasi HR.</p>
         </div>
     </div>
 

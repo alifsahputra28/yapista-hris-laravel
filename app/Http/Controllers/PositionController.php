@@ -30,7 +30,19 @@ class PositionController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('positions.index', compact('positions', 'search'));
+        $totalPositions = Position::query()->count();
+        $activePositions = Position::query()->where('status', 'active')->count();
+        $inactivePositions = Position::query()->where('status', 'inactive')->count();
+        $totalInstitutions = Institution::query()->count();
+
+        return view('positions.index', compact(
+            'positions',
+            'search',
+            'totalPositions',
+            'activePositions',
+            'inactivePositions',
+            'totalInstitutions'
+        ));
     }
 
     public function create(): View

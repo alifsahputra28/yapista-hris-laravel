@@ -8,7 +8,7 @@
 
 @csrf
 
-<div class="row">
+<div class="row g-3">
     <div class="col-md-8">
         <div class="form-group mb-3">
             <label for="name" class="form-label">Nama Kegiatan</label>
@@ -18,6 +18,7 @@
                 name="name"
                 value="{{ old('name', $event->name) }}"
                 class="form-control @error('name') is-invalid @enderror"
+                placeholder="Contoh: Rapat Koordinasi Yayasan"
                 required
             >
             @error('name')
@@ -84,6 +85,7 @@
                 name="location"
                 value="{{ old('location', $event->location) }}"
                 class="form-control @error('location') is-invalid @enderror"
+                placeholder="Contoh: Aula YAPISTA"
             >
             @error('location')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -99,6 +101,7 @@
                 name="description"
                 rows="4"
                 class="form-control @error('description') is-invalid @enderror"
+                placeholder="Deskripsi singkat kegiatan"
             >{{ old('description', $event->description) }}</textarea>
             @error('description')
                 <div class="invalid-feedback">{{ $message }}</div>

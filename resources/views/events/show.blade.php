@@ -27,10 +27,6 @@
         <div class="page-block">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Detail Kegiatan</h5>
-                    </div>
-
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Kegiatan</a></li>
@@ -52,6 +48,19 @@
     @if ($errors->any())
         <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
+
+    <div class="card page-intro-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h4 class="mb-1">Detail Kegiatan</h4>
+                    <p class="mb-0 text-muted">Pantau informasi kegiatan, status, dan daftar peserta yang sudah digenerate.</p>
+                </div>
+
+                <a href="{{ route('events.index') }}" class="btn btn-light-secondary">Kembali</a>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-lg-8">
@@ -114,7 +123,7 @@
                         <strong>{{ $event->participants->count() }}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Invited</span>
+                        <span>Diundang</span>
                         <strong>{{ $participantCounts->get('invited', 0) }}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
@@ -281,51 +290,63 @@
                 </a>
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover table-borderless mb-0">
+                <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 70px;">No</th>
-                            <th>Nama Pegawai</th>
-                            <th>Nomor Pegawai</th>
-                            <th>Unit Kerja</th>
-                            <th>Jabatan</th>
+                            <th class="ps-4" style="width: 70px;">No</th>
+                            <th>Pegawai</th>
+                            <th>Unit & Jabatan</th>
                             <th>Status Peserta</th>
-                            <th class="text-end">Aksi</th>
+                            <th class="text-end pe-4">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($event->participants as $participant)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $participant->employee?->full_name ?? '-' }}</td>
-                                <td>{{ $participant->employee?->employee_number ?? '-' }}</td>
-                                <td>{{ $participant->employee?->institution?->name ?? '-' }}</td>
-                                <td>{{ $participant->employee?->position?->name ?? '-' }}</td>
+                                <td class="ps-4">{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ $participant->employee?->full_name ?? '-' }}</div>
+                                    <div class="data-meta">{{ $participant->employee?->employee_number ?? '-' }}</div>
+                                </td>
+                                <td>
+                                    <div>{{ $participant->employee?->institution?->name ?? '-' }}</div>
+                                    <div class="data-meta">{{ $participant->employee?->position?->name ?? '-' }}</div>
+                                </td>
                                 <td>
                                     <span class="badge {{ $participantStatusClasses[$participant->participant_status] ?? 'bg-light-secondary text-secondary' }}">
                                         {{ $participantStatuses[$participant->participant_status] ?? $participant->participant_status }}
                                     </span>
                                 </td>
-                                <td class="text-end">
-                                    @if ($event->isDraft())
-                                        <form method="POST" action="{{ route('event-participants.destroy', $participant) }}" onsubmit="return confirm('Hapus peserta ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-light-danger">
-                                                <i class="ti ti-trash"></i>
-                                                Hapus
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                <td class="text-end pe-4">
+                                    <div class="table-actions">
+                                        @if ($event->isDraft())
+                                            <form method="POST" action="{{ route('event-participants.destroy', $participant) }}" onsubmit="return confirm('Hapus peserta ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-light-danger">
+                                                    <i class="ti ti-trash"></i>
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted">Belum ada peserta kegiatan.</td>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="avtar avtar-l bg-light-secondary text-secondary">
+                                            <i class="ti ti-users-off f-28"></i>
+                                        </div>
+                                        <h5 class="mb-1">Belum ada peserta kegiatan.</h5>
+                                        <p class="text-muted mb-0">Generate peserta atau tambahkan peserta manual saat kegiatan masih draft.</p>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

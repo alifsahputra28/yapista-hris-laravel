@@ -1,10 +1,10 @@
 @csrf
 
-<div class="row">
+<div class="row g-3">
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="full_name" class="form-label">Nama Lengkap</label>
-            <input id="full_name" type="text" name="full_name" value="{{ old('full_name', $employee->full_name) }}" class="form-control @error('full_name') is-invalid @enderror" required>
+            <input id="full_name" type="text" name="full_name" value="{{ old('full_name', $employee->full_name) }}" class="form-control @error('full_name') is-invalid @enderror" placeholder="Nama lengkap sesuai identitas" required>
             @error('full_name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -14,7 +14,7 @@
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="nik" class="form-label">NIK</label>
-            <input id="nik" type="text" name="nik" value="{{ old('nik', $employee->nik) }}" class="form-control @error('nik') is-invalid @enderror" required>
+            <input id="nik" type="text" name="nik" value="{{ old('nik', $employee->nik) }}" class="form-control @error('nik') is-invalid @enderror" placeholder="Nomor induk kependudukan" required>
             @error('nik')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -38,7 +38,7 @@
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="birth_place" class="form-label">Tempat Lahir</label>
-            <input id="birth_place" type="text" name="birth_place" value="{{ old('birth_place', $employee->birth_place) }}" class="form-control @error('birth_place') is-invalid @enderror">
+            <input id="birth_place" type="text" name="birth_place" value="{{ old('birth_place', $employee->birth_place) }}" class="form-control @error('birth_place') is-invalid @enderror" placeholder="Tempat lahir">
             @error('birth_place')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -58,7 +58,7 @@
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="phone" class="form-label">Nomor HP</label>
-            <input id="phone" type="text" name="phone" value="{{ old('phone', $employee->phone) }}" class="form-control @error('phone') is-invalid @enderror" required>
+            <input id="phone" type="text" name="phone" value="{{ old('phone', $employee->phone) }}" class="form-control @error('phone') is-invalid @enderror" placeholder="Nomor HP aktif" required>
             @error('phone')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -68,7 +68,7 @@
     <div class="col-12">
         <div class="form-group mb-3">
             <label for="address" class="form-label">Alamat</label>
-            <textarea id="address" name="address" rows="4" class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $employee->address) }}</textarea>
+            <textarea id="address" name="address" rows="4" class="form-control @error('address') is-invalid @enderror" placeholder="Alamat domisili" required>{{ old('address', $employee->address) }}</textarea>
             @error('address')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

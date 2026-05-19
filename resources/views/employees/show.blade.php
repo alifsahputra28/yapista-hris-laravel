@@ -24,9 +24,23 @@
         ];
         $verificationStatuses = [
             'draft' => 'Draft',
-            'submitted' => 'Submitted',
-            'verified' => 'Verified',
-            'rejected' => 'Rejected',
+            'submitted' => 'Menunggu Verifikasi',
+            'verified' => 'Terverifikasi',
+            'rejected' => 'Ditolak',
+        ];
+        $employmentClasses = [
+            'aktif' => 'bg-light-success text-success',
+            'kontrak' => 'bg-light-primary text-primary',
+            'honorer' => 'bg-light-warning text-warning',
+            'part_time' => 'bg-light-info text-info',
+            'nonaktif' => 'bg-light-danger text-danger',
+            'resign' => 'bg-light-secondary text-secondary',
+        ];
+        $verificationClasses = [
+            'draft' => 'bg-light-secondary text-secondary',
+            'submitted' => 'bg-light-primary text-primary',
+            'verified' => 'bg-light-success text-success',
+            'rejected' => 'bg-light-danger text-danger',
         ];
         $documentStatusClasses = [
             'pending' => 'bg-light-warning text-warning',
@@ -42,15 +56,30 @@
         <div class="page-block">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Detail Pegawai</h5>
-                    </div>
-
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('employees.index') }}">Data Pegawai</a></li>
                         <li class="breadcrumb-item" aria-current="page">Detail</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card page-intro-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h4 class="mb-1">Detail Pegawai</h4>
+                    <p class="mb-0 text-muted">Ringkasan biodata, unit kerja, status verifikasi, dan dokumen pegawai.</p>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">Kembali</a>
+                    <a href="{{ route('employees.edit', $employee) }}" class="btn btn-primary">
+                        <i class="ti ti-edit"></i>
+                        Edit
+                    </a>
                 </div>
             </div>
         </div>
@@ -63,7 +92,7 @@
                     <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
                     <h4 class="mb-1">{{ $employee->full_name }}</h4>
                     <p class="text-muted mb-2">{{ $employee->employee_number ?? 'Belum dibuat' }}</p>
-                    <span class="badge {{ $employee->employment_status === 'aktif' ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary' }}">
+                    <span class="badge {{ $employmentClasses[$employee->employment_status] ?? 'bg-light-secondary text-secondary' }}">
                         {{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}
                     </span>
                 </div>
@@ -147,7 +176,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Status Verifikasi</small>
-                            <span class="badge {{ $employee->verification_status === 'verified' ? 'bg-light-success text-success' : 'bg-light-warning text-warning' }}">
+                            <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
                                 {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
                             </span>
                         </div>
@@ -167,9 +196,9 @@
                 <div class="card-header">
                     <h5 class="mb-0">Dokumen Pegawai</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover table-borderless mb-0">
+                        <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>Jenis Dokumen</th>
@@ -187,35 +216,37 @@
                                         <td>{{ $document->original_name ?? '-' }}</td>
                                         <td>
                                             <span class="badge {{ $documentStatusClasses[$document->status] ?? 'bg-light-secondary text-secondary' }}">
-                                                {{ $document->status }}
+                                                {{ ['pending' => 'Menunggu', 'valid' => 'Valid', 'rejected' => 'Ditolak'][$document->status] ?? $document->status }}
                                             </span>
                                         </td>
                                         <td>{{ $document->uploaded_at?->format('d M Y H:i') ?? '-' }}</td>
                                         <td>{{ $document->note ?? '-' }}</td>
                                         <td class="text-end">
-                                            <a href="{{ asset('storage/'.$document->file_path) }}" target="_blank" class="btn btn-sm btn-light-primary">
-                                                <i class="ti ti-download"></i>
-                                                Lihat
-                                            </a>
+                                            <div class="table-actions">
+                                                <a href="{{ asset('storage/'.$document->file_path) }}" target="_blank" class="btn btn-sm btn-light-primary">
+                                                    <i class="ti ti-download"></i>
+                                                    Lihat
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">Belum ada dokumen.</td>
+                                        <td colspan="6">
+                                            <div class="empty-state">
+                                                <div class="avtar avtar-l bg-light-secondary text-secondary">
+                                                    <i class="ti ti-files-off f-28"></i>
+                                                </div>
+                                                <h5 class="mb-1">Belum ada dokumen.</h5>
+                                                <p class="text-muted mb-0">Dokumen akan tampil setelah pegawai menguploadnya.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-
-            <div class="d-flex gap-2">
-                <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">Kembali</a>
-                <a href="{{ route('employees.edit', $employee) }}" class="btn btn-primary">
-                    <i class="ti ti-edit"></i>
-                    Edit
-                </a>
             </div>
         </div>
     </div>

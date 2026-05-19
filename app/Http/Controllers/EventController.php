@@ -48,7 +48,19 @@ class EventController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('events.index', compact('events', 'search'));
+        $totalEvents = Event::query()->count();
+        $draftEvents = Event::query()->where('status', 'draft')->count();
+        $activeEvents = Event::query()->where('status', 'active')->count();
+        $closedEvents = Event::query()->where('status', 'closed')->count();
+
+        return view('events.index', compact(
+            'events',
+            'search',
+            'totalEvents',
+            'draftEvents',
+            'activeEvents',
+            'closedEvents'
+        ));
     }
 
     public function create(): View

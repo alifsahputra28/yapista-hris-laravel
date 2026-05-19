@@ -1,6 +1,6 @@
 @csrf
 
-<div class="row">
+<div class="row g-3">
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="institution_id" class="form-label">Unit Kerja</label>
@@ -28,6 +28,7 @@
                 name="name"
                 value="{{ old('name', $position->name) }}"
                 class="form-control @error('name') is-invalid @enderror"
+                placeholder="Contoh: Guru"
                 required
             >
 

@@ -30,7 +30,7 @@
         ];
         $verificationClasses = [
             'draft' => 'bg-light-secondary text-secondary',
-            'submitted' => 'bg-light-warning text-warning',
+            'submitted' => 'bg-light-primary text-primary',
             'verified' => 'bg-light-success text-success',
             'rejected' => 'bg-light-danger text-danger',
         ];
@@ -42,10 +42,6 @@
         <div class="page-block">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Profil Saya</h5>
-                    </div>
-
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('pegawai.dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item" aria-current="page">Profil Saya</li>
@@ -70,6 +66,30 @@
     @if ($employee->isVerified())
         <div class="alert alert-success">Data Anda sudah diverifikasi.</div>
     @endif
+
+    <div class="card page-intro-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h4 class="mb-1">Profil Saya</h4>
+                    <p class="mb-0 text-muted">Pantau biodata, status verifikasi, dan kelengkapan dokumen Anda.</p>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    @if ($employee->canEditProfile())
+                        <a href="{{ route('pegawai.profile.edit') }}" class="btn btn-primary">
+                            <i class="ti ti-edit"></i>
+                            Edit Biodata
+                        </a>
+                    @endif
+                    <a href="{{ route('pegawai.documents.index') }}" class="btn btn-light-primary">
+                        <i class="ti ti-files"></i>
+                        Dokumen Saya
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-lg-4">
@@ -176,28 +196,27 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-wrap gap-2">
-                @if ($employee->canEditProfile())
-                    <a href="{{ route('pegawai.profile.edit') }}" class="btn btn-primary">
-                        <i class="ti ti-edit"></i>
-                        Edit Biodata
-                    </a>
-                @endif
-
-                <a href="{{ route('pegawai.documents.index') }}" class="btn btn-light-primary">
-                    <i class="ti ti-files"></i>
-                    Dokumen Saya
-                </a>
-
-                @if ($employee->isDraft() || $employee->isRejected())
-                    <form method="POST" action="{{ route('pegawai.profile.submit') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-success">
-                            <i class="ti ti-send"></i>
-                            Ajukan Verifikasi
-                        </button>
-                    </form>
-                @endif
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Aksi Profil</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        @if ($employee->isDraft() || $employee->isRejected())
+                            <form method="POST" action="{{ route('pegawai.profile.submit') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-success">
+                                    <i class="ti ti-send"></i>
+                                    Ajukan Verifikasi
+                                </button>
+                            </form>
+                        @elseif ($employee->isSubmitted())
+                            <span class="text-muted">Data Anda sedang menunggu verifikasi HR.</span>
+                        @else
+                            <span class="text-muted">Data Anda sudah diverifikasi.</span>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

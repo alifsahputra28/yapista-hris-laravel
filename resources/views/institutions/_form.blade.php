@@ -1,6 +1,6 @@
 @csrf
 
-<div class="row">
+<div class="row g-3">
     <div class="col-md-6">
         <div class="form-group mb-3">
             <label for="name" class="form-label">Nama Unit Kerja</label>
@@ -10,6 +10,7 @@
                 name="name"
                 value="{{ old('name', $institution->name) }}"
                 class="form-control @error('name') is-invalid @enderror"
+                placeholder="Contoh: SMK Ibnu Sina"
                 required
             >
 
@@ -45,6 +46,7 @@
                 name="address"
                 rows="4"
                 class="form-control @error('address') is-invalid @enderror"
+                placeholder="Alamat lengkap unit kerja"
             >{{ old('address', $institution->address) }}</textarea>
 
             @error('address')
