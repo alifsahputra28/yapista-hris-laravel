@@ -69,6 +69,18 @@ class Event extends Model
             ->withTimestamps();
     }
 
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(EventAttendance::class);
+    }
+
+    public function attendedEmployees(): BelongsToMany
+    {
+        return $this->belongsToMany(Employee::class, 'event_attendances')
+            ->withPivot('attendance_status', 'scan_method', 'scanned_at', 'scanned_by')
+            ->withTimestamps();
+    }
+
     public function isDraft(): bool
     {
         return $this->status === 'draft';
@@ -97,6 +109,11 @@ class Event extends Model
     public function canGenerateParticipants(): bool
     {
         return $this->isDraft();
+    }
+
+    public function canScanAttendance(): bool
+    {
+        return $this->isActive();
     }
 
     public function getTargetTypeLabelAttribute(): string

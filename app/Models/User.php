@@ -76,4 +76,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Event::class, 'created_by');
     }
+
+    public function createdQrTokens(): HasMany
+    {
+        return $this->hasMany(EmployeeQrToken::class, 'created_by');
+    }
+
+    public function scannedAttendances(): HasMany
+    {
+        return $this->hasMany(EventAttendance::class, 'scanned_by');
+    }
 }

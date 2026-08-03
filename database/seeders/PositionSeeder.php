@@ -29,7 +29,7 @@ class PositionSeeder extends Seeder
                 ['name' => 'Wakil Kepala Sekolah', 'type' => 'struktural'],
                 ['name' => 'Guru', 'type' => 'fungsional'],
                 ['name' => 'Staff TU', 'type' => 'administratif'],
-                ['name' => 'Operator Sekolah', 'type' => 'teknis'],
+                ['name' => 'Operator Sekolah', 'type' => 'administratif'],
             ]);
         }
 

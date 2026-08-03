@@ -145,6 +145,18 @@
                     <div class="d-flex flex-wrap gap-2">
                         <a href="{{ route('events.index') }}" class="btn btn-light-secondary">Kembali</a>
 
+                        <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary">
+                            <i class="ti ti-list-check"></i>
+                            Daftar Hadir
+                        </a>
+
+                        @if ($event->canScanAttendance())
+                            <a href="{{ route('events.scanner', $event) }}" class="btn btn-success">
+                                <i class="ti ti-barcode"></i>
+                                Scan Barcode
+                            </a>
+                        @endif
+
                         @if ($event->canBeEdited())
                             <a href="{{ route('events.edit', $event) }}" class="btn btn-primary">
                                 <i class="ti ti-edit"></i>

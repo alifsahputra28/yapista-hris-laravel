@@ -6,6 +6,7 @@
         default => 'dashboard',
     };
     $isAdmin = $user?->isSuperAdmin() || $user?->isHrAdmin();
+    $isPanitia = $user?->isPanitia();
     $isPegawai = $user?->isPegawai();
 @endphp
 
@@ -86,6 +87,46 @@
                         <a href="{{ route('events.index') }}" class="pc-link">
                             <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
                             <span class="pc-mtext">Data Kegiatan</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item pc-caption">
+                        <label>Laporan</label>
+                        <i class="ti ti-file-report"></i>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('reports.employees') ? 'active' : '' }}">
+                        <a href="{{ route('reports.employees') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-users"></i></span>
+                            <span class="pc-mtext">Laporan Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('reports.events') || request()->routeIs('reports.events.attendances') ? 'active' : '' }}">
+                        <a href="{{ route('reports.events') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
+                            <span class="pc-mtext">Laporan Kegiatan</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('reports.events.attendances') ? 'active' : '' }}">
+                        <a href="{{ route('reports.events') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-file-report"></i></span>
+                            <span class="pc-mtext">Laporan Kehadiran</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($isPanitia)
+                    <li class="pc-item pc-caption">
+                        <label>Scanner</label>
+                        <i class="ti ti-barcode"></i>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('scanner.dashboard') || request()->routeIs('events.scanner') || request()->routeIs('events.attendances.*') ? 'active' : '' }}">
+                        <a href="{{ route('scanner.dashboard') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
+                            <span class="pc-mtext">Kegiatan Aktif</span>
                         </a>
                     </li>
                 @endif

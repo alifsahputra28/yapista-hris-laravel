@@ -178,9 +178,12 @@
                                 <td>{{ $document->note ?? '-' }}</td>
                                 <td class="text-end">
                                     <div class="table-actions">
-                                        <a href="{{ asset('storage/'.$document->file_path) }}" target="_blank" class="btn btn-sm btn-light-primary">
-                                            <i class="ti ti-download"></i>
+                                        <a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary">
+                                            <i class="ti ti-eye"></i>
                                             Lihat
+                                        </a>
+                                        <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" title="Download dokumen">
+                                            <i class="ti ti-download"></i>
                                         </a>
 
                                         @if ($employee->canEditProfile() && ! $document->isValid())

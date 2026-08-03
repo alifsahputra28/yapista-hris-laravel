@@ -111,6 +111,8 @@ class EventParticipantController extends Controller
             ->eligibleForEvents()
             ->with(['institution', 'position'])
             ->orderBy('full_name')
-            ->get();
+            ->get()
+            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
+            ->values();
     }
 }

@@ -143,16 +143,25 @@ class EmployeeController extends Controller
     {
         $emailRule = Rule::unique('employees', 'email');
         $nikRule = Rule::unique('employees', 'nik');
+        $employeeNumberRule = Rule::unique('employees', 'employee_number');
 
         if ($employee) {
             $emailRule->ignore($employee->id);
             $nikRule->ignore($employee->id);
+            $employeeNumberRule->ignore($employee->id);
         }
+
+        $employeeNumberRules = [
+            $employee?->isVerified() ? 'required' : 'nullable',
+            'digits:'.Employee::EMPLOYEE_NUMBER_LENGTH,
+            $employeeNumberRule,
+        ];
 
         $data = $request->validate([
             'full_name' => ['required', 'string', 'max:255'],
             'institution_id' => ['required', 'exists:institutions,id'],
             'position_id' => ['required', 'exists:positions,id'],
+            'employee_number' => $employeeNumberRules,
             'email' => ['nullable', 'email', $emailRule],
             'nik' => ['nullable', 'string', 'max:30', $nikRule],
             'gender' => ['nullable', 'in:male,female'],
@@ -163,8 +172,11 @@ class EmployeeController extends Controller
             'employee_type' => ['required', 'string', 'max:100'],
             'employment_status' => ['required', 'string', 'max:100'],
             'join_date' => ['nullable', 'date'],
-            'foundation_registry_number' => ['nullable', 'integer', 'min:1'],
             'photo' => ['nullable', 'image', 'max:2048'],
+        ], [
+            'employee_number.required' => 'NUP / Nomor Pegawai wajib diisi untuk pegawai yang sudah terverifikasi.',
+            'employee_number.digits' => 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.',
+            'employee_number.unique' => 'NUP / Nomor Pegawai sudah digunakan oleh pegawai lain.',
         ]);
 
         unset($data['photo']);

@@ -4,15 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\EmployeeDocument;
+use App\Services\EmployeeDocumentStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Throwable;
 
 class EmployeeDocumentController extends Controller
 {
+    public function __construct(private readonly EmployeeDocumentStorageService $storage) {}
+
     public function index(): RedirectResponse|View
     {
         $employee = $this->currentEmployee();
@@ -48,34 +53,51 @@ class EmployeeDocumentController extends Controller
         ]);
 
         $file = $request->file('file');
-        $path = $file->store('employees/documents', 'public');
-
         $document = $employee->documents()
             ->where('document_type', $validated['document_type'])
             ->first();
+        $oldPath = $document?->file_path;
 
-        if ($document?->file_path) {
-            Storage::disk('public')->delete($document->file_path);
+        try {
+            $path = $this->storage->store($file, $employee->id);
+
+            try {
+                DB::transaction(function () use ($employee, $file, $path, $validated): void {
+                    $employee->documents()->updateOrCreate(
+                        ['document_type' => $validated['document_type']],
+                        [
+                            'file_path' => $path,
+                            'original_name' => $file->getClientOriginalName(),
+                            'mime_type' => $file->getMimeType() ?: null,
+                            'file_size' => $file->getSize() ?: null,
+                            'status' => 'pending',
+                            'note' => null,
+                            'uploaded_at' => now(),
+                        ],
+                    );
+
+                    if ($employee->isRejected()) {
+                        $employee->update([
+                            'verification_status' => 'draft',
+                            'verification_note' => null,
+                        ]);
+                    }
+                });
+            } catch (Throwable $exception) {
+                $this->storage->deletePrivatePath($path);
+
+                throw $exception;
+            }
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect()
+                ->route('pegawai.documents.index')
+                ->with('error', 'Dokumen gagal disimpan. Silakan coba kembali.');
         }
 
-        $employee->documents()->updateOrCreate(
-            ['document_type' => $validated['document_type']],
-            [
-                'file_path' => $path,
-                'original_name' => $file->getClientOriginalName(),
-                'mime_type' => $file->getMimeType(),
-                'file_size' => $file->getSize(),
-                'status' => 'pending',
-                'note' => null,
-                'uploaded_at' => now(),
-            ],
-        );
-
-        if ($employee->isRejected()) {
-            $employee->update([
-                'verification_status' => 'draft',
-                'verification_note' => null,
-            ]);
+        if ($oldPath && $oldPath !== $path) {
+            $this->storage->deletePath($oldPath);
         }
 
         return redirect()
@@ -91,9 +113,7 @@ class EmployeeDocumentController extends Controller
             return $this->missingEmployeeRedirect();
         }
 
-        if ((int) $document->employee_id !== (int) $employee->id) {
-            abort(403);
-        }
+        Gate::authorize('delete', $document);
 
         if (! $employee->canEditProfile()) {
             return redirect()
@@ -107,8 +127,13 @@ class EmployeeDocumentController extends Controller
                 ->with('error', 'Dokumen valid tidak bisa dihapus.');
         }
 
-        Storage::disk('public')->delete($document->file_path);
-        $document->delete();
+        $path = $document->file_path;
+
+        DB::transaction(function () use ($document): void {
+            $document->delete();
+        });
+
+        $this->storage->deletePath($path);
 
         return redirect()
             ->route('pegawai.documents.index')

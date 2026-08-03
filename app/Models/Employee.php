@@ -14,12 +14,13 @@ class Employee extends Model
 {
     use HasFactory;
 
+    public const EMPLOYEE_NUMBER_LENGTH = 10;
+
     protected $fillable = [
         'user_id',
         'institution_id',
         'position_id',
         'employee_number',
-        'foundation_registry_number',
         'full_name',
         'email',
         'nik',
@@ -100,6 +101,24 @@ class Employee extends Model
         return $this->hasMany(EventParticipant::class);
     }
 
+    public function qrTokens(): HasMany
+    {
+        return $this->hasMany(EmployeeQrToken::class);
+    }
+
+    public function activeQrToken(): HasOne
+    {
+        return $this->hasOne(EmployeeQrToken::class)
+            ->where('is_active', true)
+            ->whereNull('revoked_at')
+            ->latestOfMany();
+    }
+
+    public function eventAttendances(): HasMany
+    {
+        return $this->hasMany(EventAttendance::class);
+    }
+
     public function events(): BelongsToMany
     {
         return $this->belongsToMany(Event::class, 'event_participants')
@@ -111,7 +130,6 @@ class Employee extends Model
     {
         return $query
             ->where('verification_status', 'verified')
-            ->whereNotNull('employee_number')
             ->whereNotIn('employment_status', ['nonaktif', 'resign']);
     }
 
@@ -138,6 +156,18 @@ class Employee extends Model
     public function isActiveEmployee(): bool
     {
         return $this->employment_status === 'aktif';
+    }
+
+    public function getFormattedEmployeeNumberAttribute(): string
+    {
+        return $this->employee_number ?: 'Belum diisi';
+    }
+
+    public function hasValidEmployeeNumber(): bool
+    {
+        return is_string($this->employee_number)
+            && strlen($this->employee_number) === self::EMPLOYEE_NUMBER_LENGTH
+            && ctype_digit($this->employee_number);
     }
 
     public function canEditProfile(): bool

@@ -93,7 +93,7 @@
             <form method="GET" action="{{ route('verifications.index') }}" class="row g-3">
                 <div class="col-lg-4">
                     <label for="search" class="form-label">Pencarian</label>
-                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, NIK, atau nomor">
+                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, NIK, atau NUP / nomor pegawai">
                 </div>
 
                 <div class="col-md-6 col-lg-2">
@@ -183,7 +183,7 @@
                                 <td class="ps-4">{{ $employees->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee->full_name }}</div>
-                                    <div class="data-meta">{{ $employee->employee_number ?? 'Belum dibuat' }}</div>
+                                    <div class="data-meta">NUP / Nomor Pegawai: {{ $employee->employee_number ?? 'Belum dibuat' }}</div>
                                 </td>
                                 <td>
                                     <div>{{ $employee->institution?->name ?? '-' }}</div>

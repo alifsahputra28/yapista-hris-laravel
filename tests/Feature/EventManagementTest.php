@@ -25,19 +25,19 @@ class EventManagementTest extends TestCase
 
         $eligibleA = $this->employee($institutionA, $positionA, [
             'full_name' => 'Ahmad Fauzi',
-            'employee_number' => '777.0526.0001',
+            'employee_number' => '7770923801',
         ]);
         $secondEligibleA = $this->employee($institutionA, $positionA, [
             'full_name' => 'Siti Aminah',
-            'employee_number' => '777.0526.0002',
+            'employee_number' => '7770923802',
         ]);
         $eligibleB = $this->employee($institutionB, $positionB, [
             'full_name' => 'Budi Santoso',
-            'employee_number' => '777.0526.0003',
+            'employee_number' => '7770923803',
         ]);
         $this->employee($institutionA, $positionA, [
             'full_name' => 'Belum Verified',
-            'employee_number' => '777.0526.0004',
+            'employee_number' => '7770923804',
             'verification_status' => 'submitted',
         ]);
         $this->employee($institutionA, $positionA, [
@@ -46,7 +46,7 @@ class EventManagementTest extends TestCase
         ]);
         $this->employee($institutionA, $positionA, [
             'full_name' => 'Pegawai Nonaktif',
-            'employee_number' => '777.0526.0005',
+            'employee_number' => '7770923805',
             'employment_status' => 'nonaktif',
         ]);
 
@@ -132,10 +132,10 @@ class EventManagementTest extends TestCase
         ]);
         [$institution, $position] = $this->institutionAndPosition('SMK Ibnu Sina', 'Guru');
         $first = $this->employee($institution, $position, [
-            'employee_number' => '777.0526.0101',
+            'employee_number' => '7770923901',
         ]);
         $second = $this->employee($institution, $position, [
-            'employee_number' => '777.0526.0102',
+            'employee_number' => '7770923902',
         ]);
         $event = Event::create([
             'name' => 'Workshop Guru',
@@ -209,7 +209,7 @@ class EventManagementTest extends TestCase
             'position_id' => $position->id,
             'full_name' => 'Pegawai '.uniqid(),
             'email' => uniqid('pegawai').'@yapista.test',
-            'employee_number' => '777.0526.'.str_pad((string) random_int(100, 999), 4, '0', STR_PAD_LEFT),
+            'employee_number' => '7770'.str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT),
             'employee_type' => 'guru',
             'employment_status' => 'aktif',
             'verification_status' => 'verified',

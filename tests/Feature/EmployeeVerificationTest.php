@@ -20,14 +20,14 @@ class EmployeeVerificationTest extends TestCase
             'role' => 'super_admin',
         ]);
         $existing = $this->employee([
-            'employee_number' => '777.0526.0001',
+            'employee_number' => '7770923800',
             'verification_status' => 'verified',
         ]);
         $employee = $this->employee([
             'full_name' => 'Siti Aminah',
             'email' => 'siti@yapista.test',
+            'employee_number' => '7770923823',
             'join_date' => '2026-05-10',
-            'foundation_registry_number' => 25,
             'verification_status' => 'submitted',
         ]);
         EmployeeDocument::create([
@@ -57,12 +57,12 @@ class EmployeeVerificationTest extends TestCase
         $employee->refresh();
 
         $this->assertSame('verified', $employee->verification_status);
-        $this->assertSame('777.0526.0025', $employee->employee_number);
+        $this->assertSame('7770923823', $employee->employee_number);
         $this->assertSame($admin->id, $employee->verified_by);
         $this->assertNotNull($employee->verified_at);
     }
 
-    public function test_admin_approval_replaces_old_employee_number_format_when_submitted(): void
+    public function test_admin_can_not_approve_old_employee_number_format_when_submitted(): void
     {
         $admin = User::factory()->create([
             'role' => 'super_admin',
@@ -70,7 +70,6 @@ class EmployeeVerificationTest extends TestCase
         $employee = $this->employee([
             'employee_number' => 'YAPISTA-2026-0005',
             'join_date' => '2026-05-10',
-            'foundation_registry_number' => 25,
             'verification_status' => 'submitted',
         ]);
         EmployeeDocument::create([
@@ -83,12 +82,13 @@ class EmployeeVerificationTest extends TestCase
 
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
-            ->assertRedirect(route('verifications.show', $employee, absolute: false));
+            ->assertRedirect(route('verifications.show', $employee, absolute: false))
+            ->assertSessionHas('error', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
 
         $employee->refresh();
 
-        $this->assertSame('verified', $employee->verification_status);
-        $this->assertSame('777.0526.0025', $employee->employee_number);
+        $this->assertSame('submitted', $employee->verification_status);
+        $this->assertSame('YAPISTA-2026-0005', $employee->employee_number);
     }
 
     public function test_admin_can_not_approve_without_valid_ktp(): void
@@ -116,13 +116,12 @@ class EmployeeVerificationTest extends TestCase
         $this->assertNull($employee->employee_number);
     }
 
-    public function test_admin_can_not_approve_without_foundation_registry_number(): void
+    public function test_admin_can_not_approve_without_employee_number(): void
     {
         $admin = User::factory()->create([
             'role' => 'hr_admin',
         ]);
         $employee = $this->employee([
-            'foundation_registry_number' => null,
             'verification_status' => 'submitted',
         ]);
         EmployeeDocument::create([
@@ -136,20 +135,20 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'Nomor urut buku yayasan belum diisi.');
+            ->assertSessionHas('error', 'NUP / Nomor Pegawai belum diisi.');
 
         $this->assertSame('submitted', $employee->refresh()->verification_status);
         $this->assertNull($employee->employee_number);
     }
 
-    public function test_admin_can_not_approve_without_join_date_or_foundation_registry_number(): void
+    public function test_admin_can_not_approve_with_invalid_employee_number_length(): void
     {
         $admin = User::factory()->create([
             'role' => 'hr_admin',
         ]);
         $employee = $this->employee([
+            'employee_number' => '777',
             'join_date' => null,
-            'foundation_registry_number' => null,
             'verification_status' => 'submitted',
         ]);
         EmployeeDocument::create([
@@ -163,24 +162,20 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'Tanggal masuk pegawai belum diisi.');
+            ->assertSessionHas('error', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
 
         $this->assertSame('submitted', $employee->refresh()->verification_status);
-        $this->assertNull($employee->employee_number);
+        $this->assertSame('777', $employee->employee_number);
     }
 
-    public function test_admin_can_not_approve_when_generated_employee_number_already_exists(): void
+    public function test_admin_can_approve_without_join_date_when_employee_number_is_valid(): void
     {
         $admin = User::factory()->create([
             'role' => 'super_admin',
         ]);
-        $this->employee([
-            'employee_number' => '777.0526.0025',
-            'verification_status' => 'verified',
-        ]);
         $employee = $this->employee([
-            'join_date' => '2026-05-10',
-            'foundation_registry_number' => 25,
+            'employee_number' => '7770923899',
+            'join_date' => null,
             'verification_status' => 'submitted',
         ]);
         EmployeeDocument::create([
@@ -193,11 +188,10 @@ class EmployeeVerificationTest extends TestCase
 
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
-            ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'Nomor pegawai sudah digunakan. Periksa kembali nomor urut buku yayasan.');
+            ->assertRedirect(route('verifications.show', $employee, absolute: false));
 
-        $this->assertSame('submitted', $employee->refresh()->verification_status);
-        $this->assertNull($employee->employee_number);
+        $this->assertSame('verified', $employee->refresh()->verification_status);
+        $this->assertSame('7770923899', $employee->employee_number);
     }
 
     public function test_admin_can_reject_submitted_employee_with_note(): void
@@ -301,7 +295,6 @@ class EmployeeVerificationTest extends TestCase
             'employee_type' => 'guru',
             'employment_status' => 'aktif',
             'join_date' => '2026-05-10',
-            'foundation_registry_number' => random_int(1, 9999),
             'verification_status' => 'submitted',
         ], $overrides));
     }

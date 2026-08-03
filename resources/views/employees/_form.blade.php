@@ -164,18 +164,26 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="foundation_registry_number" class="form-label">Nomor Urut Buku Yayasan</label>
+            <label for="employee_number" class="form-label">NUP / Nomor Pegawai</label>
             <input
-                id="foundation_registry_number"
-                type="number"
-                name="foundation_registry_number"
-                value="{{ old('foundation_registry_number', $employee->foundation_registry_number) }}"
-                min="1"
-                placeholder="25"
-                class="form-control @error('foundation_registry_number') is-invalid @enderror"
+                id="employee_number"
+                type="text"
+                name="employee_number"
+                value="{{ old('employee_number', $employee->employee_number) }}"
+                maxlength="10"
+                inputmode="numeric"
+                autocomplete="off"
+                pattern="\d{10}"
+                placeholder="Contoh: 7770923822"
+                class="form-control @error('employee_number') is-invalid @enderror"
             >
+            <small class="text-muted">
+                {{ $employee->isVerified()
+                    ? 'NUP wajib dipertahankan untuk pegawai yang sudah terverifikasi.'
+                    : 'Isi 10 digit angka yang sama dengan barcode pada ID Card.' }}
+            </small>
 
-            @error('foundation_registry_number')
+            @error('employee_number')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

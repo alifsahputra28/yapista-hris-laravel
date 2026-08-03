@@ -98,7 +98,7 @@
                 <div class="card-body text-center">
                     <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
                     <h4 class="mb-1">{{ $employee->full_name }}</h4>
-                    <p class="text-muted mb-2">{{ $employee->employee_number ?? 'Belum dibuat' }}</p>
+                    <p class="text-muted mb-2">NUP / Nomor Pegawai: {{ $employee->formatted_employee_number }}</p>
                     <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
                         {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
                     </span>
@@ -135,8 +135,7 @@
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Pegawai</small>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Status Kepegawaian</small>{{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Tanggal Masuk</small>{{ $employee->join_date?->format('d M Y') ?? '-' }}</div>
-                        <div class="col-md-6 mb-3"><small class="text-muted d-block">Nomor Urut Buku Yayasan</small>{{ $employee->foundation_registry_number ?? '-' }}</div>
-                        <div class="col-md-6 mb-3"><small class="text-muted d-block">Nomor Pegawai</small>{{ $employee->employee_number ?? 'Belum dibuat' }}</div>
+                        <div class="col-md-6 mb-3"><small class="text-muted d-block">NUP / Nomor Pegawai</small>{{ $employee->formatted_employee_number }}</div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Status Verifikasi</small>
                             <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
@@ -184,9 +183,12 @@
                                 <td>{{ $document->uploaded_at?->format('d M Y H:i') ?? '-' }}</td>
                                 <td>
                                     <div class="table-actions mb-2">
-                                        <a href="{{ asset('storage/'.$document->file_path) }}" target="_blank" class="btn btn-sm btn-light-primary">
-                                            <i class="ti ti-download"></i>
+                                        <a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary">
+                                            <i class="ti ti-eye"></i>
                                             Lihat
+                                        </a>
+                                        <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" title="Download dokumen">
+                                            <i class="ti ti-download"></i>
                                         </a>
                                     </div>
 

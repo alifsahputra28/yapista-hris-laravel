@@ -107,33 +107,26 @@ class EmployeeVerificationController extends Controller
                 ->with('error', 'Dokumen KTP harus berstatus valid sebelum pegawai diverifikasi.');
         }
 
-        if (empty($employee->join_date)) {
-            return redirect()
-                ->route('verifications.show', $employee)
-                ->with('error', 'Tanggal masuk pegawai belum diisi.');
-        }
-
-        if (empty($employee->foundation_registry_number)) {
-            return redirect()
-                ->route('verifications.show', $employee)
-                ->with('error', 'Nomor urut buku yayasan belum diisi.');
-        }
-
         $errorMessage = DB::transaction(function () use ($employee): ?string {
             $employee = Employee::query()
                 ->whereKey($employee->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $employeeNumber = $this->generateEmployeeNumber($employee);
-
-            if (Employee::where('employee_number', $employeeNumber)
-                ->whereKeyNot($employee->id)
-                ->exists()) {
-                return 'Nomor pegawai sudah digunakan. Periksa kembali nomor urut buku yayasan.';
+            if (blank($employee->employee_number)) {
+                return 'NUP / Nomor Pegawai belum diisi.';
             }
 
-            $employee->employee_number = $employeeNumber;
+            if (! $employee->hasValidEmployeeNumber()) {
+                return 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.';
+            }
+
+            if (Employee::where('employee_number', $employee->employee_number)
+                ->whereKeyNot($employee->id)
+                ->exists()) {
+                return 'NUP / Nomor Pegawai sudah digunakan.';
+            }
+
             $employee->verification_status = 'verified';
             $employee->verification_note = null;
             $employee->verified_by = Auth::id();
@@ -205,13 +198,5 @@ class EmployeeVerificationController extends Controller
         return redirect()
             ->route('verifications.show', $document->employee)
             ->with('success', 'Status dokumen berhasil diperbarui.');
-    }
-
-    private function generateEmployeeNumber(Employee $employee): string
-    {
-        return '777.'
-            .$employee->join_date->format('my')
-            .'.'
-            .str_pad((string) $employee->foundation_registry_number, 4, '0', STR_PAD_LEFT);
     }
 }

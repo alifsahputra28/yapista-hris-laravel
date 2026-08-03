@@ -19,6 +19,7 @@ class EmployeeProfileDocumentTest extends TestCase
     public function test_employee_can_update_profile_photo_upload_replace_delete_document_and_submit(): void
     {
         Storage::fake('public');
+        Storage::fake('private');
 
         [$user, $employee] = $this->employeeUser();
 
@@ -39,7 +40,7 @@ class EmployeeProfileDocumentTest extends TestCase
                 'institution_id' => 999,
                 'verification_status' => 'verified',
                 'photo' => UploadedFile::fake()->image('profile.jpg'),
-                'foundation_registry_number' => 999,
+                'employee_number' => '7770923999',
             ])
             ->assertRedirect(route('pegawai.profile.show', absolute: false));
 
@@ -47,7 +48,7 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->assertSame('Ahmad Fauzi Update', $employee->full_name);
         $this->assertSame('draft', $employee->verification_status);
         $this->assertNotSame(999, $employee->institution_id);
-        $this->assertNull($employee->foundation_registry_number);
+        $this->assertNull($employee->employee_number);
         $this->assertNotNull($employee->photo);
         Storage::disk('public')->assertExists($employee->photo);
 
@@ -66,7 +67,8 @@ class EmployeeProfileDocumentTest extends TestCase
 
         $document = EmployeeDocument::where('employee_id', $employee->id)->where('document_type', 'ktp')->firstOrFail();
         $firstPath = $document->file_path;
-        Storage::disk('public')->assertExists($firstPath);
+        Storage::disk('private')->assertExists($firstPath);
+        Storage::disk('public')->assertMissing($firstPath);
 
         $this->actingAs($user)
             ->post('/pegawai/documents', [
@@ -78,15 +80,16 @@ class EmployeeProfileDocumentTest extends TestCase
         $document->refresh();
         $this->assertSame(1, EmployeeDocument::where('employee_id', $employee->id)->where('document_type', 'ktp')->count());
         $this->assertNotSame($firstPath, $document->file_path);
-        Storage::disk('public')->assertMissing($firstPath);
-        Storage::disk('public')->assertExists($document->file_path);
+        Storage::disk('private')->assertMissing($firstPath);
+        Storage::disk('private')->assertExists($document->file_path);
+        Storage::disk('public')->assertMissing($document->file_path);
 
         $this->actingAs($user)
             ->delete("/pegawai/documents/{$document->id}")
             ->assertRedirect(route('pegawai.documents.index', absolute: false));
 
         $this->assertDatabaseMissing('employee_documents', ['id' => $document->id]);
-        Storage::disk('public')->assertMissing($document->file_path);
+        Storage::disk('private')->assertMissing($document->file_path);
 
         $this->actingAs($user)
             ->post('/pegawai/documents', [
@@ -106,6 +109,7 @@ class EmployeeProfileDocumentTest extends TestCase
     public function test_employee_can_not_edit_or_upload_documents_after_submission(): void
     {
         Storage::fake('public');
+        Storage::fake('private');
 
         [$user, $employee] = $this->employeeUser([
             'verification_status' => 'submitted',
@@ -143,6 +147,7 @@ class EmployeeProfileDocumentTest extends TestCase
     public function test_employee_can_not_delete_another_employee_document(): void
     {
         Storage::fake('public');
+        Storage::fake('private');
 
         [$user] = $this->employeeUser();
         [, $otherEmployee] = $this->employeeUser(email: 'other@yapista.test');

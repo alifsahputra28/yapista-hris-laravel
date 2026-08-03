@@ -97,7 +97,7 @@
                 <div class="card-body text-center">
                     <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
                     <h4 class="mb-1">{{ $employee->full_name }}</h4>
-                    <p class="text-muted mb-2">{{ $employee->employee_number ?? 'Belum dibuat' }}</p>
+                    <p class="text-muted mb-2">NUP / Nomor Pegawai: {{ $employee->formatted_employee_number }}</p>
                     <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
                         {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
                     </span>
@@ -185,12 +185,8 @@
                             {{ $employee->join_date?->format('d M Y') ?? '-' }}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Nomor Urut Buku Yayasan</small>
-                            {{ $employee->foundation_registry_number ?? '-' }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Nomor Pegawai</small>
-                            {{ $employee->employee_number ?? 'Belum dibuat' }}
+                            <small class="text-muted d-block">NUP / Nomor Pegawai</small>
+                            {{ $employee->formatted_employee_number }}
                         </div>
                     </div>
                 </div>

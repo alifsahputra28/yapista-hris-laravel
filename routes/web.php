@@ -1,15 +1,20 @@
 <?php
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeDocumentAccessController;
 use App\Http\Controllers\EmployeeDocumentController;
+use App\Http\Controllers\EmployeeIdCardController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeVerificationController;
+use App\Http\Controllers\EventAttendanceController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventParticipantController;
 use App\Http\Controllers\InstitutionController;
+use App\Http\Controllers\PegawaiIdCardController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,6 +37,8 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::resource('institutions', InstitutionController::class)->except(['show']);
     Route::resource('positions', PositionController::class)->except(['show']);
     Route::resource('employees', EmployeeController::class);
+    Route::get('/employees/{employee}/id-card', [EmployeeIdCardController::class, 'show'])->name('employees.id-card.show');
+    Route::get('/employees/{employee}/id-card/download', [EmployeeIdCardController::class, 'download'])->name('employees.id-card.download');
     Route::get('/invitations', [EmployeeInvitationController::class, 'index'])->name('invitations.index');
     Route::post('/employees/{employee}/invitations/generate', [EmployeeInvitationController::class, 'generate'])->name('employees.invitations.generate');
     Route::patch('/invitations/{invitation}/revoke', [EmployeeInvitationController::class, 'revoke'])->name('invitations.revoke');
@@ -53,6 +60,35 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::delete('/event-participants/{participant}', [EventParticipantController::class, 'destroy'])->name('event-participants.destroy');
 });
 
+Route::middleware(['auth', 'role:super_admin,hr_admin,panitia'])->group(function () {
+    Route::get('/events/{event}/attendances', [EventAttendanceController::class, 'index'])->name('events.attendances.index');
+    Route::get('/events/{event}/scanner', [EventAttendanceController::class, 'scanner'])->name('events.scanner');
+    Route::post('/events/{event}/scan', [EventAttendanceController::class, 'scan'])->name('events.scan');
+    Route::post('/events/{event}/attendances/manual', [EventAttendanceController::class, 'manual'])->name('events.attendances.manual');
+});
+
+Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
+    Route::delete('/event-attendances/{attendance}', [EventAttendanceController::class, 'destroy'])->name('event-attendances.destroy');
+});
+
+Route::middleware(['auth', 'role:super_admin,hr_admin'])->prefix('reports')->name('reports.')->group(function () {
+    Route::get('/employees', [ReportController::class, 'employees'])->name('employees');
+    Route::get('/employees/export', [ReportController::class, 'exportEmployees'])->name('employees.export');
+
+    Route::get('/events', [ReportController::class, 'events'])->name('events');
+    Route::get('/events/export', [ReportController::class, 'exportEvents'])->name('events.export');
+
+    Route::get('/events/{event}/attendances', [ReportController::class, 'eventAttendances'])->name('events.attendances');
+    Route::get('/events/{event}/attendances/export', [ReportController::class, 'exportEventAttendances'])->name('events.attendances.export');
+});
+
+Route::middleware(['auth', 'role:super_admin,hr_admin,pegawai'])->group(function () {
+    Route::get('/employee-documents/{employeeDocument}/view', [EmployeeDocumentAccessController::class, 'view'])
+        ->name('employee-documents.view');
+    Route::get('/employee-documents/{employeeDocument}/download', [EmployeeDocumentAccessController::class, 'download'])
+        ->name('employee-documents.download');
+});
+
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
     Route::get('/profile', [EmployeeProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [EmployeeProfileController::class, 'edit'])->name('profile.edit');
@@ -62,6 +98,9 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
     Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
     Route::delete('/documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+
+    Route::get('/id-card', [PegawaiIdCardController::class, 'show'])->name('id-card.show');
+    Route::get('/id-card/download', [PegawaiIdCardController::class, 'download'])->name('id-card.download');
 });
 
 Route::middleware('auth')->group(function () {

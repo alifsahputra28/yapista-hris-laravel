@@ -76,6 +76,10 @@
 
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">Kembali</a>
+                    <a href="{{ route('employees.id-card.show', $employee) }}" class="btn btn-light-primary">
+                        <i class="ti ti-id"></i>
+                        Lihat ID Card
+                    </a>
                     <a href="{{ route('employees.edit', $employee) }}" class="btn btn-primary">
                         <i class="ti ti-edit"></i>
                         Edit
@@ -91,7 +95,7 @@
                 <div class="card-body text-center">
                     <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
                     <h4 class="mb-1">{{ $employee->full_name }}</h4>
-                    <p class="text-muted mb-2">{{ $employee->employee_number ?? 'Belum dibuat' }}</p>
+                    <p class="text-muted mb-2">NUP / Nomor Pegawai: {{ $employee->formatted_employee_number }}</p>
                     <span class="badge {{ $employmentClasses[$employee->employment_status] ?? 'bg-light-secondary text-secondary' }}">
                         {{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}
                     </span>
@@ -131,8 +135,8 @@
                             {{ $employee->join_date?->format('d M Y') ?? '-' }}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Nomor Urut Buku Yayasan</small>
-                            {{ $employee->foundation_registry_number ?? '-' }}
+                            <small class="text-muted d-block">NUP / Nomor Pegawai</small>
+                            {{ $employee->formatted_employee_number }}
                         </div>
                     </div>
                 </div>
@@ -223,9 +227,12 @@
                                         <td>{{ $document->note ?? '-' }}</td>
                                         <td class="text-end">
                                             <div class="table-actions">
-                                                <a href="{{ asset('storage/'.$document->file_path) }}" target="_blank" class="btn btn-sm btn-light-primary">
-                                                    <i class="ti ti-download"></i>
+                                                <a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary">
+                                                    <i class="ti ti-eye"></i>
                                                     Lihat
+                                                </a>
+                                                <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" title="Download dokumen">
+                                                    <i class="ti ti-download"></i>
                                                 </a>
                                             </div>
                                         </td>

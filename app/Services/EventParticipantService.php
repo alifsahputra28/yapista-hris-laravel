@@ -30,8 +30,9 @@ class EventParticipantService
         $eligibleIds = Employee::query()
             ->eligibleForEvents()
             ->whereIn('id', $employeeIds)
-            ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
+            ->get(['id', 'employee_number'])
+            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
+            ->map(fn (Employee $employee): int => $employee->id)
             ->unique()
             ->values();
 
@@ -77,8 +78,9 @@ class EventParticipantService
         }
 
         return $query
-            ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
+            ->get(['id', 'employee_number'])
+            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
+            ->map(fn (Employee $employee): int => $employee->id)
             ->unique()
             ->values();
     }

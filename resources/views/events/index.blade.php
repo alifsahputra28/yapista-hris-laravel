@@ -46,7 +46,7 @@
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                 <div>
                     <h4 class="mb-1">Kegiatan Yayasan</h4>
-                    <p class="mb-0 text-muted">Kelola kegiatan, target peserta, dan status kegiatan sebelum absensi QR digunakan.</p>
+                    <p class="mb-0 text-muted">Kelola kegiatan, target peserta, dan status kegiatan sebelum absensi barcode digunakan.</p>
                 </div>
 
                 <a href="{{ route('events.create') }}" class="btn btn-primary">
@@ -191,6 +191,18 @@
                                                 Aksi
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
+                                                <a href="{{ route('events.attendances.index', $event) }}" class="dropdown-item">
+                                                    <i class="ti ti-list-check"></i>
+                                                    Daftar Hadir
+                                                </a>
+
+                                                @if ($event->canScanAttendance())
+                                                    <a href="{{ route('events.scanner', $event) }}" class="dropdown-item">
+                                                        <i class="ti ti-barcode"></i>
+                                                        Scan Barcode
+                                                    </a>
+                                                @endif
+
                                                 @if ($event->canBeEdited())
                                                     <a href="{{ route('events.edit', $event) }}" class="dropdown-item">
                                                         <i class="ti ti-edit"></i>
@@ -199,6 +211,7 @@
                                                 @endif
 
                                                 @if ($event->isDraft() || $event->isCancelled())
+                                                    <div class="dropdown-divider"></div>
                                                     <form action="{{ route('events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus kegiatan ini?')">
                                                         @csrf
                                                         @method('DELETE')
@@ -207,8 +220,6 @@
                                                             Hapus
                                                         </button>
                                                     </form>
-                                                @else
-                                                    <span class="dropdown-item text-muted">Tidak ada aksi tambahan</span>
                                                 @endif
                                             </div>
                                         </div>

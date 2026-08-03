@@ -34,12 +34,6 @@
             ['label' => 'Menunggu Verifikasi', 'value' => $submittedEmployees, 'icon' => 'ti-clock-check', 'class' => 'bg-light-warning text-warning'],
             ['label' => 'Sudah Registrasi', 'value' => $registeredEmployees, 'icon' => 'ti-user-shield', 'class' => 'bg-light-info text-info'],
         ];
-        $idCardRouteNames = [
-            'employees.id-card.preview',
-            'employees.id-card.show',
-            'employees.id-card',
-            'id-cards.show',
-        ];
     @endphp
 
     <div class="page-header">
@@ -213,16 +207,9 @@
                                     'label' => $employee->verification_status ?? '-',
                                     'class' => 'bg-light-secondary text-secondary',
                                 ];
-                                $idCardRoute = null;
-
-                                if ($employee->isVerified()) {
-                                    foreach ($idCardRouteNames as $routeName) {
-                                        if (Route::has($routeName)) {
-                                            $idCardRoute = route($routeName, $employee);
-                                            break;
-                                        }
-                                    }
-                                }
+                                $idCardRoute = Route::has('employees.id-card.show')
+                                    ? route('employees.id-card.show', $employee)
+                                    : null;
                             @endphp
 
                             <tr>
@@ -231,15 +218,11 @@
                                     <div class="fw-semibold">{{ $employee->full_name }}</div>
                                     <div class="small mt-1">
                                         @if ($employee->employee_number)
-                                            <span class="text-muted">{{ $employee->employee_number }}</span>
+                                            <span class="text-muted">NUP / Nomor Pegawai: {{ $employee->employee_number }}</span>
                                         @else
-                                            <span class="badge bg-light-secondary text-secondary">Belum dibuat</span>
+                                            <span class="badge bg-light-secondary text-secondary">Belum diisi</span>
                                         @endif
                                     </div>
-
-                                    @if ($employee->foundation_registry_number)
-                                        <div class="small text-muted">No. Buku: {{ $employee->foundation_registry_number }}</div>
-                                    @endif
                                 </td>
                                 <td>
                                     <div class="fw-medium">{{ $employee->institution?->name ?? '-' }}</div>
