@@ -24,11 +24,28 @@ class Employee extends Model
         'full_name',
         'email',
         'nik',
+        'family_card_number',
         'gender',
         'birth_place',
         'birth_date',
+        'religion',
+        'marital_status',
+        'nationality',
+        'blood_type',
         'phone',
+        'whatsapp_number',
+        'identity_address',
+        'domicile_same_as_identity',
         'address',
+        'domicile_province',
+        'domicile_city',
+        'domicile_district',
+        'domicile_village',
+        'domicile_postal_code',
+        'emergency_contact_name',
+        'emergency_contact_relationship',
+        'emergency_contact_phone',
+        'emergency_contact_address',
         'employee_type',
         'employment_status',
         'join_date',
@@ -48,6 +65,8 @@ class Employee extends Model
     {
         return [
             'birth_date' => 'date',
+            'family_card_number' => 'encrypted',
+            'domicile_same_as_identity' => 'boolean',
             'join_date' => 'date',
             'verified_at' => 'datetime',
         ];
@@ -88,6 +107,13 @@ class Employee extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(EmployeeDocument::class);
+    }
+
+    public function familyMembers(): HasMany
+    {
+        return $this->hasMany(EmployeeFamilyMember::class)
+            ->orderBy('relationship')
+            ->orderBy('full_name');
     }
 
     public function ktpDocument(): HasOne

@@ -3,6 +3,7 @@
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentAccessController;
 use App\Http\Controllers\EmployeeDocumentController;
+use App\Http\Controllers\EmployeeFamilyMemberController;
 use App\Http\Controllers\EmployeeIdCardController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
@@ -94,6 +95,11 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
     Route::get('/profile/edit', [EmployeeProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [EmployeeProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/submit', [EmployeeProfileController::class, 'submit'])->name('profile.submit');
+    Route::get('/profile/family-members/create', [EmployeeFamilyMemberController::class, 'create'])->name('profile.family-members.create');
+    Route::post('/profile/family-members', [EmployeeFamilyMemberController::class, 'store'])->name('profile.family-members.store');
+    Route::get('/profile/family-members/{familyMember}/edit', [EmployeeFamilyMemberController::class, 'edit'])->name('profile.family-members.edit');
+    Route::put('/profile/family-members/{familyMember}', [EmployeeFamilyMemberController::class, 'update'])->name('profile.family-members.update');
+    Route::delete('/profile/family-members/{familyMember}', [EmployeeFamilyMemberController::class, 'destroy'])->name('profile.family-members.destroy');
 
     Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
