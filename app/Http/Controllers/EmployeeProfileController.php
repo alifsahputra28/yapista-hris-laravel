@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateEmployeeProfileRequest;
 use App\Models\Employee;
+use App\Services\EmployeeProfileProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,7 @@ use Illuminate\View\View;
 
 class EmployeeProfileController extends Controller
 {
-    public function show(): RedirectResponse|View
+    public function show(EmployeeProfileProgressService $progressService): RedirectResponse|View
     {
         $employee = $this->currentEmployee();
 
@@ -19,9 +20,11 @@ class EmployeeProfileController extends Controller
             return $this->missingEmployeeRedirect();
         }
 
-        $employee->load(['user', 'institution', 'position', 'documents', 'familyMembers']);
+        $employee->load(['user', 'institution', 'position', 'documents', 'familyMembers', 'educations', 'certifications', 'administrativeDetail']);
 
-        return view('pegawai.profile.show', compact('employee'));
+        $profileProgress = $progressService->calculate($employee);
+
+        return view('pegawai.profile.show', compact('employee', 'profileProgress'));
     }
 
     public function edit(): RedirectResponse|View

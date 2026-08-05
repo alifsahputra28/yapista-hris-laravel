@@ -36,7 +36,7 @@ class EmployeeFamilyMemberController extends Controller
         $employee->familyMembers()->create($request->validated());
 
         return redirect()
-            ->route('pegawai.profile.show')
+            ->route('pegawai.profile.wizard.show', 'family')
             ->with('success', 'Data anggota keluarga berhasil ditambahkan.');
     }
 
@@ -66,7 +66,7 @@ class EmployeeFamilyMemberController extends Controller
         $familyMember->update($request->validated());
 
         return redirect()
-            ->route('pegawai.profile.show')
+            ->route('pegawai.profile.wizard.show', 'family')
             ->with('success', 'Data anggota keluarga berhasil diperbarui.');
     }
 
@@ -82,7 +82,7 @@ class EmployeeFamilyMemberController extends Controller
         $familyMember->delete();
 
         return redirect()
-            ->route('pegawai.profile.show')
+            ->route('pegawai.profile.wizard.show', 'family')
             ->with('success', 'Data anggota keluarga berhasil dihapus.');
     }
 

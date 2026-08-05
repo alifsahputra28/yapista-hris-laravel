@@ -116,6 +116,33 @@ class Employee extends Model
             ->orderBy('full_name');
     }
 
+    public function educations(): HasMany
+    {
+        return $this->hasMany(EmployeeEducation::class)
+            ->orderByDesc('is_highest')
+            ->orderByDesc('graduation_year')
+            ->latest();
+    }
+
+    public function highestEducation(): HasOne
+    {
+        return $this->hasOne(EmployeeEducation::class)
+            ->where('is_highest', true);
+    }
+
+    public function certifications(): HasMany
+    {
+        return $this->hasMany(EmployeeCertification::class)
+            ->orderByDesc('is_active')
+            ->orderByDesc('issued_at')
+            ->orderBy('name');
+    }
+
+    public function administrativeDetail(): HasOne
+    {
+        return $this->hasOne(EmployeeAdministrativeDetail::class);
+    }
+
     public function ktpDocument(): HasOne
     {
         return $this->hasOne(EmployeeDocument::class)

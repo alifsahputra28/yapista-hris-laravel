@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeAdministrativeDetailController;
+use App\Http\Controllers\EmployeeCertificationController;
 use App\Http\Controllers\EmployeeDocumentAccessController;
 use App\Http\Controllers\EmployeeDocumentController;
+use App\Http\Controllers\EmployeeEducationController;
 use App\Http\Controllers\EmployeeFamilyMemberController;
 use App\Http\Controllers\EmployeeIdCardController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
+use App\Http\Controllers\EmployeeProfileWizardController;
 use App\Http\Controllers\EmployeeVerificationController;
 use App\Http\Controllers\EventAttendanceController;
 use App\Http\Controllers\EventController;
@@ -100,6 +104,23 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
     Route::get('/profile/family-members/{familyMember}/edit', [EmployeeFamilyMemberController::class, 'edit'])->name('profile.family-members.edit');
     Route::put('/profile/family-members/{familyMember}', [EmployeeFamilyMemberController::class, 'update'])->name('profile.family-members.update');
     Route::delete('/profile/family-members/{familyMember}', [EmployeeFamilyMemberController::class, 'destroy'])->name('profile.family-members.destroy');
+    Route::get('/profile/educations/create', [EmployeeEducationController::class, 'create'])->name('profile.educations.create');
+    Route::post('/profile/educations', [EmployeeEducationController::class, 'store'])->name('profile.educations.store');
+    Route::get('/profile/educations/{education}/edit', [EmployeeEducationController::class, 'edit'])->name('profile.educations.edit');
+    Route::put('/profile/educations/{education}', [EmployeeEducationController::class, 'update'])->name('profile.educations.update');
+    Route::delete('/profile/educations/{education}', [EmployeeEducationController::class, 'destroy'])->name('profile.educations.destroy');
+    Route::get('/profile/certifications/create', [EmployeeCertificationController::class, 'create'])->name('profile.certifications.create');
+    Route::post('/profile/certifications', [EmployeeCertificationController::class, 'store'])->name('profile.certifications.store');
+    Route::get('/profile/certifications/{certification}/edit', [EmployeeCertificationController::class, 'edit'])->name('profile.certifications.edit');
+    Route::put('/profile/certifications/{certification}', [EmployeeCertificationController::class, 'update'])->name('profile.certifications.update');
+    Route::delete('/profile/certifications/{certification}', [EmployeeCertificationController::class, 'destroy'])->name('profile.certifications.destroy');
+    Route::get('/profile/administrative-details/edit', [EmployeeAdministrativeDetailController::class, 'edit'])->name('profile.administrative-details.edit');
+    Route::match(['put', 'patch'], '/profile/administrative-details', [EmployeeAdministrativeDetailController::class, 'update'])->name('profile.administrative-details.update');
+    Route::get('/profile/complete', [EmployeeProfileWizardController::class, 'index'])->name('profile.wizard.index');
+    Route::match(['put', 'patch'], '/profile/complete/identification', [EmployeeProfileWizardController::class, 'updateIdentification'])->name('profile.wizard.identification.update');
+    Route::match(['put', 'patch'], '/profile/complete/contact-address', [EmployeeProfileWizardController::class, 'updateContactAddress'])->name('profile.wizard.contact-address.update');
+    Route::match(['put', 'patch'], '/profile/complete/family', [EmployeeProfileWizardController::class, 'updateEmergencyContact'])->name('profile.wizard.family.update');
+    Route::get('/profile/complete/{step}', [EmployeeProfileWizardController::class, 'show'])->name('profile.wizard.show');
 
     Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');

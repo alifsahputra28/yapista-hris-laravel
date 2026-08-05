@@ -71,5 +71,5 @@
 
 <div class="d-flex flex-wrap gap-2 mt-4">
     <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy"></i> Simpan</button>
-    <a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary">Batal</a>
+    <a href="{{ route('pegawai.profile.wizard.show', 'family') }}" class="btn btn-light-secondary">Batal</a>
 </div>

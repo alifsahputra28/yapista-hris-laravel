@@ -102,7 +102,7 @@ class EmployeeFamilyProfileTest extends TestCase
                     'employee_number' => '7770925999',
                     'verification_status' => 'verified',
                 ])
-                ->assertRedirect(route('pegawai.profile.show', absolute: false));
+                ->assertRedirect(route('pegawai.profile.wizard.show', 'family', absolute: false));
 
             $member = $employee->familyMembers()->firstOrFail();
             $this->assertSame($employee->id, $member->employee_id);
@@ -178,7 +178,7 @@ class EmployeeFamilyProfileTest extends TestCase
                 'relationship' => 'father',
                 'is_dependent' => false,
             ])
-            ->assertRedirect(route('pegawai.profile.show', absolute: false));
+            ->assertRedirect(route('pegawai.profile.wizard.show', 'family', absolute: false));
 
         $this->assertSame('Nama Diperbarui', $member->refresh()->full_name);
         $this->assertSame('father', $member->relationship);
@@ -186,7 +186,7 @@ class EmployeeFamilyProfileTest extends TestCase
 
         $this->actingAs($user)
             ->delete(route('pegawai.profile.family-members.destroy', $member, absolute: false))
-            ->assertRedirect(route('pegawai.profile.show', absolute: false));
+            ->assertRedirect(route('pegawai.profile.wizard.show', 'family', absolute: false));
 
         $this->assertDatabaseMissing('employee_family_members', ['id' => $member->id]);
     }
