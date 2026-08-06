@@ -6,6 +6,7 @@ use App\Http\Requests\StoreEmployeeEducationRequest;
 use App\Http\Requests\UpdateEmployeeEducationRequest;
 use App\Models\Employee;
 use App\Models\EmployeeEducation;
+use App\Services\EmployeeDocumentStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class EmployeeEducationController extends Controller
 {
+    public function __construct(private readonly EmployeeDocumentStorageService $documentStorage) {}
+
     public function create(): RedirectResponse|View
     {
         $employee = $this->currentEmployee();
@@ -100,7 +103,17 @@ class EmployeeEducationController extends Controller
             return $redirect;
         }
 
-        $education->delete();
+        $documentPaths = $education->documents()->pluck('file_path')->all();
+
+        DB::transaction(function () use ($education): void {
+            $education->documents()->delete();
+
+            $education->delete();
+        });
+
+        foreach ($documentPaths as $path) {
+            $this->documentStorage->deletePath($path);
+        }
 
         return redirect()
             ->route('pegawai.profile.wizard.show', 'education')
@@ -122,7 +135,7 @@ class EmployeeEducationController extends Controller
 
     private function editLockedRedirect(Employee $employee): ?RedirectResponse
     {
-        if ($employee->canEditProfile()) {
+        if ($employee->canEditProfileCompletion()) {
             return null;
         }
 

@@ -16,6 +16,7 @@
     @include('pegawai.profile.wizard.partials.header')
 
     @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    @if (session('warning'))<div class="alert alert-warning">{{ session('warning') }}</div>@endif
     @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
     @unless ($editable) @include('pegawai.profile.wizard.partials.locked-alert') @endunless
 

@@ -4,8 +4,17 @@
     <li class="breadcrumb-item" aria-current="page">{{ $steps[$step]['label'] }}</li>
 </ul></div></div></div></div>
 
+@php
+    $verificationBadges = [
+        'draft' => ['Draft', 'bg-light-secondary text-secondary'],
+        'submitted' => ['Menunggu Verifikasi', 'bg-light-warning text-warning'],
+        'verified' => ['Terverifikasi', 'bg-light-success text-success'],
+        'rejected' => ['Perlu Perbaikan', 'bg-light-danger text-danger'],
+    ];
+    [$verificationLabel, $verificationClass] = $verificationBadges[$employee->verification_status] ?? [ucfirst((string) $employee->verification_status), 'bg-light-secondary text-secondary'];
+@endphp
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
-    <div><h3 class="mb-1">Profil Saya</h3><p class="mb-0 text-muted">Lengkapi data administrasi kepegawaian secara bertahap.</p></div>
+    <div><div class="d-flex align-items-center flex-wrap gap-2 mb-1"><h3 class="mb-0">Profil Saya</h3><span class="badge {{ $verificationClass }}">{{ $verificationLabel }}</span></div><p class="mb-0 text-muted">Lengkapi data administrasi kepegawaian secara bertahap.</p></div>
     <a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left"></i> Kembali ke Profil</a>
 </div>
 

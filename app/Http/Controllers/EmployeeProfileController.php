@@ -35,7 +35,7 @@ class EmployeeProfileController extends Controller
             return $this->missingEmployeeRedirect();
         }
 
-        if (! $employee->canEditProfile()) {
+        if (! $employee->canEditProfileCompletion()) {
             return redirect()
                 ->route('pegawai.profile.show')
                 ->with('error', 'Data sudah diajukan/diverifikasi dan tidak dapat diedit sementara.');
@@ -54,7 +54,7 @@ class EmployeeProfileController extends Controller
             return $this->missingEmployeeRedirect();
         }
 
-        if (! $employee->canEditProfile()) {
+        if (! $employee->canEditProfileCompletion()) {
             return redirect()
                 ->route('pegawai.profile.show')
                 ->with('error', 'Data sudah diajukan/diverifikasi dan tidak dapat diedit sementara.');
@@ -80,48 +80,6 @@ class EmployeeProfileController extends Controller
         return redirect()
             ->route('pegawai.profile.show')
             ->with('success', 'Profil berhasil disimpan sebagai draft.');
-    }
-
-    public function submit(): RedirectResponse
-    {
-        $employee = $this->currentEmployee();
-
-        if (! $employee) {
-            return $this->missingEmployeeRedirect();
-        }
-
-        $employee->load('documents');
-
-        if (! $employee->canEditProfile()) {
-            return redirect()
-                ->route('pegawai.profile.show')
-                ->with('error', 'Data sudah diajukan/diverifikasi dan tidak dapat diajukan ulang sementara.');
-        }
-
-        $missing = [];
-
-        if (! $employee->hasRequiredProfileData()) {
-            $missing[] = 'lengkapi nama, NIK, nomor HP, alamat, dan foto profil';
-        }
-
-        if (! $employee->hasRequiredDocuments()) {
-            $missing[] = 'upload dokumen KTP';
-        }
-
-        if ($missing !== []) {
-            return redirect()
-                ->route('pegawai.profile.show')
-                ->with('error', 'Belum bisa diajukan: '.implode(', ', $missing).'.');
-        }
-
-        $employee->update([
-            'verification_status' => 'submitted',
-            'verification_note' => null,
-        ]);
-
-        return redirect()
-            ->route('pegawai.profile.show')
-            ->with('success', 'Biodata berhasil diajukan untuk verifikasi HR.');
     }
 
     private function currentEmployee(): ?Employee

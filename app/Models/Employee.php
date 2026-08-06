@@ -16,6 +16,14 @@ class Employee extends Model
 
     public const EMPLOYEE_NUMBER_LENGTH = 10;
 
+    public const PROFILE_REVIEW_DRAFT = 'draft';
+
+    public const PROFILE_REVIEW_SUBMITTED = 'submitted';
+
+    public const PROFILE_REVIEW_APPROVED = 'approved';
+
+    public const PROFILE_REVIEW_REJECTED = 'rejected';
+
     protected $fillable = [
         'user_id',
         'institution_id',
@@ -69,6 +77,9 @@ class Employee extends Model
             'domicile_same_as_identity' => 'boolean',
             'join_date' => 'date',
             'verified_at' => 'datetime',
+            'profile_submitted_at' => 'datetime',
+            'profile_reviewed_at' => 'datetime',
+            'profile_rejected_sections' => 'array',
         ];
     }
 
@@ -90,6 +101,11 @@ class Employee extends Model
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function profileReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'profile_reviewed_by');
     }
 
     public function invitations(): HasMany
@@ -226,6 +242,22 @@ class Employee extends Model
     public function canEditProfile(): bool
     {
         return in_array($this->verification_status, ['draft', 'rejected'], true);
+    }
+
+    public function canEditProfileCompletion(): bool
+    {
+        return $this->canEditProfile()
+            && in_array($this->profile_review_status, [self::PROFILE_REVIEW_DRAFT, self::PROFILE_REVIEW_REJECTED], true);
+    }
+
+    public function isProfileSubmitted(): bool
+    {
+        return $this->hasProfileReviewStatus(self::PROFILE_REVIEW_SUBMITTED);
+    }
+
+    public function hasProfileReviewStatus(string $status): bool
+    {
+        return $this->profile_review_status === $status;
     }
 
     public function hasRequiredProfileData(): bool

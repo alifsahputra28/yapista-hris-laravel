@@ -58,7 +58,10 @@ class EmployeeInvitationSeeder extends Seeder
         ];
 
         foreach ($invitations as $invitation) {
-            $employee = Employee::where('email', $invitation['employee_email'])->first();
+            $employee = Employee::query()
+                ->where('email', $invitation['employee_email'])
+                ->whereNull('user_id')
+                ->first();
 
             if (! $employee) {
                 continue;

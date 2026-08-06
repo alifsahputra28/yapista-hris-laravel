@@ -26,6 +26,13 @@ class UpdateEmployeeEmergencyContactStepRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'emergency_contact_phone.regex' => 'Format nomor kontak darurat tidak valid. Gunakan awalan +62, 62, atau 08.',
+        ];
+    }
+
     protected function prepareForValidation(): void
     {
         $normalized = [];

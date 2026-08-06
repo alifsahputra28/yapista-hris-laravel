@@ -16,7 +16,7 @@ class EmployeeProfileDocumentTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_employee_can_update_profile_photo_upload_replace_delete_document_and_submit(): void
+    public function test_employee_can_update_profile_photo_and_upload_replace_delete_document(): void
     {
         Storage::fake('public');
         Storage::fake('private');
@@ -51,12 +51,6 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->assertNull($employee->employee_number);
         $this->assertNotNull($employee->photo);
         Storage::disk('public')->assertExists($employee->photo);
-
-        $this->actingAs($user)
-            ->post('/pegawai/profile/submit')
-            ->assertRedirect(route('pegawai.profile.show', absolute: false));
-
-        $this->assertSame('draft', $employee->refresh()->verification_status);
 
         $this->actingAs($user)
             ->post('/pegawai/documents', [
@@ -98,11 +92,8 @@ class EmployeeProfileDocumentTest extends TestCase
             ])
             ->assertRedirect(route('pegawai.documents.index', absolute: false));
 
-        $this->actingAs($user)
-            ->post('/pegawai/profile/submit')
-            ->assertRedirect(route('pegawai.profile.show', absolute: false));
-
-        $this->assertSame('submitted', $employee->refresh()->verification_status);
+        $this->assertSame('draft', $employee->refresh()->verification_status);
+        $this->assertSame('draft', $employee->profile_review_status);
         $this->assertNull($employee->verification_note);
     }
 
@@ -182,7 +173,7 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->actingAs($admin)
             ->get("/employees/{$employee->id}")
             ->assertOk()
-            ->assertSee('KTP')
+            ->assertSee('Kartu Tanda Penduduk')
             ->assertSee('ktp.pdf');
     }
 

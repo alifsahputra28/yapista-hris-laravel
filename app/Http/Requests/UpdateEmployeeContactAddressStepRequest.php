@@ -35,6 +35,15 @@ class UpdateEmployeeContactAddressStepRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'phone.regex' => 'Format nomor HP tidak valid. Gunakan awalan +62, 62, atau 08.',
+            'whatsapp_number.regex' => 'Format nomor WhatsApp tidak valid. Gunakan awalan +62, 62, atau 08.',
+            'domicile_postal_code.regex' => 'Kode pos harus terdiri dari 5 digit angka.',
+        ];
+    }
+
     protected function prepareForValidation(): void
     {
         $normalized = [];

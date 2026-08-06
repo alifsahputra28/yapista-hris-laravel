@@ -122,7 +122,7 @@ class EmployeeProfileProgressServiceTest extends TestCase
         $this->assertSame(75, $section['percentage']);
         $this->assertFalse($section['completed']);
 
-        $employee->administrativeDetail()->update([
+        $employee->administrativeDetail->update([
             'nik_used_as_tax_id' => true,
             'bpjs_health_number' => '001122334466',
         ]);

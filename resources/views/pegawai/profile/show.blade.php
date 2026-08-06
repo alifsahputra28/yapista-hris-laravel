@@ -116,7 +116,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div><h5 class="mb-1">Data Keluarga</h5><p class="mb-0 text-muted">Anggota keluarga dan status tanggungan Anda.</p></div>
-                    @if ($employee->canEditProfile())
+                    @if ($employee->canEditProfileCompletion())
                         <a href="{{ route('pegawai.profile.family-members.create') }}" class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Tambah Anggota Keluarga</a>
                     @endif
                 </div>
@@ -130,7 +130,7 @@
                     @else
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
-                                <thead><tr><th>Anggota Keluarga</th><th>Hubungan</th><th>Tanggal Lahir</th><th>Tanggungan</th><th>BPJS</th>@if ($employee->canEditProfile())<th class="text-end">Aksi</th>@endif</tr></thead>
+                                <thead><tr><th>Anggota Keluarga</th><th>Hubungan</th><th>Tanggal Lahir</th><th>Tanggungan</th><th>BPJS</th>@if ($employee->canEditProfileCompletion())<th class="text-end">Aksi</th>@endif</tr></thead>
                                 <tbody>
                                     @foreach ($employee->familyMembers as $familyMember)
                                         <tr>
@@ -139,7 +139,7 @@
                                             <td>{{ $familyMember->birth_date?->format('d M Y') ?? 'Belum diisi' }}</td>
                                             <td><span class="badge {{ $familyMember->is_dependent ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary' }}">{{ $familyMember->is_dependent ? 'Ya' : 'Tidak' }}</span></td>
                                             <td>{{ $familyMember->bpjs_status_label }}</td>
-                                            @if ($employee->canEditProfile())
+                                            @if ($employee->canEditProfileCompletion())
                                                 <td><div class="d-flex justify-content-end gap-2">
                                                     <a href="{{ route('pegawai.profile.family-members.edit', $familyMember) }}" class="btn btn-sm btn-outline-primary"><i class="ti ti-edit"></i> Edit</a>
                                                     <form method="POST" action="{{ route('pegawai.profile.family-members.destroy', $familyMember) }}" onsubmit="return confirm('Hapus data anggota keluarga ini?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i><span class="visually-hidden">Hapus</span></button></form>
@@ -157,7 +157,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div><h5 class="mb-1">Riwayat Pendidikan</h5><p class="mb-0 text-muted">Jenjang, institusi, dan gelar pendidikan formal Anda.</p></div>
-                    @if ($employee->canEditProfile())
+                    @if ($employee->canEditProfileCompletion())
                         <a href="{{ route('pegawai.profile.educations.create') }}" class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Tambah Pendidikan</a>
                     @endif
                 </div>
@@ -166,7 +166,7 @@
                         <div class="text-center py-5 px-3"><i class="ti ti-school fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada riwayat pendidikan yang ditambahkan</h6><p class="text-muted mb-0">Riwayat pendidikan dapat dilengkapi secara bertahap.</p></div>
                     @else
                         <div class="table-responsive"><table class="table table-hover align-middle mb-0">
-                            <thead><tr><th>Pendidikan</th><th>Jurusan/Gelar</th><th>Tahun</th><th>Tertinggi</th>@if ($employee->canEditProfile())<th class="text-end">Aksi</th>@endif</tr></thead>
+                            <thead><tr><th>Pendidikan</th><th>Jurusan/Gelar</th><th>Tahun</th><th>Tertinggi</th>@if ($employee->canEditProfileCompletion())<th class="text-end">Aksi</th>@endif</tr></thead>
                             <tbody>
                                 @foreach ($employee->educations as $education)
                                     <tr>
@@ -174,7 +174,7 @@
                                         <td>{{ $education->major ?? 'Belum diisi' }}@if ($education->degree_prefix || $education->degree_suffix)<small class="text-muted d-block">{{ trim(($education->degree_prefix ? $education->degree_prefix.' ' : '').$education->degree_suffix) }}</small>@endif</td>
                                         <td><small class="d-block">Masuk: {{ $education->start_year ?? 'Belum diisi' }}</small><small>Lulus: {{ $education->graduation_year ?? 'Belum diisi' }}</small></td>
                                         <td><span class="badge {{ $education->is_highest ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary' }}">{{ $education->is_highest ? 'Ya' : 'Tidak' }}</span></td>
-                                        @if ($employee->canEditProfile())<td><div class="d-flex justify-content-end gap-2"><a href="{{ route('pegawai.profile.educations.edit', $education) }}" class="btn btn-sm btn-outline-primary"><i class="ti ti-edit"></i> Edit</a><form method="POST" action="{{ route('pegawai.profile.educations.destroy', $education) }}" onsubmit="return confirm('Hapus data pendidikan ini?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i><span class="visually-hidden">Hapus</span></button></form></div></td>@endif
+                                        @if ($employee->canEditProfileCompletion())<td><div class="d-flex justify-content-end gap-2"><a href="{{ route('pegawai.profile.educations.edit', $education) }}" class="btn btn-sm btn-outline-primary"><i class="ti ti-edit"></i> Edit</a><form method="POST" action="{{ route('pegawai.profile.educations.destroy', $education) }}" onsubmit="return confirm('Hapus data pendidikan ini?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i><span class="visually-hidden">Hapus</span></button></form></div></td>@endif
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -186,7 +186,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div><h5 class="mb-1">Sertifikasi dan Kompetensi</h5><p class="mb-0 text-muted">Sertifikasi profesional dan bidang kompetensi yang dimiliki.</p></div>
-                    @if ($employee->canEditProfile())
+                    @if ($employee->canEditProfileCompletion())
                         <a href="{{ route('pegawai.profile.certifications.create') }}" class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Tambah Sertifikasi</a>
                     @endif
                 </div>
@@ -195,7 +195,7 @@
                         <div class="text-center py-5 px-3"><i class="ti ti-certificate fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada sertifikasi atau kompetensi yang ditambahkan</h6><p class="text-muted mb-0">Sertifikasi dapat ditambahkan ketika datanya tersedia.</p></div>
                     @else
                         <div class="table-responsive"><table class="table table-hover align-middle mb-0">
-                            <thead><tr><th>Sertifikasi</th><th>Penerbit</th><th>Bidang</th><th>Masa Berlaku</th><th>Status</th>@if ($employee->canEditProfile())<th class="text-end">Aksi</th>@endif</tr></thead>
+                            <thead><tr><th>Sertifikasi</th><th>Penerbit</th><th>Bidang</th><th>Masa Berlaku</th><th>Status</th>@if ($employee->canEditProfileCompletion())<th class="text-end">Aksi</th>@endif</tr></thead>
                             <tbody>
                                 @foreach ($employee->certifications as $certification)
                                     <tr>
@@ -204,7 +204,7 @@
                                         <td>{{ $certification->competency_field ?? 'Belum diisi' }}</td>
                                         <td><small class="d-block">Terbit: {{ $certification->issued_at?->format('d M Y') ?? 'Belum diisi' }}</small><small>Kedaluwarsa: {{ $certification->expired_at?->format('d M Y') ?? 'Tidak ada' }}</small></td>
                                         <td><span class="badge {{ $certificationStatusClasses[$certification->effective_status] ?? 'bg-light-secondary text-secondary' }}">{{ $certification->effective_status_label }}</span></td>
-                                        @if ($employee->canEditProfile())<td><div class="d-flex justify-content-end gap-2"><a href="{{ route('pegawai.profile.certifications.edit', $certification) }}" class="btn btn-sm btn-outline-primary"><i class="ti ti-edit"></i> Edit</a><form method="POST" action="{{ route('pegawai.profile.certifications.destroy', $certification) }}" onsubmit="return confirm('Hapus data sertifikasi ini?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i><span class="visually-hidden">Hapus</span></button></form></div></td>@endif
+                                        @if ($employee->canEditProfileCompletion())<td><div class="d-flex justify-content-end gap-2"><a href="{{ route('pegawai.profile.certifications.edit', $certification) }}" class="btn btn-sm btn-outline-primary"><i class="ti ti-edit"></i> Edit</a><form method="POST" action="{{ route('pegawai.profile.certifications.destroy', $certification) }}" onsubmit="return confirm('Hapus data sertifikasi ini?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i><span class="visually-hidden">Hapus</span></button></form></div></td>@endif
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -215,7 +215,7 @@
 
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mt-4 mb-3">
                 <div><h4 class="mb-1">Data Bank, Pajak, dan BPJS</h4><p class="mb-0 text-muted">Informasi sensitif ditampilkan dalam bentuk tersamarkan.</p></div>
-                @if ($employee->canEditProfile())
+                @if ($employee->canEditProfileCompletion())
                     <a href="{{ route('pegawai.profile.administrative-details.edit') }}" class="btn btn-primary btn-sm"><i class="ti ti-edit"></i> Edit Data Administrasi</a>
                 @endif
             </div>
@@ -246,12 +246,16 @@
                 </div>
             </div>
 
-            @if ($employee->isDraft() || $employee->isRejected())
-                <div class="card"><div class="card-header"><h5 class="mb-0">Kirim untuk Verifikasi</h5></div><div class="card-body">
-                    <p class="text-muted">Pengajuan menggunakan persyaratan verifikasi yang sudah berjalan. Simpan perubahan profil terlebih dahulu.</p>
-                    <form method="POST" action="{{ route('pegawai.profile.submit') }}">@csrf<button type="submit" class="btn btn-success"><i class="ti ti-send"></i> Kirim untuk Verifikasi</button></form>
-                </div></div>
-            @endif
+            <div class="card"><div class="card-header"><h5 class="mb-0">Status Review Profil</h5></div><div class="card-body">
+                @if ($employee->isProfileSubmitted())
+                    <span class="badge bg-light-warning text-warning mb-2">Menunggu Pemeriksaan</span>
+                    <p class="text-muted mb-3">Dikirim {{ $employee->profile_submitted_at?->format('d M Y H:i') ?? 'baru saja' }}. Profil tidak dapat diubah sampai diperiksa HR/Admin.</p>
+                @else
+                    <span class="badge bg-light-secondary text-secondary mb-2">{{ $employee->hasProfileReviewStatus('rejected') ? 'Perlu Perbaikan' : 'Draft' }}</span>
+                    <p class="text-muted mb-3">Lengkapi data dan dokumen melalui wizard sebelum mengirim profil.</p>
+                @endif
+                <a href="{{ route('pegawai.profile.wizard.show', 'review') }}" class="btn btn-primary"><i class="ti ti-file-check"></i> Buka Dokumen &amp; Kirim</a>
+            </div></div>
         </div>
     </div>
 @endsection

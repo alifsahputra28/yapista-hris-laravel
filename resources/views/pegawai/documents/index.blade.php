@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    @if ($employee->canEditProfile())
+    @if ($employee->canEditProfileCompletion())
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Upload Dokumen</h5>
@@ -186,7 +186,7 @@
                                             <i class="ti ti-download"></i>
                                         </a>
 
-                                        @if ($employee->canEditProfile() && ! $document->isValid())
+                                        @if ($employee->canEditProfileCompletion() && ! $document->isValid())
                                             <form action="{{ route('pegawai.documents.destroy', $document) }}" method="POST" onsubmit="return confirm('Hapus dokumen ini?')">
                                                 @csrf
                                                 @method('DELETE')

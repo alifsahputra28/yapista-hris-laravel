@@ -6,74 +6,55 @@ use App\Models\Employee;
 use App\Models\EmployeeQrToken;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EmployeeQrTokenSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        if (! class_exists(EmployeeQrToken::class) || ! Schema::hasTable('employee_qr_tokens')) {
-            return;
-        }
+        $adminId = User::where('email', 'admin@yapista.test')->value('id');
 
-        $admin = User::where('email', 'admin@yapista.test')->first();
-
-        $employees = Employee::query()
+        Employee::query()
             ->where('verification_status', 'verified')
-            ->whereIn('email', [
-                'ahmad.fauzi@yapista.test',
-                'budi.santoso@yapista.test',
-                'andi.pratama@yapista.test',
-                'dewi.lestari@yapista.test',
-                'fajar.ramadhan@yapista.test',
-                'rahmat.hidayat@yapista.test',
-                'hendra.wijaya@yapista.test',
-            ])
-            ->get();
+            ->get(['id', 'employee_number'])
+            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
+            ->each(function (Employee $employee) use ($adminId): void {
+                DB::transaction(function () use ($employee, $adminId): void {
+                    $activeTokens = EmployeeQrToken::query()
+                        ->where('employee_id', $employee->id)
+                        ->where('is_active', true)
+                        ->whereNull('revoked_at')
+                        ->latest('id')
+                        ->get();
 
-        foreach ($employees as $employee) {
-            $code = $employee->employee_number;
+                    if ($activeTokens->isNotEmpty()) {
+                        $activeTokens->skip(1)->each->update([
+                            'is_active' => false,
+                            'revoked_at' => now(),
+                        ]);
 
-            if (! $code) {
-                continue;
-            }
+                        return;
+                    }
 
-            EmployeeQrToken::where('employee_id', $employee->id)
-                ->where('token', '!=', $code)
-                ->where('is_active', true)
-                ->update([
-                    'is_active' => false,
-                    'revoked_at' => now()->subDay(),
-                ]);
+                    EmployeeQrToken::create([
+                        'employee_id' => $employee->id,
+                        'token' => $this->uniqueToken(),
+                        'is_active' => true,
+                        'issued_at' => now(),
+                        'revoked_at' => null,
+                        'created_by' => $adminId,
+                    ]);
+                });
+            });
+    }
 
-            EmployeeQrToken::updateOrCreate(
-                ['token' => $code],
-                [
-                    'employee_id' => $employee->id,
-                    'is_active' => true,
-                    'issued_at' => $employee->verified_at ?? $employee->created_at,
-                    'revoked_at' => null,
-                    'created_by' => $admin?->id,
-                ],
-            );
-        }
+    private function uniqueToken(): string
+    {
+        do {
+            $token = Str::random(64);
+        } while (EmployeeQrToken::where('token', $token)->exists());
 
-        $ahmad = Employee::where('email', 'ahmad.fauzi@yapista.test')->first();
-
-        if ($ahmad) {
-            EmployeeQrToken::updateOrCreate(
-                ['token' => 'YAPISTA-QR-OLD-AHMAD'],
-                [
-                    'employee_id' => $ahmad->id,
-                    'is_active' => false,
-                    'issued_at' => $ahmad->join_date?->copy()->subDay() ?? $ahmad->created_at,
-                    'revoked_at' => $ahmad->join_date?->copy()->addDay() ?? $ahmad->updated_at,
-                    'created_by' => $admin?->id,
-                ],
-            );
-        }
+        return $token;
     }
 }

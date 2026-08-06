@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEmployeeEmergencyContactStepRequest;
 use App\Http\Requests\UpdateEmployeeIdentificationStepRequest;
 use App\Models\Employee;
 use App\Services\EmployeeProfileProgressService;
+use App\Services\EmployeeProfileSubmissionService;
 use App\Support\Profiles\ProfileWizardStep;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,10 @@ use Illuminate\View\View;
 
 class EmployeeProfileWizardController extends Controller
 {
-    public function __construct(private readonly EmployeeProfileProgressService $progressService) {}
+    public function __construct(
+        private readonly EmployeeProfileProgressService $progressService,
+        private readonly EmployeeProfileSubmissionService $submissionService,
+    ) {}
 
     public function index(): RedirectResponse
     {
@@ -30,7 +34,14 @@ class EmployeeProfileWizardController extends Controller
         abort_unless(ProfileWizardStep::exists($step), 404);
 
         $employee = $this->currentEmployee();
-        $employee->load(['institution', 'position', 'familyMembers', 'educations', 'certifications', 'administrativeDetail']);
+        $relations = ['institution', 'position', 'familyMembers', 'educations', 'administrativeDetail'];
+        if (in_array($step, ['education', 'review'], true)) {
+            $relations[] = 'certifications';
+        }
+        $employee->load($relations);
+        $submissionChecklist = $step === 'review'
+            ? $this->submissionService->inspect($employee)
+            : null;
 
         return view('pegawai.profile.wizard.show', [
             'employee' => $employee,
@@ -38,8 +49,9 @@ class EmployeeProfileWizardController extends Controller
             'steps' => ProfileWizardStep::all(),
             'previousStep' => ProfileWizardStep::previous($step),
             'nextStep' => ProfileWizardStep::next($step),
-            'editable' => $employee->canEditProfile(),
+            'editable' => $employee->canEditProfileCompletion(),
             'profileProgress' => $this->progressService->calculate($employee),
+            'submissionChecklist' => $submissionChecklist,
         ]);
     }
 
@@ -114,7 +126,7 @@ class EmployeeProfileWizardController extends Controller
 
     private function editLockedRedirect(Employee $employee, string $step): ?RedirectResponse
     {
-        if ($employee->canEditProfile()) {
+        if ($employee->canEditProfileCompletion()) {
             return null;
         }
 

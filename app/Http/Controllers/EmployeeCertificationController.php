@@ -6,12 +6,16 @@ use App\Http\Requests\StoreEmployeeCertificationRequest;
 use App\Http\Requests\UpdateEmployeeCertificationRequest;
 use App\Models\Employee;
 use App\Models\EmployeeCertification;
+use App\Services\EmployeeDocumentStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class EmployeeCertificationController extends Controller
 {
+    public function __construct(private readonly EmployeeDocumentStorageService $documentStorage) {}
+
     public function create(): RedirectResponse|View
     {
         $employee = $this->currentEmployee();
@@ -79,7 +83,17 @@ class EmployeeCertificationController extends Controller
             return $redirect;
         }
 
-        $certification->delete();
+        $documentPaths = $certification->documents()->pluck('file_path')->all();
+
+        DB::transaction(function () use ($certification): void {
+            $certification->documents()->delete();
+
+            $certification->delete();
+        });
+
+        foreach ($documentPaths as $path) {
+            $this->documentStorage->deletePath($path);
+        }
 
         return redirect()
             ->route('pegawai.profile.wizard.show', 'education')
@@ -101,7 +115,7 @@ class EmployeeCertificationController extends Controller
 
     private function editLockedRedirect(Employee $employee): ?RedirectResponse
     {
-        if ($employee->canEditProfile()) {
+        if ($employee->canEditProfileCompletion()) {
             return null;
         }
 

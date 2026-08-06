@@ -10,7 +10,7 @@ class ProfileWizardStep
         'family' => ['label' => 'Keluarga', 'short_label' => 'Keluarga', 'icon' => 'ti-users'],
         'education' => ['label' => 'Pendidikan', 'short_label' => 'Pendidikan', 'icon' => 'ti-school'],
         'administration' => ['label' => 'Bank & BPJS', 'short_label' => 'Administrasi', 'icon' => 'ti-building-bank'],
-        'review' => ['label' => 'Ringkasan', 'short_label' => 'Ringkasan', 'icon' => 'ti-clipboard-check'],
+        'review' => ['label' => 'Dokumen & Kirim', 'short_label' => 'Dokumen', 'icon' => 'ti-clipboard-check'],
     ];
 
     /** @return array<string, array{label: string, short_label: string, icon: string}> */

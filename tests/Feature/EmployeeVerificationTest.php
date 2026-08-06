@@ -250,7 +250,7 @@ class EmployeeVerificationTest extends TestCase
         $this->assertSame('rejected', $document->refresh()->status);
         $this->assertSame('Foto KTP buram.', $document->note);
         $this->assertSame('rejected', $employee->refresh()->verification_status);
-        $this->assertStringContainsString('Dokumen KTP ditolak', $employee->verification_note);
+        $this->assertStringContainsString('Dokumen Kartu Tanda Penduduk ditolak', $employee->verification_note);
     }
 
     public function test_non_admin_roles_can_not_access_verification_routes(): void

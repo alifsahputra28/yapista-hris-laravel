@@ -58,7 +58,7 @@ class EmployeeAdministrativeDetailController extends Controller
 
     private function editLockedRedirect(Employee $employee): ?RedirectResponse
     {
-        if ($employee->canEditProfile()) {
+        if ($employee->canEditProfileCompletion()) {
             return null;
         }
 

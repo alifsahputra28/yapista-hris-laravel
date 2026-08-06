@@ -29,15 +29,10 @@ class UserSeeder extends Seeder
                 'email' => 'panitia@yapista.test',
                 'role' => 'panitia',
             ],
-            [
-                'name' => 'Pegawai Demo',
-                'email' => 'pegawai@yapista.test',
-                'role' => 'pegawai',
-            ],
         ];
 
         foreach ($users as $user) {
-            User::updateOrCreate(
+            $account = User::firstOrCreate(
                 ['email' => $user['email']],
                 [
                     'name' => $user['name'],
@@ -46,6 +41,12 @@ class UserSeeder extends Seeder
                     'status' => 'active',
                 ],
             );
+
+            $account->fill([
+                'name' => $user['name'],
+                'role' => $user['role'],
+                'status' => 'active',
+            ])->save();
         }
     }
 }

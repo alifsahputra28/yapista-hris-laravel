@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Models\Employee;
-use App\Support\Profiles\ProfileWizardStep;
-
 class EmployeeProfileProgressService
 {
     /**
@@ -18,7 +16,7 @@ class EmployeeProfileProgressService
      */
     public function calculate(Employee $employee): array
     {
-        $employee->loadMissing(['familyMembers', 'educations', 'certifications', 'administrativeDetail']);
+        $employee->loadMissing(['familyMembers', 'educations', 'administrativeDetail']);
 
         $sections = [
             'identification' => $this->identification($employee),

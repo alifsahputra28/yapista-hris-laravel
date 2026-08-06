@@ -35,6 +35,15 @@ class UpdateEmployeeIdentificationStepRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'nik.digits' => 'NIK harus terdiri dari 16 digit angka.',
+            'family_card_number.digits' => 'Nomor Kartu Keluarga harus terdiri dari 16 digit angka.',
+            'birth_date.before' => 'Tanggal lahir harus sebelum hari ini.',
+        ];
+    }
+
     protected function prepareForValidation(): void
     {
         $normalized = [];

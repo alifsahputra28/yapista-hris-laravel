@@ -6,277 +6,262 @@ use App\Models\Employee;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
+use DateTimeImmutable;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class EmployeeSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    /** @var list<string> */
+    private const EMPLOYEE_TYPES = [
+        'guru',
+        'dosen',
+        'tenaga_kependidikan',
+        'staff_yayasan',
+        'security',
+        'cleaning_service',
+        'driver',
+        'teknisi',
+    ];
+
+    /** @var list<string> */
+    private const EMPLOYMENT_STATUSES = [
+        'aktif',
+        'kontrak',
+        'honorer',
+        'part_time',
+        'nonaktif',
+        'resign',
+    ];
+
     public function run(): void
     {
-        $admin = User::where('email', 'admin@yapista.test')->first();
-        $pegawaiUser = User::where('email', 'pegawai@yapista.test')->first();
+        $dataFile = database_path('seeders/data/employees.php');
+        $rows = require $dataFile;
 
-        $employees = [
-            [
-                'full_name' => 'Ahmad Fauzi',
-                'email' => 'ahmad.fauzi@yapista.test',
-                'institution' => 'SMK Ibnu Sina',
-                'position' => 'Guru',
-                'employee_type' => 'guru',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-05-10',
-                'employee_number' => '7770923822',
-                'gender' => 'male',
-                'birth_place' => 'Batam',
-                'birth_date' => '1990-01-12',
-                'phone' => '081277709001',
-                'nik' => '2171011201900001',
-            ],
-            [
-                'full_name' => 'Siti Aminah',
-                'email' => 'siti.aminah@yapista.test',
-                'institution' => 'SD Ibnu Sina',
-                'position' => 'Guru',
-                'employee_type' => 'guru',
-                'employment_status' => 'aktif',
-                'verification_status' => 'submitted',
-                'join_date' => '2026-05-11',
-                'employee_number' => '7770923823',
-                'gender' => 'female',
-                'birth_place' => 'Tanjungpinang',
-                'birth_date' => '1992-02-14',
-                'phone' => '081277709002',
-                'nik' => '2171011402920002',
-            ],
-            [
-                'full_name' => 'Budi Santoso',
-                'email' => 'budi.santoso@yapista.test',
-                'institution' => 'Universitas Ibnu Sina',
-                'position' => 'Dosen',
-                'employee_type' => 'dosen',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-05-12',
-                'employee_number' => '7770923824',
-                'gender' => 'male',
-                'birth_place' => 'Medan',
-                'birth_date' => '1988-03-16',
-                'phone' => '081277709003',
-                'nik' => '2171011603880003',
-            ],
-            [
-                'full_name' => 'Nurul Huda',
-                'email' => 'nurul.huda@yapista.test',
-                'institution' => 'Kantor Yayasan',
-                'position' => 'Staff Yayasan',
-                'employee_type' => 'staff_yayasan',
-                'employment_status' => 'aktif',
-                'verification_status' => 'draft',
-                'join_date' => '2026-05-13',
-                'employee_number' => '7770923825',
-                'gender' => 'male',
-                'birth_place' => 'Batam',
-                'birth_date' => '1991-04-18',
-                'phone' => '081277709004',
-                'nik' => '2171011804910004',
-            ],
-            [
-                'full_name' => 'Rina Marlina',
-                'email' => 'rina.marlina@yapista.test',
-                'institution' => 'STAI Ibnu Sina',
-                'position' => 'Dosen',
-                'employee_type' => 'dosen',
-                'employment_status' => 'aktif',
-                'verification_status' => 'rejected',
-                'verification_note' => 'Dokumen KTP belum jelas.',
-                'join_date' => '2026-05-14',
-                'employee_number' => '7770923826',
-                'gender' => 'female',
-                'birth_place' => 'Padang',
-                'birth_date' => '1993-05-20',
-                'phone' => '081277709005',
-                'nik' => '2171012005930005',
-            ],
-            [
-                'full_name' => 'Andi Pratama',
-                'email' => 'andi.pratama@yapista.test',
-                'institution' => 'SMP Ibnu Sina',
-                'position' => 'Staff TU',
-                'employee_type' => 'tenaga_kependidikan',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-05-15',
-                'employee_number' => '7770923827',
-                'gender' => 'male',
-                'birth_place' => 'Batam',
-                'birth_date' => '1989-06-22',
-                'phone' => '081277709006',
-                'nik' => '2171012206890006',
-            ],
-            [
-                'full_name' => 'Dewi Lestari',
-                'email' => 'dewi.lestari@yapista.test',
-                'institution' => 'TK Ibnu Sina',
-                'position' => 'Guru',
-                'employee_type' => 'guru',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-05-16',
-                'employee_number' => '7770923828',
-                'gender' => 'female',
-                'birth_place' => 'Pekanbaru',
-                'birth_date' => '1994-07-24',
-                'phone' => '081277709007',
-                'nik' => '2171012407940007',
-            ],
-            [
-                'full_name' => 'Fajar Ramadhan',
-                'email' => 'fajar.ramadhan@yapista.test',
-                'institution' => 'Kantor Yayasan',
-                'position' => 'Staff IT',
-                'employee_type' => 'teknisi',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-05-17',
-                'employee_number' => '7770923829',
-                'gender' => 'male',
-                'birth_place' => 'Batam',
-                'birth_date' => '1995-08-26',
-                'phone' => '081277709008',
-                'nik' => '2171012608950008',
-            ],
-            [
-                'full_name' => 'Maya Sari',
-                'email' => 'maya.sari@yapista.test',
-                'institution' => 'SMK Ibnu Sina',
-                'position' => 'Operator Sekolah',
-                'employee_type' => 'tenaga_kependidikan',
-                'employment_status' => 'kontrak',
-                'verification_status' => 'submitted',
-                'join_date' => '2026-06-01',
-                'employee_number' => '7770923830',
-                'gender' => 'female',
-                'birth_place' => 'Batam',
-                'birth_date' => '1996-09-28',
-                'phone' => '081277709009',
-                'nik' => '2171012809960009',
-            ],
-            [
-                'full_name' => 'Rahmat Hidayat',
-                'email' => 'rahmat.hidayat@yapista.test',
-                'institution' => 'SD Ibnu Sina',
-                'position' => 'Kepala Sekolah',
-                'employee_type' => 'tenaga_kependidikan',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-06-02',
-                'employee_number' => '7770923831',
-                'gender' => 'male',
-                'birth_place' => 'Bukittinggi',
-                'birth_date' => '1985-10-30',
-                'phone' => '081277709010',
-                'nik' => '2171013010850010',
-            ],
-            [
-                'full_name' => 'Putri Aulia',
-                'email' => 'putri.aulia@yapista.test',
-                'institution' => 'STAI Ibnu Sina',
-                'position' => 'Staff Akademik',
-                'employee_type' => 'tenaga_kependidikan',
-                'employment_status' => 'aktif',
-                'verification_status' => 'draft',
-                'join_date' => '2026-06-03',
-                'employee_number' => '7770923832',
-                'gender' => 'female',
-                'birth_place' => 'Batam',
-                'birth_date' => '1997-11-02',
-                'phone' => '081277709011',
-                'nik' => '2171010211970011',
-            ],
-            [
-                'full_name' => 'Hendra Wijaya',
-                'email' => 'hendra.wijaya@yapista.test',
-                'institution' => 'Universitas Ibnu Sina',
-                'position' => 'Kaprodi',
-                'employee_type' => 'dosen',
-                'employment_status' => 'aktif',
-                'verification_status' => 'verified',
-                'join_date' => '2026-06-04',
-                'employee_number' => '7770923833',
-                'gender' => 'male',
-                'birth_place' => 'Jakarta',
-                'birth_date' => '1984-12-04',
-                'phone' => '081277709012',
-                'nik' => '2171010412840012',
-            ],
-        ];
+        if (! is_array($rows)) {
+            throw new RuntimeException("File data pegawai {$dataFile} harus mengembalikan array.");
+        }
 
-        foreach ($employees as $employee) {
-            $institution = Institution::where('name', $employee['institution'])->first();
+        $summary = $this->seedRows($rows);
 
-            if (! $institution) {
-                continue;
-            }
+        if ($this->command) {
+            $this->command->info("Pegawai dibuat: {$summary['employees_created']}");
+            $this->command->info("Pegawai diperbarui: {$summary['employees_updated']}");
+            $this->command->info("User dibuat: {$summary['users_created']}");
+            $this->command->info("User existing: {$summary['users_existing']}");
+        }
+    }
 
-            $position = Position::where('institution_id', $institution->id)
-                ->where('name', $employee['position'])
-                ->first();
+    /**
+     * Seed pre-validated onboarding rows. This public entry point also lets tests
+     * exercise invalid input without replacing the real data file.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array{employees_created: int, employees_updated: int, users_created: int, users_existing: int}
+     */
+    public function seedRows(array $rows): array
+    {
+        $preparedRows = $this->validateAndPrepareRows($rows);
+        $defaultPassword = $this->resolveDefaultPassword();
 
-            if (! $position) {
-                continue;
-            }
+        $this->assertNoDatabaseConflicts($preparedRows);
 
-            $payload = [
-                'institution_id' => $institution->id,
-                'position_id' => $position->id,
-                'employee_number' => $employee['employee_number'],
-                'full_name' => $employee['full_name'],
-                'email' => $employee['email'],
-                'nik' => $employee['nik'],
-                'gender' => $employee['gender'],
-                'birth_place' => $employee['birth_place'],
-                'birth_date' => $employee['birth_date'],
-                'phone' => $employee['phone'],
-                'address' => 'Komplek Yayasan Ibnu Sina, Batam',
-                'employee_type' => $employee['employee_type'],
-                'employment_status' => $employee['employment_status'],
-                'join_date' => $employee['join_date'],
-                'photo' => null,
-                'verification_status' => $employee['verification_status'],
-                'verification_note' => $employee['verification_note'] ?? null,
-                'verified_by' => $employee['verification_status'] === 'verified' ? $admin?->id : null,
-                'verified_at' => $employee['verification_status'] === 'verified'
-                    ? Carbon::parse($employee['join_date'])->addDays(3)
-                    : null,
+        return DB::transaction(function () use ($preparedRows, $defaultPassword): array {
+            $summary = [
+                'employees_created' => 0,
+                'employees_updated' => 0,
+                'users_created' => 0,
+                'users_existing' => 0,
             ];
 
-            Employee::updateOrCreate(
-                ['email' => $employee['email']],
-                $payload,
-            );
-        }
+            foreach ($preparedRows as $row) {
+                $user = User::firstOrCreate(
+                    ['email' => $row['login_email']],
+                    [
+                        'name' => $row['full_name'],
+                        'password' => Hash::make($row['temporary_password'] ?? $defaultPassword),
+                        'role' => 'pegawai',
+                        'status' => 'active',
+                    ],
+                );
 
-        if ($pegawaiUser && ($ahmad = Employee::where('email', 'ahmad.fauzi@yapista.test')->first())) {
-            if ($ahmad->user_id !== null && $ahmad->user_id !== $pegawaiUser->id) {
-                return;
-            }
+                $summary[$user->wasRecentlyCreated ? 'users_created' : 'users_existing']++;
 
-            $linkedEmployee = Employee::where('user_id', $pegawaiUser->id)->first();
-            $demoEmails = array_column($employees, 'email');
+                $user->fill([
+                    'name' => $row['full_name'],
+                    'role' => 'pegawai',
+                    'status' => 'active',
+                ])->save();
 
-            if ($linkedEmployee && $linkedEmployee->isNot($ahmad)) {
-                if (! in_array($linkedEmployee->email, $demoEmails, true)) {
-                    return;
+                $employee = Employee::where('employee_number', $row['employee_number'])->first();
+                $masterData = [
+                    'user_id' => $user->id,
+                    'institution_id' => $row['institution_id'],
+                    'position_id' => $row['position_id'],
+                    'full_name' => $row['full_name'],
+                    'employee_type' => $row['employee_type'],
+                    'employment_status' => $row['employment_status'],
+                ];
+
+                if (filled($row['join_date'] ?? null)) {
+                    $masterData['join_date'] = $row['join_date'];
                 }
 
-                $linkedEmployee->update(['user_id' => null]);
+                if (filled($row['personal_email'] ?? null)) {
+                    $masterData['email'] = $row['personal_email'];
+                }
+
+                if ($employee) {
+                    $employee->fill($masterData)->save();
+                    $summary['employees_updated']++;
+
+                    continue;
+                }
+
+                Employee::create($masterData + [
+                    'employee_number' => $row['employee_number'],
+                    'email' => $row['personal_email'] ?? null,
+                    'join_date' => $row['join_date'] ?? null,
+                    'verification_status' => 'draft',
+                ]);
+                $summary['employees_created']++;
             }
 
-            $ahmad->update(['user_id' => $pegawaiUser->id]);
+            return $summary;
+        });
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private function validateAndPrepareRows(array $rows): array
+    {
+        $prepared = [];
+        $employeeNumbers = [];
+        $loginEmails = [];
+
+        foreach (array_values($rows) as $index => $row) {
+            $line = $index + 1;
+
+            if (! is_array($row)) {
+                throw new RuntimeException("Data pegawai baris {$line} harus berupa array.");
+            }
+
+            foreach (['employee_number', 'full_name', 'login_email', 'institution_name', 'position_name', 'employee_type', 'employment_status'] as $field) {
+                if (! isset($row[$field]) || ! is_string($row[$field]) || trim($row[$field]) === '') {
+                    throw new RuntimeException("Data pegawai baris {$line}: {$field} wajib diisi.");
+                }
+
+                $row[$field] = trim($row[$field]);
+            }
+
+            if (preg_match('/^\d{10}$/', $row['employee_number']) !== 1) {
+                throw new RuntimeException("Data pegawai baris {$line}: employee_number harus tepat 10 digit angka.");
+            }
+
+            if (isset($employeeNumbers[$row['employee_number']])) {
+                throw new RuntimeException("Data pegawai baris {$line}: employee_number {$row['employee_number']} duplikat dalam file data.");
+            }
+            $employeeNumbers[$row['employee_number']] = true;
+
+            $row['login_email'] = mb_strtolower($row['login_email']);
+            if (filter_var($row['login_email'], FILTER_VALIDATE_EMAIL) === false) {
+                throw new RuntimeException("Data pegawai baris {$line}: login_email tidak valid.");
+            }
+
+            if (isset($loginEmails[$row['login_email']])) {
+                throw new RuntimeException("Data pegawai baris {$line}: login_email {$row['login_email']} duplikat dalam file data.");
+            }
+            $loginEmails[$row['login_email']] = true;
+
+            if (array_key_exists('personal_email', $row) && filled($row['personal_email'])) {
+                $row['personal_email'] = mb_strtolower(trim((string) $row['personal_email']));
+
+                if (filter_var($row['personal_email'], FILTER_VALIDATE_EMAIL) === false) {
+                    throw new RuntimeException("Data pegawai baris {$line}: personal_email tidak valid.");
+                }
+            } else {
+                $row['personal_email'] = null;
+            }
+
+            if (! in_array($row['employee_type'], self::EMPLOYEE_TYPES, true)) {
+                throw new RuntimeException("Data pegawai baris {$line}: employee_type {$row['employee_type']} tidak valid.");
+            }
+
+            if (! in_array($row['employment_status'], self::EMPLOYMENT_STATUSES, true)) {
+                throw new RuntimeException("Data pegawai baris {$line}: employment_status {$row['employment_status']} tidak valid.");
+            }
+
+            if (filled($row['join_date'] ?? null) && ! $this->isValidDate((string) $row['join_date'])) {
+                throw new RuntimeException("Data pegawai baris {$line}: join_date harus memakai format YYYY-MM-DD dan merupakan tanggal valid.");
+            }
+
+            if (array_key_exists('temporary_password', $row) && (! is_string($row['temporary_password']) || trim($row['temporary_password']) === '')) {
+                throw new RuntimeException("Data pegawai baris {$line}: temporary_password harus berupa string yang tidak kosong.");
+            }
+
+            $institutions = Institution::where('name', $row['institution_name'])->get();
+            if ($institutions->count() !== 1) {
+                throw new RuntimeException("Data pegawai baris {$line}: unit kerja {$row['institution_name']} tidak ditemukan secara unik.");
+            }
+
+            $positions = Position::where('institution_id', $institutions->first()->id)
+                ->where('name', $row['position_name'])
+                ->get();
+            if ($positions->count() !== 1) {
+                throw new RuntimeException("Data pegawai baris {$line}: jabatan {$row['position_name']} pada {$row['institution_name']} tidak ditemukan secara unik.");
+            }
+
+            $row['institution_id'] = $institutions->first()->id;
+            $row['position_id'] = $positions->first()->id;
+            $prepared[] = $row;
         }
+
+        return $prepared;
+    }
+
+    /** @param array<int, array<string, mixed>> $rows */
+    private function assertNoDatabaseConflicts(array $rows): void
+    {
+        foreach ($rows as $index => $row) {
+            $line = $index + 1;
+            $employee = Employee::where('employee_number', $row['employee_number'])->first();
+            $user = User::where('email', $row['login_email'])->first();
+
+            if ($user && ! $user->isPegawai()) {
+                throw new RuntimeException("Data pegawai baris {$line}: login_email sudah digunakan akun dengan role {$user->role}.");
+            }
+
+            $employeeUsingUser = $user ? Employee::where('user_id', $user->id)->first() : null;
+            if ($employeeUsingUser && (! $employee || $employeeUsingUser->isNot($employee))) {
+                throw new RuntimeException("Data pegawai baris {$line}: login_email sudah terhubung ke pegawai lain.");
+            }
+
+            if ($employee?->user_id !== null && (! $user || $employee->user_id !== $user->id)) {
+                throw new RuntimeException("Data pegawai baris {$line}: employee_number sudah terhubung ke akun lain.");
+            }
+        }
+    }
+
+    private function resolveDefaultPassword(): string
+    {
+        $password = env('EMPLOYEE_SEED_DEFAULT_PASSWORD');
+
+        if (blank($password) && app()->environment('production')) {
+            throw new RuntimeException('EMPLOYEE_SEED_DEFAULT_PASSWORD wajib tersedia untuk proses onboarding di production.');
+        }
+
+        return filled($password) ? (string) $password : 'password';
+    }
+
+    private function isValidDate(string $value): bool
+    {
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+
+        return $date !== false && $date->format('Y-m-d') === $value;
     }
 }
