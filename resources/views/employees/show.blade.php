@@ -52,155 +52,135 @@
             : asset('assets/images/user/avatar-2.jpg');
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('employees.index') }}">Data Pegawai</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Detail</li>
-                    </ul>
-                </div>
+    <x-page-header
+        title="{{ $employee->full_name }}"
+        subtitle="Detail biodata, data kepegawaian, verifikasi, dan dokumen."
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route('dashboard')],
+            ['label' => 'Data Pegawai', 'url' => route('employees.index')],
+            ['label' => 'Detail'],
+        ]"
+        :badge-label="$verificationStatuses[$employee->verification_status] ?? $employee->verification_status"
+        :badge-class="$verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary'"
+    >
+        <x-slot:meta>
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ $photoUrl }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle" width="48" height="48" style="object-fit: cover;">
+                <x-employee-context :employee="$employee" />
             </div>
-        </div>
-    </div>
+        </x-slot:meta>
+        <x-slot:actions>
+            <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">Kembali</a>
+            <a href="{{ route('employees.id-card.show', $employee) }}" class="btn btn-light-primary">
+                <i class="ti ti-id"></i> ID Card
+            </a>
+            <a href="{{ route('employees.edit', $employee) }}" class="btn btn-primary">
+                <i class="ti ti-edit"></i> Edit
+            </a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Detail Pegawai</h4>
-                    <p class="mb-0 text-muted">Ringkasan biodata, unit kerja, status verifikasi, dan dokumen pegawai.</p>
+    <div class="row g-4">
+        <div class="col-xl-7">
+            <section class="content-section">
+                <div class="content-section-header">
+                    <h2>Informasi Dasar</h2>
                 </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">Kembali</a>
-                    <a href="{{ route('employees.id-card.show', $employee) }}" class="btn btn-light-primary">
-                        <i class="ti ti-id"></i>
-                        Lihat ID Card
-                    </a>
-                    <a href="{{ route('employees.edit', $employee) }}" class="btn btn-primary">
-                        <i class="ti ti-edit"></i>
-                        Edit
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
-                    <h4 class="mb-1">{{ $employee->full_name }}</h4>
-                    <p class="text-muted mb-2">NUP / Nomor Pegawai: {{ $employee->formatted_employee_number }}</p>
-                    <span class="badge {{ $employmentClasses[$employee->employment_status] ?? 'bg-light-secondary text-secondary' }}">
-                        {{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Informasi Dasar</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Nama Lengkap</small>
+                <div class="content-section-body detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Nama Lengkap</span>
                             {{ $employee->full_name }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">NIK</small>
-                            {{ $employee->masked_nik ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">NIK</span>
+                            {{ $employee->masked_nik ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Jenis Kelamin</small>
-                            {{ $employee->gender === 'male' ? 'Laki-laki' : ($employee->gender === 'female' ? 'Perempuan' : '-') }}
+                        <div class="detail-item">
+                            <span class="detail-label">Jenis Kelamin</span>
+                            {{ $employee->gender === 'male' ? 'Laki-laki' : ($employee->gender === 'female' ? 'Perempuan' : 'Belum diisi') }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Tempat, Tanggal Lahir</small>
-                            {{ $employee->birth_place ?? '-' }}{{ $employee->birth_date ? ', '.$employee->birth_date->format('d M Y') : '' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Tempat, Tanggal Lahir</span>
+                            {{ $employee->birth_place ?? 'Belum diisi' }}{{ $employee->birth_date ? ', '.$employee->birth_date->format('d M Y') : '' }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Jenis Pegawai</small>
+                        <div class="detail-item">
+                            <span class="detail-label">Jenis Pegawai</span>
                             {{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Tanggal Masuk</small>
-                            {{ $employee->join_date?->format('d M Y') ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Tanggal Masuk</span>
+                            {{ $employee->join_date?->format('d M Y') ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">NUP / Nomor Pegawai</small>
+                        <div class="detail-item">
+                            <span class="detail-label">NUP / Nomor Pegawai</span>
                             {{ $employee->formatted_employee_number }}
                         </div>
-                    </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status Kepegawaian</span>
+                            <span class="badge {{ $employmentClasses[$employee->employment_status] ?? 'bg-light-secondary text-secondary' }}">
+                                {{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}
+                            </span>
+                        </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Unit dan Jabatan</h5>
+            <section class="content-section">
+                <div class="content-section-header">
+                    <h2>Unit dan Jabatan</h2>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Unit Kerja</small>
-                            {{ $employee->institution?->name ?? '-' }}
+                <div class="content-section-body detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Unit Kerja</span>
+                            {{ $employee->institution?->name ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Jabatan</small>
-                            {{ $employee->position?->name ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Jabatan</span>
+                            {{ $employee->position?->name ?? 'Belum diisi' }}
                         </div>
-                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Kontak dan Verifikasi</h5>
+            <section class="content-section">
+                <div class="content-section-header">
+                    <h2>Kontak dan Verifikasi</h2>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Email</small>
-                            {{ $employee->email ?? '-' }}
+                <div class="content-section-body detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            {{ $employee->email ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Nomor HP</small>
-                            {{ $employee->phone ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Nomor HP</span>
+                            {{ $employee->phone ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-12 mb-3">
-                            <small class="text-muted d-block">Alamat</small>
-                            {{ $employee->address ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Alamat</span>
+                            {{ $employee->address ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Status Verifikasi</small>
+                        <div class="detail-item">
+                            <span class="detail-label">Status Verifikasi</span>
                             <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
                                 {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
                             </span>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Diverifikasi Oleh</small>
-                            {{ $employee->verifier?->name ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Diverifikasi Oleh</span>
+                            {{ $employee->verifier?->name ?? 'Belum diisi' }}
                         </div>
-                        <div class="col-12">
-                            <small class="text-muted d-block">Catatan Verifikasi</small>
-                            {{ $employee->verification_note ?? '-' }}
+                        <div class="detail-item">
+                            <span class="detail-label">Catatan Verifikasi</span>
+                            {{ $employee->verification_note ?? 'Belum diisi' }}
                         </div>
-                    </div>
                 </div>
-            </div>
+            </section>
+        </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Dokumen Pegawai</h5>
+        <div class="col-xl-5">
+            <section class="content-section h-100 mb-0">
+                <div class="content-section-header">
+                    <h2>Dokumen Pegawai</h2>
                 </div>
-                <div class="card-body p-0">
+                <div class="content-section-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead>
@@ -254,7 +234,7 @@
                         </table>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 @endsection

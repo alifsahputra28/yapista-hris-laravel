@@ -13,89 +13,22 @@
     $eventStatus = $eventStatusBadges[$event->status] ?? ['label' => $event->status ?: '-', 'class' => 'bg-light-secondary text-secondary'];
 @endphp
 
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-    <div>
-        <h4 class="mb-1">Laporan Kehadiran Kegiatan</h4>
-        <p class="text-muted mb-0">Detail peserta hadir dan belum hadir untuk kegiatan terpilih.</p>
-    </div>
-    <div class="d-flex flex-wrap gap-2">
-        <a href="{{ route('reports.events') }}" class="btn btn-light">
-            <i class="ti ti-arrow-left me-1"></i> Kembali
-        </a>
-        <a href="{{ route('reports.events.attendances.export', array_merge(request()->query(), ['event' => $event->id])) }}" class="btn btn-primary">
-            <i class="ti ti-file-spreadsheet me-1"></i> Export Excel
-        </a>
-    </div>
-</div>
+<x-page-header
+    title="Laporan Kehadiran"
+    :subtitle="$event->name"
+    :badge-label="$eventStatus['label']"
+    :badge-class="$eventStatus['class']"
+    :breadcrumbs="[['label' => 'Laporan Kegiatan', 'url' => route('reports.events')], ['label' => 'Kehadiran']]"
+>
+    <x-slot:meta><span>{{ $event->event_date?->format('d M Y') ?: '-' }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->location ?: 'Lokasi belum diisi' }}</span></x-slot:meta>
+    <x-slot:actions><a href="{{ route('reports.events') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a><a href="{{ route('reports.events.attendances.export', array_merge(request()->query(), ['event' => $event->id])) }}" class="btn btn-primary"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
+</x-page-header>
 
-<div class="card page-intro-card mb-4">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-                <h5 class="mb-1">{{ $event->name }}</h5>
-                <div class="text-muted">
-                    {{ $event->event_date?->format('d M Y') ?: '-' }}
-                    @if ($event->start_time)
-                        | {{ $event->start_time->format('H:i') }}
-                        @if ($event->end_time)
-                            - {{ $event->end_time->format('H:i') }}
-                        @endif
-                    @endif
-                    @if ($event->location)
-                        | {{ $event->location }}
-                    @endif
-                </div>
-            </div>
-            <span class="badge {{ $eventStatus['class'] }}">{{ $eventStatus['label'] }}</span>
-        </div>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-primary text-primary"><i class="ti ti-users"></i></div>
-                <div>
-                    <div class="text-muted small">Total Peserta</div>
-                    <h5 class="mb-0">{{ number_format($totalParticipants) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-success text-success"><i class="ti ti-user-check"></i></div>
-                <div>
-                    <div class="text-muted small">Hadir</div>
-                    <h5 class="mb-0">{{ number_format($attendedCount) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-warning text-warning"><i class="ti ti-user-question"></i></div>
-                <div>
-                    <div class="text-muted small">Belum Hadir</div>
-                    <h5 class="mb-0">{{ number_format($absentCount) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-info text-info"><i class="ti ti-chart-pie"></i></div>
-                <div>
-                    <div class="text-muted small">Persentase Hadir</div>
-                    <h5 class="mb-0">{{ $attendancePercentage }}%</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="metric-strip" aria-label="Ringkasan kehadiran">
+    <div class="metric-item"><div class="metric-label">Total Peserta</div><div class="metric-value">{{ number_format($totalParticipants) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Hadir</div><div class="metric-value">{{ number_format($attendedCount) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Belum Hadir</div><div class="metric-value">{{ number_format($absentCount) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Persentase</div><div class="metric-value">{{ $attendancePercentage }}%</div></div>
 </div>
 
 <div class="card filter-card mb-4">

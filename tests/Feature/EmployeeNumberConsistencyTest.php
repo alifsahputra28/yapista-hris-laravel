@@ -211,6 +211,7 @@ class EmployeeNumberConsistencyTest extends TestCase
 
         $this->assertSame('verified', $employee->refresh()->verification_status);
         $this->assertSame('7770924007', $employee->employee_number);
+        $this->assertNotNull($employee->activeQrToken()->first());
     }
 
     public function test_automatic_event_generation_only_includes_verified_active_employees_with_valid_numbers(): void

@@ -3,26 +3,7 @@
 @section('title', 'Edit Unit Kerja | YAPISTA HRIS')
 
 @section('content')
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('institutions.index') }}">Unit Kerja</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Edit</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <h4 class="mb-1">Edit Unit Kerja</h4>
-            <p class="mb-0 text-muted">Perbarui informasi unit kerja tanpa mengubah relasi data pegawai yang sudah berjalan.</p>
-        </div>
-    </div>
+    <x-page-header title="Edit Unit Kerja" subtitle="Perbarui informasi unit kerja tanpa mengubah relasi data pegawai yang sudah berjalan." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Unit Kerja', 'url' => route('institutions.index')], ['label' => 'Edit']]" />
 
     <div class="card">
         <div class="card-header">

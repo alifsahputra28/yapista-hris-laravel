@@ -28,27 +28,11 @@
             'verified' => ['label' => 'Terverifikasi', 'class' => 'bg-light-success text-success'],
             'rejected' => ['label' => 'Ditolak', 'class' => 'bg-light-danger text-danger'],
         ];
-        $summaryCards = [
-            ['label' => 'Total Pegawai', 'value' => $totalEmployees, 'icon' => 'ti-users', 'class' => 'bg-light-primary text-primary'],
-            ['label' => 'Pegawai Aktif', 'value' => $activeEmployees, 'icon' => 'ti-user-check', 'class' => 'bg-light-success text-success'],
-            ['label' => 'Menunggu Verifikasi', 'value' => $submittedEmployees, 'icon' => 'ti-clock-check', 'class' => 'bg-light-warning text-warning'],
-            ['label' => 'Sudah Registrasi', 'value' => $registeredEmployees, 'icon' => 'ti-user-shield', 'class' => 'bg-light-info text-info'],
-        ];
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Pegawai</li>
-                        <li class="breadcrumb-item" aria-current="page">Data Pegawai</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header title="Data Pegawai" subtitle="Cari dan kelola data pegawai YAPISTA." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Data Pegawai']]">
+        <x-slot:actions><a href="{{ route('employees.create') }}" class="btn btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Tambah Pegawai</a></x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -58,40 +42,11 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-1">Data Pegawai</h4>
-                    <p class="text-muted mb-0">Kelola data pegawai, registrasi akun, verifikasi, dan ID Card pegawai.</p>
-                </div>
-
-                <a href="{{ route('employees.create') }}" class="btn btn-primary">
-                    <i class="ti ti-plus"></i>
-                    Tambah Pegawai
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        @foreach ($summaryCards as $card)
-            <div class="col-md-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body py-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avtar avtar-s {{ $card['class'] }}">
-                                <i class="ti {{ $card['icon'] }} f-20"></i>
-                            </div>
-                            <div>
-                                <div class="text-muted small">{{ $card['label'] }}</div>
-                                <h4 class="mb-0">{{ number_format($card['value']) }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+    <div class="metric-strip" aria-label="Ringkasan pegawai">
+        <div class="metric-item"><div class="metric-label">Total Pegawai</div><div class="metric-value">{{ number_format($totalEmployees) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Pegawai Aktif</div><div class="metric-value">{{ number_format($activeEmployees) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Menunggu Verifikasi</div><div class="metric-value">{{ number_format($submittedEmployees) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Akun Terhubung</div><div class="metric-value">{{ number_format($registeredEmployees) }}</div></div>
     </div>
 
     <div class="card">

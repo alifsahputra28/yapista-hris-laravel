@@ -159,51 +159,26 @@
 @endpush
 
 @section('content')
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('pegawai.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item" aria-current="page">ID Card Saya</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="ID Card Saya"
+        subtitle="Kartu pegawai dan QR Code absensi kegiatan."
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route('pegawai.dashboard')],
+            ['label' => 'ID Card Saya'],
+        ]"
+    >
+        <x-slot:actions><a href="{{ route('pegawai.id-card.download') }}" class="btn btn-primary"><i class="ti ti-download" aria-hidden="true"></i> Download</a></x-slot:actions>
+    </x-page-header>
 
     @if (session('error'))
         <div class="alert alert-warning">{{ session('error') }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">ID Card Saya</h4>
-                    <p class="mb-0 text-muted">Kartu pegawai dan QR Code untuk absensi kegiatan.</p>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('pegawai.dashboard') }}" class="btn btn-light-secondary">Kembali</a>
-                    <a href="{{ route('pegawai.id-card.download') }}" class="btn btn-primary">
-                        <i class="ti ti-download"></i>
-                        Download
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     @foreach ($warnings as $warning)
         <div class="alert alert-warning">{{ $warning }}</div>
     @endforeach
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Preview Kartu</h5>
-        </div>
-        <div class="card-body">
+    <section aria-label="Preview ID Card">
             @if ($employee && $isValidForIdCard)
                 <div class="id-card-preview-wrap">
                     @include('id-cards._card', [
@@ -220,6 +195,5 @@
                     <p class="text-muted mb-0">ID Card akan tampil setelah data Anda terhubung, terverifikasi, dan memiliki NUP / Nomor Pegawai valid.</p>
                 </div>
             @endif
-        </div>
-    </div>
+    </section>
 @endsection

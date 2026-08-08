@@ -21,19 +21,29 @@
         $eventBackRoute = $canManageAttendance ? route('events.show', $event) : route('scanner.dashboard');
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route($dashboardRoute) }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ $eventBackRoute }}">Kegiatan</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Daftar Hadir</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Daftar Hadir"
+        subtitle="{{ $event->name }}"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route($dashboardRoute)],
+            ['label' => 'Kegiatan', 'url' => $eventBackRoute],
+            ['label' => 'Daftar Hadir'],
+        ]"
+        :badge-label="$event->status_label"
+        :badge-class="$eventStatusClasses[$event->status] ?? 'bg-light-secondary text-secondary'"
+    >
+        <x-slot:meta>
+            <span>{{ $event->event_date?->format('d M Y') }}</span><span aria-hidden="true">•</span>
+            <span>{{ $event->start_time?->format('H:i') ?? '-' }}{{ $event->end_time ? ' - '.$event->end_time->format('H:i') : '' }}</span><span aria-hidden="true">•</span>
+            <span>{{ $event->location ?? 'Lokasi belum diisi' }}</span>
+        </x-slot:meta>
+        <x-slot:actions>
+            @if ($event->canScanAttendance())
+                <a href="{{ route('events.scanner', $event) }}" class="btn btn-primary"><i class="ti ti-qrcode"></i> Scan QR Code</a>
+            @endif
+            <a href="{{ $eventBackRoute }}" class="btn btn-light-secondary">Kembali</a>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -51,134 +61,11 @@
         <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Daftar Hadir Kegiatan</h4>
-                    <p class="mb-0 text-muted">Pantau peserta yang sudah hadir dan belum hadir pada kegiatan ini.</p>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    @if ($event->canScanAttendance())
-                        <a href="{{ route('events.scanner', $event) }}" class="btn btn-primary">
-                            <i class="ti ti-qrcode"></i>
-                            Scan QR Code
-                        </a>
-                    @endif
-                    <a href="{{ $eventBackRoute }}" class="btn btn-light-secondary">Kembali</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Informasi Kegiatan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <small class="text-muted d-block">Nama Kegiatan</small>
-                            <strong>{{ $event->name }}</strong>
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Status</small>
-                            <span class="badge {{ $eventStatusClasses[$event->status] ?? 'bg-light-secondary text-secondary' }}">
-                                {{ $event->status_label }}
-                            </span>
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Tanggal</small>
-                            {{ $event->event_date?->format('d M Y') }}
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Waktu</small>
-                            {{ $event->start_time?->format('H:i') ?? '-' }}
-                            @if ($event->end_time)
-                                - {{ $event->end_time->format('H:i') }}
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Lokasi</small>
-                            {{ $event->location ?? '-' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Persentase Hadir</h5>
-                </div>
-                <div class="card-body">
-                    <h3 class="mb-2">{{ $attendancePercentage }}%</h3>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $attendancePercentage }}%;" aria-valuenow="{{ $attendancePercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="text-muted mb-0 mt-2">{{ $attendedCount }} dari {{ $totalParticipants }} peserta sudah hadir.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 col-xl-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="avtar avtar-s bg-light-primary text-primary"><i class="ti ti-users f-20"></i></div>
-                        <div>
-                            <div class="text-muted small">Total Peserta</div>
-                            <h4 class="mb-0">{{ number_format($totalParticipants) }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="avtar avtar-s bg-light-success text-success"><i class="ti ti-user-check f-20"></i></div>
-                        <div>
-                            <div class="text-muted small">Sudah Hadir</div>
-                            <h4 class="mb-0">{{ number_format($attendedCount) }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="avtar avtar-s bg-light-warning text-warning"><i class="ti ti-user-exclamation f-20"></i></div>
-                        <div>
-                            <div class="text-muted small">Belum Hadir</div>
-                            <h4 class="mb-0">{{ number_format($absentCount) }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="avtar avtar-s bg-light-info text-info"><i class="ti ti-chart-pie f-20"></i></div>
-                        <div>
-                            <div class="text-muted small">Persentase</div>
-                            <h4 class="mb-0">{{ $attendancePercentage }}%</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="metric-strip" aria-label="Ringkasan kehadiran">
+        <div class="metric-item"><div class="metric-label">Peserta Aktif</div><div class="metric-value">{{ number_format($totalParticipants) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Sudah Hadir</div><div class="metric-value">{{ number_format($attendedCount) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Belum Hadir</div><div class="metric-value">{{ number_format($absentCount) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Kehadiran</div><div class="metric-value">{{ $attendancePercentage }}%</div></div>
     </div>
 
     @if ($event->canScanAttendance() && $manualEmployees->isNotEmpty())

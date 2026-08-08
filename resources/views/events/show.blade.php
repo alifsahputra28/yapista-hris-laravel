@@ -23,19 +23,30 @@
         $selectedEmployeeIds = collect(old('employee_ids', []))->map(fn ($id) => (string) $id)->all();
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Kegiatan</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Detail</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="{{ $event->name }}"
+        subtitle="Detail jadwal, target, peserta, dan kesiapan absensi kegiatan."
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route('dashboard')],
+            ['label' => 'Kegiatan', 'url' => route('events.index')],
+            ['label' => 'Detail'],
+        ]"
+        :badge-label="$statuses[$event->status] ?? $event->status"
+        :badge-class="$statusClasses[$event->status] ?? 'bg-light-secondary text-secondary'"
+    >
+        <x-slot:meta>
+            <span>{{ $event->event_date?->format('d M Y') }}</span><span aria-hidden="true">•</span>
+            <span>{{ $event->start_time?->format('H:i') ?? '-' }}{{ $event->end_time ? ' - '.$event->end_time->format('H:i') : '' }}</span><span aria-hidden="true">•</span>
+            <span>{{ $event->location ?? 'Lokasi belum diisi' }}</span>
+        </x-slot:meta>
+        <x-slot:actions>
+            <a href="{{ route('events.index') }}" class="btn btn-light-secondary">Kembali</a>
+            <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary"><i class="ti ti-list-check"></i> Daftar Hadir</a>
+            @if ($event->canScanAttendance())
+                <a href="{{ route('events.scanner', $event) }}" class="btn btn-success"><i class="ti ti-qrcode"></i> Scan QR</a>
+            @endif
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -49,27 +60,14 @@
         <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Detail Kegiatan</h4>
-                    <p class="mb-0 text-muted">Pantau informasi kegiatan, status, dan daftar peserta yang sudah digenerate.</p>
-                </div>
-
-                <a href="{{ route('events.index') }}" class="btn btn-light-secondary">Kembali</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Informasi Kegiatan</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-8 mb-3">
                             <small class="text-muted d-block">Nama Kegiatan</small>
                             <strong>{{ $event->name }}</strong>
@@ -143,20 +141,6 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="{{ route('events.index') }}" class="btn btn-light-secondary">Kembali</a>
-
-                        <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary">
-                            <i class="ti ti-list-check"></i>
-                            Daftar Hadir
-                        </a>
-
-                        @if ($event->canScanAttendance())
-                            <a href="{{ route('events.scanner', $event) }}" class="btn btn-success">
-                                <i class="ti ti-qrcode"></i>
-                                Scan QR Code
-                            </a>
-                        @endif
-
                         @if ($event->canBeEdited())
                             <a href="{{ route('events.edit', $event) }}" class="btn btn-primary">
                                 <i class="ti ti-edit"></i>
@@ -200,7 +184,7 @@
     </div>
 
     @if ($event->isDraft())
-        <div class="row">
+            <div class="row g-4">
             <div class="col-lg-7">
                 <div class="card">
                     <div class="card-header">
@@ -209,7 +193,7 @@
                     <div class="card-body">
                         <form method="POST" action="{{ route('events.participants.generate', $event) }}" class="js-target-form">
                             @csrf
-                            <div class="row">
+                        <div class="row g-3">
                                 <div class="col-md-6 mb-3">
                                     <label for="show_target_type" class="form-label">Target Peserta</label>
                                     <select id="show_target_type" name="target_type" class="form-select js-target-type" required>

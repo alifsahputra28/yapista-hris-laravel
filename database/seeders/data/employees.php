@@ -2,9 +2,11 @@
 
 /*
 | Employee onboarding data
-| employee_number must contain exactly 10 digits and login_email must be unique.
+| A 10-digit employee_number marks an existing verified employee and receives QR.
+| A null employee_number marks a new draft employee and does not receive QR.
 | institution_name and position_name must already exist in their master seeders.
-| Profile fields are intentionally omitted; employees complete them in the wizard.
+| Profile fields are intentionally omitted. Existing employees remain verified;
+| new employees may complete them through the normal onboarding workflow.
 | New-account passwords come from EMPLOYEE_SEED_DEFAULT_PASSWORD.
 */
 
@@ -21,4 +23,5 @@ return [
     ['employee_number' => '7770923831', 'full_name' => 'Rahmat Hidayat', 'login_email' => 'rahmat.hidayat@yapista.test', 'personal_email' => null, 'institution_name' => 'SD Ibnu Sina', 'position_name' => 'Kepala Sekolah', 'employee_type' => 'tenaga_kependidikan', 'employment_status' => 'aktif', 'join_date' => '2026-06-02'],
     ['employee_number' => '7770923832', 'full_name' => 'Putri Aulia', 'login_email' => 'putri.aulia@yapista.test', 'personal_email' => null, 'institution_name' => 'STAI Ibnu Sina', 'position_name' => 'Staff Akademik', 'employee_type' => 'tenaga_kependidikan', 'employment_status' => 'aktif', 'join_date' => '2026-06-03'],
     ['employee_number' => '7770923833', 'full_name' => 'Hendra Wijaya', 'login_email' => 'hendra.wijaya@yapista.test', 'personal_email' => null, 'institution_name' => 'Universitas Ibnu Sina', 'position_name' => 'Kaprodi', 'employee_type' => 'dosen', 'employment_status' => 'aktif', 'join_date' => '2026-06-04'],
+    ['employee_number' => null, 'full_name' => 'Pegawai Baru Demo', 'login_email' => 'pegawai.baru@yapista.test', 'personal_email' => null, 'institution_name' => 'Kantor Yayasan', 'position_name' => 'Staff Yayasan', 'employee_type' => 'staff_yayasan', 'employment_status' => 'aktif', 'join_date' => null],
 ];

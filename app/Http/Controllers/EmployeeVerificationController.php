@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeDocument;
 use App\Models\Institution;
 use App\Models\Position;
+use App\Services\EmployeeQrTokenService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class EmployeeVerificationController extends Controller
 {
+    public function __construct(private readonly EmployeeQrTokenService $qrTokenService) {}
+
     public function index(Request $request): View
     {
         $search = $request->string('search')->toString();
@@ -131,6 +134,7 @@ class EmployeeVerificationController extends Controller
             $employee->verified_by = Auth::id();
             $employee->verified_at = now();
             $employee->save();
+            $this->qrTokenService->generate($employee, Auth::user());
 
             return null;
         });

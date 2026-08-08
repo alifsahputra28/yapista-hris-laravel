@@ -43,7 +43,9 @@ class EventParticipantSeeder extends Seeder
 
         $selected = $this->eligibleEmployeeIds(Employee::query()
             ->eligibleForEvents()
-            ->whereIn('email', ['ahmad.fauzi@yapista.test', 'budi.santoso@yapista.test']));
+            ->whereHas('user', function ($query): void {
+                $query->whereIn('email', ['pegawai@yapista.test', 'budi.santoso@yapista.test']);
+            }));
 
         $this->seedParticipants('Sosialisasi Program Dibatalkan', $selected, 'cancelled');
     }

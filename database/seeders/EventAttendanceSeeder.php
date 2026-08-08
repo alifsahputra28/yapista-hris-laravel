@@ -21,23 +21,23 @@ class EventAttendanceSeeder extends Seeder
         $panitia = User::where('email', 'panitia@yapista.test')->first();
 
         $this->seedAttendance('Rapat Koordinasi Yayasan', [
-            ['email' => 'ahmad.fauzi@yapista.test', 'method' => 'qr', 'minutes' => 5],
-            ['email' => 'budi.santoso@yapista.test', 'method' => 'qr', 'minutes' => 12],
-            ['email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 18, 'note' => 'Input manual karena QR Code sulit terbaca.'],
+            ['login_email' => 'pegawai@yapista.test', 'method' => 'qr', 'minutes' => 5],
+            ['login_email' => 'budi.santoso@yapista.test', 'method' => 'qr', 'minutes' => 12],
+            ['login_email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 18, 'note' => 'Input manual karena QR Code sulit terbaca.'],
         ], $panitia?->id);
 
         $this->seedAttendance('Halal Bihalal YAPISTA', [
-            ['email' => 'ahmad.fauzi@yapista.test', 'method' => 'qr', 'minutes' => 3],
-            ['email' => 'budi.santoso@yapista.test', 'method' => 'qr', 'minutes' => 6],
-            ['email' => 'andi.pratama@yapista.test', 'method' => 'qr', 'minutes' => 8],
-            ['email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 10, 'note' => 'Input manual saat antrean scan penuh.'],
-            ['email' => 'fajar.ramadhan@yapista.test', 'method' => 'qr', 'minutes' => 13],
-            ['email' => 'rahmat.hidayat@yapista.test', 'method' => 'qr', 'minutes' => 17],
+            ['login_email' => 'pegawai@yapista.test', 'method' => 'qr', 'minutes' => 3],
+            ['login_email' => 'budi.santoso@yapista.test', 'method' => 'qr', 'minutes' => 6],
+            ['login_email' => 'andi.pratama@yapista.test', 'method' => 'qr', 'minutes' => 8],
+            ['login_email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 10, 'note' => 'Input manual saat antrean scan penuh.'],
+            ['login_email' => 'fajar.ramadhan@yapista.test', 'method' => 'qr', 'minutes' => 13],
+            ['login_email' => 'rahmat.hidayat@yapista.test', 'method' => 'qr', 'minutes' => 17],
         ], $panitia?->id);
     }
 
     /**
-     * @param  array<int, array{email: string, method: string, minutes: int, note?: string}>  $attendances
+     * @param  array<int, array{login_email: string, method: string, minutes: int, note?: string}>  $attendances
      */
     private function seedAttendance(string $eventName, array $attendances, ?int $scannerId): void
     {
@@ -50,7 +50,9 @@ class EventAttendanceSeeder extends Seeder
         $baseTime = Carbon::parse($event->event_date->format('Y-m-d').' '.($event->start_time?->format('H:i:s') ?? '08:00:00'));
 
         foreach ($attendances as $attendance) {
-            $employee = Employee::where('email', $attendance['email'])->first();
+            $employee = Employee::query()
+                ->whereHas('user', fn ($query) => $query->where('email', $attendance['login_email']))
+                ->first();
 
             if (! $employee || ! $employee->isVerified()) {
                 continue;

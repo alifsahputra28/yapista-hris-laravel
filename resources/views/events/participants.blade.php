@@ -12,20 +12,13 @@
         ];
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Kegiatan</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('events.show', $event) }}">Detail</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Peserta</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Peserta Kegiatan"
+        subtitle="Kelola peserta untuk kegiatan {{ $event->name }}."
+        :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Kegiatan', 'url' => route('events.index')], ['label' => 'Detail', 'url' => route('events.show', $event)], ['label' => 'Peserta']]"
+    >
+        <x-slot:actions><a href="{{ route('events.show', $event) }}" class="btn btn-light-secondary">Kembali</a></x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -38,18 +31,6 @@
     @if ($errors->any())
         <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
-
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Peserta Kegiatan</h4>
-                    <p class="mb-0 text-muted">Kelola peserta untuk kegiatan {{ $event->name }}.</p>
-                </div>
-                <a href="{{ route('events.show', $event) }}" class="btn btn-light-secondary">Kembali</a>
-            </div>
-        </div>
-    </div>
 
     @if ($event->isDraft())
         <div class="card">

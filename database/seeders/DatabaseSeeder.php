@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
             EmployeeSeeder::class,
             EmployeeInvitationSeeder::class,
             EmployeeDocumentSeeder::class,
-            EmployeeQrTokenSeeder::class,
             EventSeeder::class,
             EventParticipantSeeder::class,
             EventAttendanceSeeder::class,

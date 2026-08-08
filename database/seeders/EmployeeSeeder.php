@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\EmployeeQrTokenService;
 use DateTimeImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -48,10 +49,14 @@ class EmployeeSeeder extends Seeder
         $summary = $this->seedRows($rows);
 
         if ($this->command) {
-            $this->command->info("Pegawai dibuat: {$summary['employees_created']}");
-            $this->command->info("Pegawai diperbarui: {$summary['employees_updated']}");
-            $this->command->info("User dibuat: {$summary['users_created']}");
-            $this->command->info("User existing: {$summary['users_existing']}");
+            $this->command->info("Existing employees created: {$summary['existing_employees_created']}");
+            $this->command->info("Existing employees updated: {$summary['existing_employees_updated']}");
+            $this->command->info("New employees created: {$summary['new_employees_created']}");
+            $this->command->info("Promoted to verified: {$summary['promoted_to_verified']}");
+            $this->command->info("QR tokens created: {$summary['qr_tokens_created']}");
+            $this->command->info("QR tokens preserved: {$summary['qr_tokens_preserved']}");
+            $this->command->info("Users created: {$summary['users_created']}");
+            $this->command->info("Users preserved: {$summary['users_preserved']}");
         }
     }
 
@@ -60,21 +65,36 @@ class EmployeeSeeder extends Seeder
      * exercise invalid input without replacing the real data file.
      *
      * @param  array<int, array<string, mixed>>  $rows
-     * @return array{employees_created: int, employees_updated: int, users_created: int, users_existing: int}
+     * @return array{
+     *     existing_employees_created: int,
+     *     existing_employees_updated: int,
+     *     new_employees_created: int,
+     *     promoted_to_verified: int,
+     *     qr_tokens_created: int,
+     *     qr_tokens_preserved: int,
+     *     users_created: int,
+     *     users_preserved: int
+     * }
      */
     public function seedRows(array $rows): array
     {
         $preparedRows = $this->validateAndPrepareRows($rows);
         $defaultPassword = $this->resolveDefaultPassword();
+        $qrTokenService = app(EmployeeQrTokenService::class);
+        $qrCreator = User::query()->where('email', 'admin@yapista.test')->first();
 
         $this->assertNoDatabaseConflicts($preparedRows);
 
-        return DB::transaction(function () use ($preparedRows, $defaultPassword): array {
+        return DB::transaction(function () use ($preparedRows, $defaultPassword, $qrTokenService, $qrCreator): array {
             $summary = [
-                'employees_created' => 0,
-                'employees_updated' => 0,
+                'existing_employees_created' => 0,
+                'existing_employees_updated' => 0,
+                'new_employees_created' => 0,
+                'promoted_to_verified' => 0,
+                'qr_tokens_created' => 0,
+                'qr_tokens_preserved' => 0,
                 'users_created' => 0,
-                'users_existing' => 0,
+                'users_preserved' => 0,
             ];
 
             foreach ($preparedRows as $row) {
@@ -88,7 +108,7 @@ class EmployeeSeeder extends Seeder
                     ],
                 );
 
-                $summary[$user->wasRecentlyCreated ? 'users_created' : 'users_existing']++;
+                $summary[$user->wasRecentlyCreated ? 'users_created' : 'users_preserved']++;
 
                 $user->fill([
                     'name' => $row['full_name'],
@@ -96,7 +116,11 @@ class EmployeeSeeder extends Seeder
                     'status' => 'active',
                 ])->save();
 
-                $employee = Employee::where('employee_number', $row['employee_number'])->first();
+                $employeeByNumber = $row['employee_number'] !== null
+                    ? Employee::query()->where('employee_number', $row['employee_number'])->first()
+                    : null;
+                $employeeByUser = Employee::query()->where('user_id', $user->id)->first();
+                $employee = $employeeByNumber ?? $employeeByUser;
                 $masterData = [
                     'user_id' => $user->id,
                     'institution_id' => $row['institution_id'],
@@ -115,19 +139,36 @@ class EmployeeSeeder extends Seeder
                 }
 
                 if ($employee) {
-                    $employee->fill($masterData)->save();
-                    $summary['employees_updated']++;
+                    $wasVerified = $employee->isVerified();
 
-                    continue;
+                    if ($row['employee_number'] !== null) {
+                        $masterData['employee_number'] = $row['employee_number'];
+                        $masterData['verification_status'] = 'verified';
+                    }
+
+                    $employee->fill($masterData)->save();
+                    if ($row['employee_number'] !== null) {
+                        $summary['existing_employees_updated']++;
+                        if (! $wasVerified) {
+                            $summary['promoted_to_verified']++;
+                        }
+                    }
+                } else {
+                    $isExistingEmployee = $row['employee_number'] !== null;
+                    $employee = Employee::create($masterData + [
+                        'employee_number' => $row['employee_number'],
+                        'email' => $row['personal_email'] ?? null,
+                        'join_date' => $row['join_date'] ?? null,
+                        'verification_status' => $isExistingEmployee ? 'verified' : 'draft',
+                    ]);
+                    $summary[$isExistingEmployee ? 'existing_employees_created' : 'new_employees_created']++;
                 }
 
-                Employee::create($masterData + [
-                    'employee_number' => $row['employee_number'],
-                    'email' => $row['personal_email'] ?? null,
-                    'join_date' => $row['join_date'] ?? null,
-                    'verification_status' => 'draft',
-                ]);
-                $summary['employees_created']++;
+                if ($employee->isVerified() && $employee->hasValidEmployeeNumber()) {
+                    $hadActiveToken = $employee->activeQrToken()->exists();
+                    $qrTokenService->generate($employee, $qrCreator);
+                    $summary[$hadActiveToken ? 'qr_tokens_preserved' : 'qr_tokens_created']++;
+                }
             }
 
             return $summary;
@@ -151,7 +192,7 @@ class EmployeeSeeder extends Seeder
                 throw new RuntimeException("Data pegawai baris {$line} harus berupa array.");
             }
 
-            foreach (['employee_number', 'full_name', 'login_email', 'institution_name', 'position_name', 'employee_type', 'employment_status'] as $field) {
+            foreach (['full_name', 'login_email', 'institution_name', 'position_name', 'employee_type', 'employment_status'] as $field) {
                 if (! isset($row[$field]) || ! is_string($row[$field]) || trim($row[$field]) === '') {
                     throw new RuntimeException("Data pegawai baris {$line}: {$field} wajib diisi.");
                 }
@@ -159,14 +200,20 @@ class EmployeeSeeder extends Seeder
                 $row[$field] = trim($row[$field]);
             }
 
-            if (preg_match('/^\d{10}$/', $row['employee_number']) !== 1) {
-                throw new RuntimeException("Data pegawai baris {$line}: employee_number harus tepat 10 digit angka.");
-            }
+            $employeeNumber = $row['employee_number'] ?? null;
+            $row['employee_number'] = is_string($employeeNumber) ? trim($employeeNumber) : $employeeNumber;
+            $row['employee_number'] = $row['employee_number'] === '' ? null : $row['employee_number'];
 
-            if (isset($employeeNumbers[$row['employee_number']])) {
-                throw new RuntimeException("Data pegawai baris {$line}: employee_number {$row['employee_number']} duplikat dalam file data.");
+            if ($row['employee_number'] !== null) {
+                if (! is_string($row['employee_number']) || preg_match('/^\d{10}$/', $row['employee_number']) !== 1) {
+                    throw new RuntimeException("Data pegawai baris {$line}: employee_number harus null atau tepat 10 digit angka.");
+                }
+
+                if (isset($employeeNumbers[$row['employee_number']])) {
+                    throw new RuntimeException("Data pegawai baris {$line}: employee_number {$row['employee_number']} duplikat dalam file data.");
+                }
+                $employeeNumbers[$row['employee_number']] = true;
             }
-            $employeeNumbers[$row['employee_number']] = true;
 
             $row['login_email'] = mb_strtolower($row['login_email']);
             if (filter_var($row['login_email'], FILTER_VALIDATE_EMAIL) === false) {
@@ -229,7 +276,9 @@ class EmployeeSeeder extends Seeder
     {
         foreach ($rows as $index => $row) {
             $line = $index + 1;
-            $employee = Employee::where('employee_number', $row['employee_number'])->first();
+            $employeeByNumber = $row['employee_number'] !== null
+                ? Employee::query()->where('employee_number', $row['employee_number'])->first()
+                : null;
             $user = User::where('email', $row['login_email'])->first();
 
             if ($user && ! $user->isPegawai()) {
@@ -237,11 +286,14 @@ class EmployeeSeeder extends Seeder
             }
 
             $employeeUsingUser = $user ? Employee::where('user_id', $user->id)->first() : null;
-            if ($employeeUsingUser && (! $employee || $employeeUsingUser->isNot($employee))) {
+            if ($row['employee_number'] !== null
+                && $employeeUsingUser
+                && (($employeeByNumber && $employeeUsingUser->isNot($employeeByNumber))
+                    || (! $employeeByNumber && $employeeUsingUser->employee_number !== null))) {
                 throw new RuntimeException("Data pegawai baris {$line}: login_email sudah terhubung ke pegawai lain.");
             }
 
-            if ($employee?->user_id !== null && (! $user || $employee->user_id !== $user->id)) {
+            if ($employeeByNumber?->user_id !== null && (! $user || $employeeByNumber->user_id !== $user->id)) {
                 throw new RuntimeException("Data pegawai baris {$line}: employee_number sudah terhubung ke akun lain.");
             }
         }

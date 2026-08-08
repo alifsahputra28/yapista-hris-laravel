@@ -2,12 +2,11 @@
     $photoUrl = $employee->photo
         ? asset('storage/'.$employee->photo)
         : asset('assets/images/user/avatar-2.jpg');
-    $logoUrl = asset('assets/images/logo-yapista-hris.png');
 @endphp
 
 <div class="yapista-id-card">
     <div class="id-card-header">
-        <img src="{{ $logoUrl }}" alt="YAPISTA HRIS" class="id-card-logo">
+        <x-application-logo class="id-card-logo" alt="Logo YAPISTA HRIS" />
         <div>
             <div class="id-card-brand">YAPISTA</div>
             <div class="id-card-subtitle">KARTU PEGAWAI</div>

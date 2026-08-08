@@ -18,18 +18,15 @@
         ];
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Undangan Registrasi</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Undangan Registrasi Pegawai"
+        subtitle="Pantau kode undangan, link registrasi, masa berlaku, dan status pemakaian pegawai."
+        :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Undangan Registrasi']]"
+    >
+        <x-slot:actions>
+            <a href="{{ route('employees.index') }}" class="btn btn-primary"><i class="ti ti-users" aria-hidden="true"></i> Data Pegawai</a>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -46,23 +43,7 @@
         </div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Undangan Registrasi Pegawai</h4>
-                    <p class="mb-0 text-muted">Pantau kode undangan, link registrasi, masa berlaku, dan status pemakaian pegawai.</p>
-                </div>
-
-                <a href="{{ route('employees.index') }}" class="btn btn-primary">
-                    <i class="ti ti-users"></i>
-                    Data Pegawai
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
+    <div class="row g-4 mb-4">
         @foreach ($summaryCards as $card)
             <div class="col-md-6 col-xl-3">
                 <div class="card summary-card">

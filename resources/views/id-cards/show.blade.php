@@ -159,20 +159,41 @@
 @endpush
 
 @section('content')
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('employees.index') }}">Data Pegawai</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('employees.show', $employee) }}">Detail Pegawai</a></li>
-                        <li class="breadcrumb-item" aria-current="page">ID Card</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="ID Card Pegawai"
+        subtitle="Preview ID Card dengan QR Code absensi dan NUP / Nomor Pegawai."
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route('dashboard')],
+            ['label' => 'Data Pegawai', 'url' => route('employees.index')],
+            ['label' => 'Detail Pegawai', 'url' => route('employees.show', $employee)],
+            ['label' => 'ID Card'],
+        ]"
+    >
+        <x-slot:actions>
+            <a href="{{ route('employees.show', $employee) }}" class="btn btn-light-secondary">Kembali</a>
+            <a href="{{ route('employees.id-card.download', $employee) }}" class="btn btn-primary">
+                <i class="ti ti-download" aria-hidden="true"></i>
+                Download
+            </a>
+            @if ($isValidForIdCard && $hasActiveQrToken)
+                <form method="POST" action="{{ route('employees.id-card.qr.regenerate', $employee) }}" onsubmit="return confirm('QR Code lama akan langsung tidak berlaku. Lanjutkan membuat QR baru?')">
+                    @csrf
+                    <button type="submit" class="btn btn-warning">
+                        <i class="ti ti-refresh" aria-hidden="true"></i>
+                        Buat Ulang QR Code
+                    </button>
+                </form>
+            @elseif ($isValidForIdCard)
+                <form method="POST" action="{{ route('employees.id-card.qr.generate', $employee) }}">
+                    @csrf
+                    <button type="submit" class="btn btn-success">
+                        <i class="ti ti-qrcode" aria-hidden="true"></i>
+                        Buat QR Code
+                    </button>
+                </form>
+            @endif
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('error'))
         <div class="alert alert-warning">{{ session('error') }}</div>
@@ -182,47 +203,11 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">ID Card Pegawai</h4>
-                    <p class="mb-0 text-muted">Preview ID Card dengan QR Code absensi dan NUP / Nomor Pegawai.</p>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('employees.show', $employee) }}" class="btn btn-light-secondary">Kembali</a>
-                    <a href="{{ route('employees.id-card.download', $employee) }}" class="btn btn-primary">
-                        <i class="ti ti-download"></i>
-                        Download
-                    </a>
-                    @if ($isValidForIdCard && $hasActiveQrToken)
-                        <form method="POST" action="{{ route('employees.id-card.qr.regenerate', $employee) }}" onsubmit="return confirm('QR Code lama akan langsung tidak berlaku. Lanjutkan membuat QR baru?')">
-                            @csrf
-                            <button type="submit" class="btn btn-warning">
-                                <i class="ti ti-refresh"></i>
-                                Buat Ulang QR Code
-                            </button>
-                        </form>
-                    @elseif ($isValidForIdCard)
-                        <form method="POST" action="{{ route('employees.id-card.qr.generate', $employee) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-success">
-                                <i class="ti ti-qrcode"></i>
-                                Buat QR Code
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
     @foreach ($warnings as $warning)
         <div class="alert alert-warning">{{ $warning }}</div>
     @endforeach
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-xl-5 col-lg-6">
             <div class="card">
                 <div class="card-header">

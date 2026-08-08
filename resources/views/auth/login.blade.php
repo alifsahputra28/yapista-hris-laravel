@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
     <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/yapista-ui.css') }}">
 </head>
 
 <body>
@@ -32,7 +33,7 @@
             <div class="auth-form">
                 <div class="auth-header">
                     <a href="{{ url('/') }}">
-                        <img src="{{ asset('assets/images/logo-yapista-hris.png') }}" alt="YAPISTA HRIS">
+                        <x-application-logo class="auth-brand-logo" />
                     </a>
                 </div>
 

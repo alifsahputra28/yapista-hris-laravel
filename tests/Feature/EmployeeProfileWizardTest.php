@@ -292,7 +292,7 @@ class EmployeeProfileWizardTest extends TestCase
             ->get(route('pegawai.profile.show', absolute: false))
             ->assertOk()
             ->assertSee('Kelengkapan Profil')
-            ->assertSee('Lengkapi Profil');
+            ->assertSee('Perbarui Data');
 
         $this->actingAs($user)
             ->get(route('pegawai.profile.edit', absolute: false))

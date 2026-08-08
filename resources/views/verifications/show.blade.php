@@ -42,19 +42,27 @@
         $photoUrl = $employee->photo ? asset('storage/'.$employee->photo) : asset('assets/images/user/avatar-2.jpg');
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('verifications.index') }}">Verifikasi Pegawai</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Detail</li>
-                    </ul>
-                </div>
+    <x-page-header
+        title="Review {{ $employee->full_name }}"
+        subtitle="Periksa data utama dan dokumen sebelum mengambil keputusan verifikasi."
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route('dashboard')],
+            ['label' => 'Verifikasi Pegawai', 'url' => route('verifications.index')],
+            ['label' => 'Review'],
+        ]"
+        :badge-label="$verificationStatuses[$employee->verification_status] ?? $employee->verification_status"
+        :badge-class="$verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary'"
+    >
+        <x-slot:meta>
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ $photoUrl }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle" width="48" height="48" style="object-fit: cover;">
+                <x-employee-context :employee="$employee" />
             </div>
-        </div>
-    </div>
+        </x-slot:meta>
+        <x-slot:actions>
+            <a href="{{ route('verifications.index') }}" class="btn btn-light-secondary">Kembali</a>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -76,43 +84,14 @@
         <div class="alert alert-secondary">Pegawai belum mengajukan verifikasi.</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Detail Verifikasi Pegawai</h4>
-                    <p class="mb-0 text-muted">Review biodata, foto, data kepegawaian, dan status dokumen sebelum approve atau reject.</p>
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <section class="content-section h-100 mb-0">
+                <div class="content-section-header">
+                    <h2>Biodata Pegawai</h2>
                 </div>
-
-                <a href="{{ route('verifications.index') }}" class="btn btn-light-secondary">Kembali</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Foto Pegawai</h5>
-                </div>
-                <div class="card-body text-center">
-                    <img src="{{ $photoUrl }}" alt="{{ $employee->full_name }}" class="rounded-circle wid-100 hei-100 mb-3" style="object-fit: cover;">
-                    <h4 class="mb-1">{{ $employee->full_name }}</h4>
-                    <p class="text-muted mb-2">NUP / Nomor Pegawai: {{ $employee->formatted_employee_number }}</p>
-                    <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
-                        {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Biodata Pegawai</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="content-section-body">
+                    <div class="row g-4">
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Nama Lengkap</small>{{ $employee->full_name }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Kelamin</small>{{ $employee->gender === 'male' ? 'Laki-laki' : ($employee->gender === 'female' ? 'Perempuan' : '-') }}</div>
@@ -122,14 +101,16 @@
                         <div class="col-12"><small class="text-muted d-block">Alamat</small>{{ $employee->address ?? '-' }}</div>
                     </div>
                 </div>
-            </div>
+            </section>
+        </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Data Kepegawaian</h5>
+        <div class="col-xl-6">
+            <section class="content-section h-100 mb-0">
+                <div class="content-section-header">
+                    <h2>Data Kepegawaian</h2>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="content-section-body">
+                    <div class="row g-4">
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Unit Kerja</small>{{ $employee->institution?->name ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jabatan</small>{{ $employee->position?->name ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Pegawai</small>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}</div>
@@ -146,15 +127,15 @@
                         <div class="col-12"><small class="text-muted d-block">Catatan Verifikasi</small>{{ $employee->verification_note ?? '-' }}</div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Dokumen Pegawai</h5>
+    <section class="content-section">
+        <div class="content-section-header">
+            <h2>Dokumen Pegawai</h2>
         </div>
-        <div class="card-body p-0">
+        <div class="content-section-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead>
@@ -227,13 +208,13 @@
                 </table>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Aksi Verifikasi</h5>
+    <section class="content-section">
+        <div class="content-section-header">
+            <h2>Aksi Verifikasi</h2>
         </div>
-        <div class="card-body">
+        <div class="content-section-body">
             @if ($employee->isSubmitted())
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <form method="POST" action="{{ route('verifications.approve', $employee) }}" onsubmit="return confirm('Approve data pegawai ini?')">
@@ -263,5 +244,5 @@
                 <p class="mb-0 text-muted">Aksi approve/reject hanya tersedia untuk data dengan status Menunggu Verifikasi.</p>
             @endif
         </div>
-    </div>
+    </section>
 @endsection

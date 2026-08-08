@@ -16,19 +16,15 @@
         ];
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Master Data</li>
-                        <li class="breadcrumb-item" aria-current="page">Unit Kerja</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Unit Kerja"
+        subtitle="Kelola master data lembaga, sekolah, perguruan tinggi, dan kantor yayasan."
+        :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Master Data'], ['label' => 'Unit Kerja']]"
+    >
+        <x-slot:actions>
+            <a href="{{ route('institutions.create') }}" class="btn btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Tambah Unit Kerja</a>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -38,23 +34,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Unit Kerja</h4>
-                    <p class="mb-0 text-muted">Kelola master data lembaga, sekolah, perguruan tinggi, dan kantor yayasan.</p>
-                </div>
-
-                <a href="{{ route('institutions.create') }}" class="btn btn-primary">
-                    <i class="ti ti-plus"></i>
-                    Tambah Unit Kerja
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
+    <div class="row g-4 mb-4">
         @foreach ($summaryCards as $card)
             <div class="col-md-6 col-xl-3">
                 <div class="card summary-card">

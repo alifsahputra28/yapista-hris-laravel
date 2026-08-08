@@ -26,6 +26,7 @@ class DatabaseSeederIdempotencyTest extends TestCase
 
             $budi = Employee::where('employee_number', '7770923824')->firstOrFail();
             $budiUser = $budi->user()->firstOrFail();
+            $budiQrTokenId = $budi->activeQrToken()->firstOrFail()->id;
             $originalPassword = $budiUser->password;
             $budi->update([
                 'nik' => '2171011603880003',
@@ -46,16 +47,16 @@ class DatabaseSeederIdempotencyTest extends TestCase
 
             $counts = $this->tableCounts();
             $this->assertSame([
-                'users' => 15,
+                'users' => 16,
                 'institutions' => 7,
                 'positions' => 37,
-                'employees' => 12,
+                'employees' => 13,
                 'employee_invitations' => 0,
                 'employee_documents' => 1,
-                'employee_qr_tokens' => 0,
+                'employee_qr_tokens' => 12,
                 'events' => 5,
-                'event_participants' => 0,
-                'event_attendances' => 0,
+                'event_participants' => 34,
+                'event_attendances' => 9,
             ], $counts);
             $eventId = Event::where('name', 'Rapat Koordinasi Yayasan')->firstOrFail()->id;
 
@@ -73,6 +74,10 @@ class DatabaseSeederIdempotencyTest extends TestCase
             $this->assertSame('employees/photos/existing.jpg', $budi->photo);
             $this->assertSame($originalPassword, $budiUser->fresh()->password);
             $this->assertDatabaseHas('employee_documents', ['id' => $existingDocument->id]);
+            $this->assertSame('verified', $budi->verification_status);
+            $this->assertSame($budiQrTokenId, $budi->activeQrToken()->value('id'));
+            $this->assertSame(12, Employee::where('verification_status', 'verified')->count());
+            $this->assertSame(1, Employee::whereNull('employee_number')->where('verification_status', 'draft')->count());
 
             $this->assertSame(0, Employee::query()->whereNotNull('nup')->count());
             $this->assertSame(0, Employee::query()->whereNotNull('foundation_registry_number')->count());

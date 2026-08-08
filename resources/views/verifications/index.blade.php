@@ -20,26 +20,11 @@
             'verified' => ['label' => 'Terverifikasi', 'class' => 'bg-light-success text-success'],
             'rejected' => ['label' => 'Ditolak', 'class' => 'bg-light-danger text-danger'],
         ];
-        $summaryCards = [
-            ['label' => 'Menunggu Verifikasi', 'value' => $submittedEmployees ?? 0, 'icon' => 'ti-user-check', 'class' => 'bg-light-primary text-primary'],
-            ['label' => 'Terverifikasi', 'value' => $verifiedEmployees ?? 0, 'icon' => 'ti-circle-check', 'class' => 'bg-light-success text-success'],
-            ['label' => 'Ditolak', 'value' => $rejectedEmployees ?? 0, 'icon' => 'ti-circle-x', 'class' => 'bg-light-danger text-danger'],
-            ['label' => 'Draft', 'value' => $draftEmployees ?? 0, 'icon' => 'ti-file-pencil', 'class' => 'bg-light-secondary text-secondary'],
-        ];
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Verifikasi Pegawai</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header title="Verifikasi Pegawai" subtitle="Periksa pengajuan dan putuskan status pegawai." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Verifikasi Pegawai']]">
+        <x-slot:actions><a href="{{ route('employees.index') }}" class="btn btn-light-secondary"><i class="ti ti-users" aria-hidden="true"></i> Data Pegawai</a></x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -49,40 +34,11 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Verifikasi Pegawai</h4>
-                    <p class="mb-0 text-muted">Periksa biodata, foto, unit kerja, jabatan, dan dokumen pegawai sebelum approve.</p>
-                </div>
-
-                <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">
-                    <i class="ti ti-users"></i>
-                    Data Pegawai
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        @foreach ($summaryCards as $card)
-            <div class="col-md-6 col-xl-3">
-                <div class="card summary-card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avtar avtar-s {{ $card['class'] }}">
-                                <i class="ti {{ $card['icon'] }} f-20"></i>
-                            </div>
-                            <div>
-                                <div class="text-muted small">{{ $card['label'] }}</div>
-                                <h4 class="mb-0">{{ number_format($card['value']) }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+    <div class="metric-strip" aria-label="Ringkasan verifikasi">
+        <div class="metric-item"><div class="metric-label">Menunggu</div><div class="metric-value">{{ number_format($submittedEmployees ?? 0) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Terverifikasi</div><div class="metric-value">{{ number_format($verifiedEmployees ?? 0) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Ditolak</div><div class="metric-value">{{ number_format($rejectedEmployees ?? 0) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Draft</div><div class="metric-value">{{ number_format($draftEmployees ?? 0) }}</div></div>
     </div>
 
     <div class="card filter-card">

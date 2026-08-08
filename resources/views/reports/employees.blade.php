@@ -20,61 +20,15 @@
     ];
 @endphp
 
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-    <div>
-        <h4 class="mb-1">Laporan Pegawai</h4>
-        <p class="text-muted mb-0">Pantau data pegawai, registrasi akun, NUP / Nomor Pegawai, dan status verifikasi.</p>
-    </div>
-    <a href="{{ route('reports.employees.export', request()->query()) }}" class="btn btn-primary">
-        <i class="ti ti-file-spreadsheet me-1"></i> Export Excel
-    </a>
-</div>
+<x-page-header title="Laporan Pegawai" subtitle="Filter dan ekspor data pegawai." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Laporan Pegawai']]">
+    <x-slot:actions><a href="{{ route('reports.employees.export', request()->query()) }}" class="btn btn-primary"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
+</x-page-header>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-primary text-primary"><i class="ti ti-users"></i></div>
-                <div>
-                    <div class="text-muted small">Total Pegawai</div>
-                    <h5 class="mb-0">{{ number_format($totalEmployees) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-success text-success"><i class="ti ti-user-check"></i></div>
-                <div>
-                    <div class="text-muted small">Pegawai Aktif</div>
-                    <h5 class="mb-0">{{ number_format($activeEmployees) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-info text-info"><i class="ti ti-login"></i></div>
-                <div>
-                    <div class="text-muted small">Sudah Registrasi</div>
-                    <h5 class="mb-0">{{ number_format($registeredEmployees) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-warning text-warning"><i class="ti ti-shield-check"></i></div>
-                <div>
-                    <div class="text-muted small">Terverifikasi</div>
-                    <h5 class="mb-0">{{ number_format($verifiedEmployees) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="metric-strip" aria-label="Ringkasan laporan pegawai">
+    <div class="metric-item"><div class="metric-label">Total Pegawai</div><div class="metric-value">{{ number_format($totalEmployees) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Pegawai Aktif</div><div class="metric-value">{{ number_format($activeEmployees) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Akun Terhubung</div><div class="metric-value">{{ number_format($registeredEmployees) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Terverifikasi</div><div class="metric-value">{{ number_format($verifiedEmployees) }}</div></div>
 </div>
 
 <div class="card filter-card mb-4">

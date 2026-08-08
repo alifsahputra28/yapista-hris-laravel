@@ -20,15 +20,17 @@ class EmployeeOnboardingSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_seeder_creates_login_ready_draft_employees_with_empty_profiles(): void
+    public function test_seeder_distinguishes_existing_and_new_employees_without_faking_profiles(): void
     {
         $this->seedOnboarding();
 
-        $this->assertSame(12, Employee::count());
-        $this->assertSame(12, User::where('role', 'pegawai')->count());
-        $this->assertSame(12, Employee::whereNotNull('user_id')->count());
-        $this->assertSame(12, Employee::where('verification_status', 'draft')->count());
+        $this->assertSame(13, Employee::count());
+        $this->assertSame(13, User::where('role', 'pegawai')->count());
+        $this->assertSame(13, Employee::whereNotNull('user_id')->count());
+        $this->assertSame(12, Employee::where('verification_status', 'verified')->count());
+        $this->assertSame(1, Employee::where('verification_status', 'draft')->count());
         $this->assertSame(12, Employee::all()->filter->hasValidEmployeeNumber()->count());
+        $this->assertSame(12, DB::table('employee_qr_tokens')->where('is_active', true)->whereNull('revoked_at')->count());
         $this->assertSame(0, DB::table('employees')->select('employee_number')->groupBy('employee_number')->havingRaw('count(*) > 1')->count());
 
         $employee = Employee::where('employee_number', '7770923822')->firstOrFail();
@@ -36,6 +38,11 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->assertSame('pegawai', $user->role);
         $this->assertSame('active', $user->status);
         $this->assertTrue(Hash::check('password', $user->password));
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertTrue($employee->isEligibleForIdCard());
+        $this->assertNotNull($employee->activeQrToken()->first());
+        $this->assertNull($employee->verified_at);
+        $this->assertNull($employee->verified_by);
 
         foreach ([
             'email', 'nik', 'family_card_number', 'gender', 'birth_place', 'birth_date',
@@ -53,11 +60,18 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->assertFalse($employee->certifications()->exists());
         $this->assertFalse($employee->administrativeDetail()->exists());
         $this->assertFalse($employee->documents()->exists());
-        $this->assertFalse($employee->qrTokens()->exists());
+        $this->assertTrue($employee->qrTokens()->exists());
         $this->assertFalse($employee->eventParticipants()->exists());
         $this->assertFalse($employee->eventAttendances()->exists());
         $this->assertNull($employee->getRawOriginal('nup'));
         $this->assertNull($employee->getRawOriginal('foundation_registry_number'));
+
+        $newEmployee = Employee::whereHas('user', fn ($query) => $query->where('email', 'pegawai.baru@yapista.test'))->firstOrFail();
+        $this->assertNull($newEmployee->employee_number);
+        $this->assertSame('draft', $newEmployee->verification_status);
+        $this->assertFalse($newEmployee->qrTokens()->exists());
+        $this->assertFalse($newEmployee->isEligibleForIdCard());
+        $this->assertTrue(Hash::check('password', $newEmployee->user->password));
     }
 
     public function test_rerun_preserves_password_profile_status_and_related_records(): void
@@ -66,6 +80,7 @@ class EmployeeOnboardingSeederTest extends TestCase
 
         $employee = Employee::where('employee_number', '7770923824')->firstOrFail();
         $user = $employee->user()->firstOrFail();
+        $qrToken = $employee->activeQrToken()->firstOrFail();
         $admin = User::where('email', 'admin@yapista.test')->firstOrFail();
         $customPassword = Hash::make('do-not-reset-me');
         $user->update(['password' => $customPassword]);
@@ -117,6 +132,8 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->assertDatabaseHas('employee_educations', ['id' => $education->id]);
         $this->assertDatabaseHas('employee_administrative_details', ['id' => $administration->id]);
         $this->assertDatabaseHas('employee_documents', ['id' => $document->id]);
+        $this->assertSame($qrToken->id, $employee->activeQrToken()->value('id'));
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
     }
 
     public function test_data_validation_rejects_invalid_rows_before_any_employee_is_written(): void
@@ -125,7 +142,7 @@ class EmployeeOnboardingSeederTest extends TestCase
         $seeder = app(EmployeeSeeder::class);
         $valid = $this->validRow();
         $cases = [
-            'employee_number' => [array_merge($valid, ['employee_number' => '123']), 'employee_number harus tepat 10 digit'],
+            'employee_number' => [array_merge($valid, ['employee_number' => '123']), 'employee_number harus null atau tepat 10 digit'],
             'login_email' => [array_merge($valid, ['login_email' => 'bukan-email']), 'login_email tidak valid'],
             'institution' => [array_merge($valid, ['institution_name' => 'Unit Tidak Ada']), 'unit kerja Unit Tidak Ada tidak ditemukan'],
             'position' => [array_merge($valid, ['position_name' => 'Jabatan Tidak Ada']), 'jabatan Jabatan Tidak Ada'],
@@ -158,6 +175,12 @@ class EmployeeOnboardingSeederTest extends TestCase
 
         $this->assertSame(0, Employee::count());
         $this->assertSame(0, User::where('role', 'pegawai')->count());
+
+        $seeder->seedRows([
+            array_merge($valid, ['employee_number' => null]),
+            array_merge($valid, ['employee_number' => null, 'login_email' => 'pegawai.validasi.dua@yapista.test']),
+        ]);
+        $this->assertSame(2, Employee::whereNull('employee_number')->where('verification_status', 'draft')->count());
     }
 
     public function test_conflicting_account_links_are_rejected_without_moving_accounts(): void
@@ -174,10 +197,10 @@ class EmployeeOnboardingSeederTest extends TestCase
         $seeder->seedRows([$conflict]);
     }
 
-    public function test_seeded_draft_employee_can_open_and_update_the_profile_wizard(): void
+    public function test_seeded_new_employee_can_open_and_update_the_profile_wizard(): void
     {
         $this->seedOnboarding();
-        $employee = Employee::where('employee_number', '7770923822')->firstOrFail();
+        $employee = Employee::whereHas('user', fn ($query) => $query->where('email', 'pegawai.baru@yapista.test'))->firstOrFail();
         $user = $employee->user()->firstOrFail();
 
         $this->actingAs($user)
@@ -198,18 +221,13 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->assertSame('draft', $employee->fresh()->verification_status);
     }
 
-    public function test_qr_seeder_skips_drafts_and_is_idempotent_for_verified_employees(): void
+    public function test_qr_seeder_preserves_existing_tokens_and_skips_new_drafts(): void
     {
         $this->seedOnboarding();
 
-        $this->seed(EmployeeQrTokenSeeder::class);
-        $this->assertSame(0, DB::table('employee_qr_tokens')->count());
-
         $employee = Employee::where('employee_number', '7770923822')->firstOrFail();
-        $employee->update(['verification_status' => 'verified']);
+        $token = $employee->activeQrToken()->firstOrFail();
         $this->seed(EmployeeQrTokenSeeder::class);
-
-        $token = $employee->qrTokens()->where('is_active', true)->firstOrFail();
         $this->assertSame(64, strlen($token->token_encrypted));
         $this->assertNotSame($employee->employee_number, $token->token_encrypted);
         $this->assertSame(hash('sha256', $token->token_encrypted), $token->token_hash);
@@ -219,6 +237,87 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->seed(EmployeeQrTokenSeeder::class);
         $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
         $this->assertSame($token->id, $employee->qrTokens()->where('is_active', true)->value('id'));
+        $this->assertFalse(Employee::whereNull('employee_number')->firstOrFail()->qrTokens()->exists());
+    }
+
+    public function test_seed_data_promotes_only_listed_existing_employees_and_preserves_profile_history(): void
+    {
+        $this->seedMasterData();
+        $admin = User::where('email', 'admin@yapista.test')->firstOrFail();
+        $seeder = app(EmployeeSeeder::class);
+        $rows = [
+            $this->validRow(),
+            array_merge($this->validRow(), [
+                'employee_number' => '1000000002',
+                'full_name' => 'Pegawai Rejected',
+                'login_email' => 'pegawai.rejected@yapista.test',
+            ]),
+        ];
+
+        $seeder->seedRows(array_map(
+            fn (array $row): array => array_merge($row, ['employee_number' => null]),
+            $rows,
+        ));
+        $first = Employee::whereHas('user', fn ($query) => $query->where('email', 'pegawai.validasi@yapista.test'))->firstOrFail();
+        $second = Employee::whereHas('user', fn ($query) => $query->where('email', 'pegawai.rejected@yapista.test'))->firstOrFail();
+        $first->forceFill([
+            'verification_status' => 'draft',
+            'phone' => '081200000001',
+            'verified_by' => null,
+            'verified_at' => null,
+        ])->save();
+        $second->forceFill([
+            'verification_status' => 'rejected',
+            'verification_note' => 'Catatan lama tetap tersimpan.',
+            'verified_by' => $admin->id,
+            'verified_at' => null,
+        ])->save();
+        $outside = Employee::create([
+            'institution_id' => $first->institution_id,
+            'position_id' => $first->position_id,
+            'employee_number' => '1000000099',
+            'full_name' => 'Pegawai Di Luar File',
+            'employee_type' => 'guru',
+            'employment_status' => 'aktif',
+            'verification_status' => 'draft',
+        ]);
+
+        $summary = $seeder->seedRows($rows);
+
+        $this->assertSame(2, $summary['promoted_to_verified']);
+        $this->assertSame('verified', $first->fresh()->verification_status);
+        $this->assertSame('1000000001', $first->fresh()->employee_number);
+        $this->assertSame('081200000001', $first->phone);
+        $this->assertNull($first->verified_at);
+        $this->assertNull($first->verified_by);
+        $this->assertSame('verified', $second->fresh()->verification_status);
+        $this->assertSame('1000000002', $second->fresh()->employee_number);
+        $this->assertSame('Catatan lama tetap tersimpan.', $second->verification_note);
+        $this->assertSame($admin->id, $second->verified_by);
+        $this->assertSame('draft', $outside->fresh()->verification_status);
+        $this->assertNotNull($first->activeQrToken()->first());
+        $this->assertNotNull($second->activeQrToken()->first());
+    }
+
+    public function test_existing_employee_with_empty_profile_has_id_card_and_is_not_in_new_employee_queue(): void
+    {
+        $this->seedOnboarding();
+        $admin = User::where('email', 'admin@yapista.test')->firstOrFail();
+        $existing = Employee::where('employee_number', '7770923822')->firstOrFail();
+        $newEmployee = Employee::whereHas('user', fn ($query) => $query->where('email', 'pegawai.baru@yapista.test'))->firstOrFail();
+        $newEmployee->forceFill(['verification_status' => 'submitted'])->save();
+
+        $this->actingAs($admin)
+            ->get(route('employees.id-card.show', $existing, absolute: false))
+            ->assertOk()
+            ->assertSee('7770923822')
+            ->assertSee('QR Code');
+
+        $this->actingAs($admin)
+            ->get(route('verifications.index', absolute: false))
+            ->assertOk()
+            ->assertSee($newEmployee->full_name)
+            ->assertDontSee($existing->full_name);
     }
 
     private function seedMasterData(): void

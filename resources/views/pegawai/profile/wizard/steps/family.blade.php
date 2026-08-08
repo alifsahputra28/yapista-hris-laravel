@@ -14,7 +14,7 @@
                 <div class="d-flex flex-wrap justify-content-end gap-2 mt-4"><button name="wizard_action" value="stay" class="btn btn-outline-primary" type="submit">Simpan Draft</button><button name="wizard_action" value="next" class="btn btn-primary" type="submit">Simpan &amp; Lanjutkan <i class="ti ti-arrow-right"></i></button></div>
             </form>
         @else
-            <div class="row"><div class="col-md-6 mb-3"><small class="text-muted d-block">Nama Kontak</small>{{ $display($employee->emergency_contact_name) }}</div><div class="col-md-6 mb-3"><small class="text-muted d-block">Hubungan</small>{{ $display($employee->emergency_contact_relationship) }}</div><div class="col-md-6 mb-3"><small class="text-muted d-block">Nomor HP</small>{{ $display($employee->emergency_contact_phone) }}</div><div class="col-12"><small class="text-muted d-block">Alamat</small>{{ $display($employee->emergency_contact_address) }}</div></div>
+<div class="row g-4"><div class="col-md-6"><small class="text-muted d-block mb-1">Nama Kontak</small>{{ $display($employee->emergency_contact_name) }}</div><div class="col-md-6"><small class="text-muted d-block mb-1">Hubungan</small>{{ $display($employee->emergency_contact_relationship) }}</div><div class="col-md-6"><small class="text-muted d-block mb-1">Nomor HP</small>{{ $display($employee->emergency_contact_phone) }}</div><div class="col-12"><small class="text-muted d-block mb-1">Alamat</small>{{ $display($employee->emergency_contact_address) }}</div></div>
         @endif
     </div>
 </div>

@@ -3,29 +3,9 @@
 @section('title', 'Edit Profil | YAPISTA HRIS')
 
 @section('content')
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('pegawai.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('pegawai.profile.show') }}">Profil Saya</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Edit Profil</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-        <div>
-            <h3 class="mb-1">Edit Profil Pegawai</h3>
-            <p class="mb-0 text-muted">Perbarui identitas, kontak, dan alamat pribadi Anda.</p>
-        </div>
-        <a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary">
-            <i class="ti ti-arrow-left"></i> Kembali
-        </a>
-    </div>
+    <x-page-header title="Edit Profil Pegawai" subtitle="Perbarui identitas, kontak, dan alamat pribadi Anda." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('pegawai.dashboard')], ['label' => 'Profil Saya', 'url' => route('pegawai.profile.show')], ['label' => 'Edit Profil']]">
+        <x-slot:actions><a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a></x-slot:actions>
+    </x-page-header>
 
     <div class="alert alert-light-primary border border-primary-subtle" role="alert">
         <i class="ti ti-info-circle me-1"></i>

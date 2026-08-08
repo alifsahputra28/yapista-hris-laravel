@@ -14,7 +14,7 @@
     <div class="navbar-wrapper">
         <div class="m-header">
             <a href="{{ route($dashboardRoute) }}" class="b-brand text-primary">
-                <img src="{{ asset('assets/images/logo-yapista-hris.png') }}" class="img-fluid logo-lg" alt="logo">
+                <x-application-logo class="sidebar-brand-logo" image-class="img-fluid" />
             </a>
         </div>
 
@@ -109,12 +109,6 @@
                         </a>
                     </li>
 
-                    <li class="pc-item {{ request()->routeIs('reports.events.attendances') ? 'active' : '' }}">
-                        <a href="{{ route('reports.events') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-file-report"></i></span>
-                            <span class="pc-mtext">Laporan Kehadiran</span>
-                        </a>
-                    </li>
                 @endif
 
                 @if ($isPanitia)

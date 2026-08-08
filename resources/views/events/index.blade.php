@@ -12,26 +12,19 @@
             'closed' => 'bg-light-primary text-primary',
             'cancelled' => 'bg-light-danger text-danger',
         ];
-        $summaryCards = [
-            ['label' => 'Total Kegiatan', 'value' => $totalEvents ?? 0, 'icon' => 'ti-calendar-event', 'class' => 'bg-light-primary text-primary'],
-            ['label' => 'Draft', 'value' => $draftEvents ?? 0, 'icon' => 'ti-file-pencil', 'class' => 'bg-light-secondary text-secondary'],
-            ['label' => 'Aktif', 'value' => $activeEvents ?? 0, 'icon' => 'ti-player-play', 'class' => 'bg-light-success text-success'],
-            ['label' => 'Ditutup', 'value' => $closedEvents ?? 0, 'icon' => 'ti-lock', 'class' => 'bg-light-info text-info'],
-        ];
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Kegiatan</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Kegiatan Yayasan"
+        subtitle="Kelola jadwal, target peserta, dan kesiapan absensi QR Code."
+        :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Kegiatan']]"
+    >
+        <x-slot:actions>
+            <a href="{{ route('events.create') }}" class="btn btn-primary">
+                <i class="ti ti-plus"></i> Tambah Kegiatan
+            </a>
+        </x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -41,40 +34,11 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Kegiatan Yayasan</h4>
-                    <p class="mb-0 text-muted">Kelola kegiatan, target peserta, dan status kegiatan sebelum absensi QR Code digunakan.</p>
-                </div>
-
-                <a href="{{ route('events.create') }}" class="btn btn-primary">
-                    <i class="ti ti-plus"></i>
-                    Tambah Kegiatan
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        @foreach ($summaryCards as $card)
-            <div class="col-md-6 col-xl-3">
-                <div class="card summary-card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avtar avtar-s {{ $card['class'] }}">
-                                <i class="ti {{ $card['icon'] }} f-20"></i>
-                            </div>
-                            <div>
-                                <div class="text-muted small">{{ $card['label'] }}</div>
-                                <h4 class="mb-0">{{ number_format($card['value']) }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+    <div class="metric-strip mb-4" aria-label="Ringkasan kegiatan">
+        <div class="metric-item"><div class="metric-label">Total</div><div class="metric-value">{{ number_format($totalEvents ?? 0) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Draft</div><div class="metric-value">{{ number_format($draftEvents ?? 0) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Aktif</div><div class="metric-value">{{ number_format($activeEvents ?? 0) }}</div></div>
+        <div class="metric-item"><div class="metric-label">Ditutup</div><div class="metric-value">{{ number_format($closedEvents ?? 0) }}</div></div>
     </div>
 
     <div class="card filter-card">

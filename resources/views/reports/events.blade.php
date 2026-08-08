@@ -12,61 +12,15 @@
     ];
 @endphp
 
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-    <div>
-        <h4 class="mb-1">Laporan Kegiatan</h4>
-        <p class="text-muted mb-0">Rekap kegiatan yayasan, peserta, dan persentase kehadiran.</p>
-    </div>
-    <a href="{{ route('reports.events.export', request()->query()) }}" class="btn btn-primary">
-        <i class="ti ti-file-spreadsheet me-1"></i> Export Excel
-    </a>
-</div>
+<x-page-header title="Laporan Kegiatan" subtitle="Filter dan ekspor rekap kegiatan yayasan." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Laporan Kegiatan']]">
+    <x-slot:actions><a href="{{ route('reports.events.export', request()->query()) }}" class="btn btn-primary"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
+</x-page-header>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-primary text-primary"><i class="ti ti-calendar-event"></i></div>
-                <div>
-                    <div class="text-muted small">Total Kegiatan</div>
-                    <h5 class="mb-0">{{ number_format($totalEvents) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-success text-success"><i class="ti ti-activity"></i></div>
-                <div>
-                    <div class="text-muted small">Kegiatan Aktif</div>
-                    <h5 class="mb-0">{{ number_format($activeEvents) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-info text-info"><i class="ti ti-circle-check"></i></div>
-                <div>
-                    <div class="text-muted small">Kegiatan Ditutup</div>
-                    <h5 class="mb-0">{{ number_format($closedEvents) }}</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card summary-card mb-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="avtar bg-light-warning text-warning"><i class="ti ti-chart-bar"></i></div>
-                <div>
-                    <div class="text-muted small">Rata-rata Kehadiran</div>
-                    <h5 class="mb-0">{{ $averageAttendance }}%</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="metric-strip" aria-label="Ringkasan laporan kegiatan">
+    <div class="metric-item"><div class="metric-label">Total Kegiatan</div><div class="metric-value">{{ number_format($totalEvents) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Kegiatan Aktif</div><div class="metric-value">{{ number_format($activeEvents) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Kegiatan Ditutup</div><div class="metric-value">{{ number_format($closedEvents) }}</div></div>
+    <div class="metric-item"><div class="metric-label">Rata-rata Kehadiran</div><div class="metric-value">{{ $averageAttendance }}%</div></div>
 </div>
 
 <div class="card filter-card mb-4">

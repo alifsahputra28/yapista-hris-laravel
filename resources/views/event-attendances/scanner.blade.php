@@ -7,19 +7,20 @@
         $dashboardRoute = Auth::user()?->isPanitia() ? 'scanner.dashboard' : 'dashboard';
     @endphp
 
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route($dashboardRoute) }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('events.attendances.index', $event) }}">Daftar Hadir</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Scan QR Code</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header
+        title="Scan QR Code"
+        subtitle="Pindai ID Card menggunakan scanner QR/2D."
+        badge-label="{{ $event->status_label }}"
+        badge-class="bg-light-success text-success"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route($dashboardRoute)],
+            ['label' => 'Daftar Hadir', 'url' => route('events.attendances.index', $event)],
+            ['label' => 'Scan QR Code'],
+        ]"
+    >
+        <x-slot:meta><span>{{ $event->name }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->event_date?->format('d M Y') }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->location ?? 'Lokasi belum diisi' }}</span></x-slot:meta>
+        <x-slot:actions><a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-secondary"><i class="ti ti-list" aria-hidden="true"></i> Daftar Hadir</a></x-slot:actions>
+    </x-page-header>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -37,89 +38,14 @@
         <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
 
-    <div class="card page-intro-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h4 class="mb-1">Scan Absensi QR Code</h4>
-                    <p class="mb-0 text-muted">Pindai QR Code ID Card pegawai menggunakan scanner QR/2D yang terhubung ke perangkat.</p>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary">
-                        <i class="ti ti-list"></i>
-                        Daftar Hadir
-                    </a>
-                    <a href="{{ route($dashboardRoute) }}" class="btn btn-light-secondary">Dashboard</a>
-                </div>
-            </div>
-        </div>
+    <div class="metric-strip" aria-label="Ringkasan kehadiran">
+        <div class="metric-item"><div class="metric-label">Peserta Aktif</div><div class="metric-value">{{ $totalParticipants }}</div></div>
+        <div class="metric-item"><div class="metric-label">Sudah Hadir</div><div class="metric-value">{{ $attendedCount }}</div></div>
+        <div class="metric-item"><div class="metric-label">Belum Hadir</div><div class="metric-value">{{ $absentCount }}</div></div>
+        <div class="metric-item"><div class="metric-label">Kehadiran</div><div class="metric-value">{{ $attendancePercentage }}%</div></div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Informasi Kegiatan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <small class="text-muted d-block">Nama Kegiatan</small>
-                            <strong>{{ $event->name }}</strong>
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Status</small>
-                            <span class="badge bg-light-success text-success">{{ $event->status_label }}</span>
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Tanggal</small>
-                            {{ $event->event_date?->format('d M Y') }}
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Waktu</small>
-                            {{ $event->start_time?->format('H:i') ?? '-' }}
-                            @if ($event->end_time)
-                                - {{ $event->end_time->format('H:i') }}
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <small class="text-muted d-block">Lokasi</small>
-                            {{ $event->location ?? '-' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Ringkasan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Total peserta</span>
-                        <strong>{{ $totalParticipants }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Sudah hadir</span>
-                        <strong class="text-success">{{ $attendedCount }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Belum hadir</span>
-                        <strong class="text-warning">{{ $absentCount }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mt-2 pt-2 border-top">
-                        <span>Persentase</span>
-                        <strong>{{ $attendancePercentage }}%</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header">

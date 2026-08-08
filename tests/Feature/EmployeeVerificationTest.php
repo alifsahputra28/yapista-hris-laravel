@@ -60,6 +60,8 @@ class EmployeeVerificationTest extends TestCase
         $this->assertSame('7770923823', $employee->employee_number);
         $this->assertSame($admin->id, $employee->verified_by);
         $this->assertNotNull($employee->verified_at);
+        $this->assertNotNull($employee->activeQrToken()->first());
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
     }
 
     public function test_admin_can_not_approve_old_employee_number_format_when_submitted(): void
@@ -192,6 +194,7 @@ class EmployeeVerificationTest extends TestCase
 
         $this->assertSame('verified', $employee->refresh()->verification_status);
         $this->assertSame('7770923899', $employee->employee_number);
+        $this->assertNotNull($employee->activeQrToken()->first());
     }
 
     public function test_admin_can_reject_submitted_employee_with_note(): void

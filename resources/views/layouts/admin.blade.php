@@ -21,94 +21,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
     <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
-
-    <style>
-        .table-actions {
-            display: inline-flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            gap: 0.35rem;
-        }
-
-        .table-actions form {
-            margin: 0;
-        }
-
-        .table-actions .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-            white-space: nowrap;
-        }
-
-        .table-actions .btn-icon {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-        }
-
-        .page-intro-card .card-body {
-            padding: 1.35rem 1.5rem;
-        }
-
-        .page-intro-card h4,
-        .page-intro-card h5 {
-            letter-spacing: 0;
-        }
-
-        .summary-card .card-body {
-            padding: 1rem 1.15rem;
-        }
-
-        .summary-card .avtar {
-            flex: 0 0 auto;
-        }
-
-        .filter-card .form-label {
-            font-size: 0.8125rem;
-            font-weight: 600;
-            color: #5b6b79;
-        }
-
-        .status-stack {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.35rem;
-        }
-
-        .data-meta {
-            color: #5b6b79;
-            font-size: 0.8125rem;
-        }
-
-        .empty-state {
-            padding: 3rem 1rem;
-            text-align: center;
-        }
-
-        .empty-state .avtar {
-            margin-inline: auto;
-            margin-bottom: 1rem;
-        }
-
-        .dropdown-menu form {
-            margin: 0;
-        }
-
-        .dropdown-menu .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-        }
-
-        @media (max-width: 767.98px) {
-            .table-actions {
-                justify-content: flex-start;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/yapista-ui.css') }}">
 
     @stack('styles')
 </head>
@@ -126,7 +39,9 @@
 
     <div class="pc-container">
         <div class="pc-content">
-            @yield('content')
+            <div class="app-content-shell">
+                @yield('content')
+            </div>
         </div>
     </div>
 
