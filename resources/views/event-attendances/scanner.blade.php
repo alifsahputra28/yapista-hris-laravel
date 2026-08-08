@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Scan Absensi Barcode | YAPISTA HRIS')
+@section('title', 'Scan Absensi QR Code | YAPISTA HRIS')
 
 @section('content')
     @php
@@ -14,7 +14,7 @@
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route($dashboardRoute) }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('events.attendances.index', $event) }}">Daftar Hadir</a></li>
-                        <li class="breadcrumb-item" aria-current="page">Scan Barcode</li>
+                        <li class="breadcrumb-item" aria-current="page">Scan QR Code</li>
                     </ul>
                 </div>
             </div>
@@ -41,8 +41,8 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                 <div>
-                    <h4 class="mb-1">Scan Absensi Barcode</h4>
-                    <p class="mb-0 text-muted">Scan barcode ID Card pegawai. Scanner fisik akan mengisi NUP / Nomor Pegawai 10 digit lalu menekan Enter otomatis.</p>
+                    <h4 class="mb-1">Scan Absensi QR Code</h4>
+                    <p class="mb-0 text-muted">Pindai QR Code ID Card pegawai menggunakan scanner QR/2D yang terhubung ke perangkat.</p>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2">
@@ -123,29 +123,29 @@
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Input Scanner Barcode</h5>
+                    <h5 class="mb-0">Input Scanner QR/2D</h5>
                 </div>
                 <div class="card-body">
-                    <form id="barcode-scan-form" method="POST" action="{{ route('events.scan', $event) }}">
+                    <form id="qr-scan-form" method="POST" action="{{ route('events.scan', $event) }}">
                         @csrf
                         <div class="form-group mb-3">
-                            <label for="employee_number" class="form-label">NUP / Nomor Pegawai</label>
+                            <label for="qr_payload" class="form-label">QR Code ID Card</label>
                             <input
-                                id="employee_number"
+                                id="qr_payload"
                                 type="text"
-                                name="employee_number"
+                                name="qr_payload"
                                 class="form-control form-control-lg text-center fw-semibold"
-                                inputmode="numeric"
                                 autocomplete="off"
-                                placeholder="7770923822"
+                                maxlength="128"
+                                placeholder="Pindai QR Code ID Card pegawai..."
                                 autofocus
                                 required
                             >
-                            <small class="text-muted d-block mt-2">Sistem akan mengambil hanya angka dari hasil scan, misalnya teks "Call 777 0923822" menjadi 7770923822.</small>
+                            <small class="text-muted d-block mt-2">Scanner QR/2D akan mengetik payload lalu menekan Enter secara otomatis. Kamera browser tidak digunakan.</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary" data-scan-submit>
-                            <i class="ti ti-barcode"></i>
+                            <i class="ti ti-qrcode"></i>
                             Proses Absensi
                         </button>
                     </form>
@@ -175,7 +175,7 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label for="note" class="form-label">Catatan</label>
-                                <textarea id="note" name="note" rows="3" class="form-control" placeholder="Contoh: barcode rusak atau scanner bermasalah"></textarea>
+                                <textarea id="note" name="note" rows="3" class="form-control" placeholder="Contoh: QR Code rusak atau scanner bermasalah"></textarea>
                             </div>
                             <button type="submit" class="btn btn-light-primary">
                                 <i class="ti ti-user-plus"></i>
@@ -193,16 +193,16 @@
 
 @push('scripts')
     <script>
-        const employeeNumberInput = document.getElementById('employee_number');
-        const scanForm = document.getElementById('barcode-scan-form');
+        const qrPayloadInput = document.getElementById('qr_payload');
+        const scanForm = document.getElementById('qr-scan-form');
 
         const focusScannerInput = () => {
-            if (!employeeNumberInput) {
+            if (!qrPayloadInput) {
                 return;
             }
 
-            employeeNumberInput.focus();
-            employeeNumberInput.select();
+            qrPayloadInput.focus();
+            qrPayloadInput.select();
         };
 
         const scanSubmitButton = scanForm?.querySelector('[data-scan-submit]');
@@ -214,6 +214,10 @@
 
             if (scanSubmitButton) {
                 scanSubmitButton.disabled = false;
+            }
+
+            if (qrPayloadInput) {
+                qrPayloadInput.value = '';
             }
 
             focusScannerInput();
@@ -228,7 +232,6 @@
                 return;
             }
 
-            employeeNumberInput.value = employeeNumberInput.value.replace(/\D+/g, '');
             scanForm.dataset.submitting = 'true';
 
             if (scanSubmitButton) {

@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAdministrativeDetailController;
 use App\Http\Controllers\EmployeeCertificationController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentAccessController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeEducationController;
@@ -12,6 +12,7 @@ use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeProfileSubmissionController;
 use App\Http\Controllers\EmployeeProfileWizardController;
+use App\Http\Controllers\EmployeeQrCodeController;
 use App\Http\Controllers\EmployeeVerificationController;
 use App\Http\Controllers\EventAttendanceController;
 use App\Http\Controllers\EventController;
@@ -42,9 +43,12 @@ Route::get('/pegawai/dashboard', function () {
 Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::resource('institutions', InstitutionController::class)->except(['show']);
     Route::resource('positions', PositionController::class)->except(['show']);
+    Route::post('/employees/nik-search', [EmployeeController::class, 'findByNik'])->name('employees.nik-search');
     Route::resource('employees', EmployeeController::class);
     Route::get('/employees/{employee}/id-card', [EmployeeIdCardController::class, 'show'])->name('employees.id-card.show');
     Route::get('/employees/{employee}/id-card/download', [EmployeeIdCardController::class, 'download'])->name('employees.id-card.download');
+    Route::post('/employees/{employee}/id-card/qr', [EmployeeQrCodeController::class, 'store'])->name('employees.id-card.qr.generate');
+    Route::post('/employees/{employee}/id-card/qr/regenerate', [EmployeeQrCodeController::class, 'regenerate'])->name('employees.id-card.qr.regenerate');
     Route::get('/invitations', [EmployeeInvitationController::class, 'index'])->name('invitations.index');
     Route::post('/employees/{employee}/invitations/generate', [EmployeeInvitationController::class, 'generate'])->name('employees.invitations.generate');
     Route::patch('/invitations/{invitation}/revoke', [EmployeeInvitationController::class, 'revoke'])->name('invitations.revoke');

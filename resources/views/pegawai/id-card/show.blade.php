@@ -106,50 +106,51 @@
             font-size: 0.88rem;
         }
 
-        .id-card-barcode {
+        .id-card-qr {
             padding: 1rem;
             text-align: center;
             border-top: 1px dashed #cbd5e1;
             background: #f8fafc;
         }
 
-        .barcode-image {
-            width: 100%;
-            max-height: 80px;
-            object-fit: contain;
-        }
-
-        .barcode-svg {
-            overflow-x: auto;
-        }
-
-        .barcode-svg svg {
+        .qr-code-svg {
+            width: 150px;
             max-width: 100%;
+            margin: 0 auto;
+            padding: 6px;
+            background: #ffffff;
+        }
+
+        .qr-code-svg svg {
+            display: block;
+            width: 100%;
             height: auto;
         }
 
-        .barcode-placeholder {
+        .qr-code-placeholder {
             display: grid;
-            min-height: 78px;
+            width: 150px;
+            min-height: 150px;
+            margin: 0 auto;
             place-items: center;
             color: #64748b;
             border: 1px dashed #cbd5e1;
             border-radius: 8px;
+            background: #ffffff;
         }
 
-        .barcode-placeholder i {
+        .qr-code-placeholder i {
             font-size: 1.5rem;
         }
 
-        .barcode-number {
+        .qr-code-label {
             margin-top: 0.4rem;
             color: #111827;
-            font-size: 1rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
         }
 
-        .barcode-note {
+        .qr-code-note {
             margin-top: 0.15rem;
             color: #64748b;
             font-size: 0.75rem;
@@ -180,7 +181,7 @@
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                 <div>
                     <h4 class="mb-1">ID Card Saya</h4>
-                    <p class="mb-0 text-muted">Kartu pegawai dan barcode untuk absensi kegiatan.</p>
+                    <p class="mb-0 text-muted">Kartu pegawai dan QR Code untuk absensi kegiatan.</p>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2">
@@ -207,8 +208,7 @@
                 <div class="id-card-preview-wrap">
                     @include('id-cards._card', [
                         'employee' => $employee,
-                        'barcodeBase64' => $barcodeBase64,
-                        'barcodeSvg' => $barcodeSvg,
+                        'qrCodeSvg' => $qrCodeSvg,
                     ])
                 </div>
             @else

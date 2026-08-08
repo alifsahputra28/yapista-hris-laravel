@@ -19,6 +19,7 @@ class EventAttendance extends Model
 
     public const SCAN_METHODS = [
         'barcode' => 'Barcode',
+        'qr' => 'QR Code',
         'qr_code' => 'QR Code',
         'manual' => 'Manual',
     ];
@@ -83,7 +84,7 @@ class EventAttendance extends Model
 
     public function isQrCode(): bool
     {
-        return $this->scan_method === 'qr_code';
+        return in_array($this->scan_method, ['qr', 'qr_code'], true);
     }
 
     public function isBarcode(): bool

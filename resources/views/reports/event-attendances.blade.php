@@ -143,8 +143,9 @@
                     <label for="scan_method" class="form-label">Metode</label>
                     <select name="scan_method" id="scan_method" class="form-select">
                         <option value="">Semua</option>
-                        <option value="barcode" @selected(request('scan_method') === 'barcode')>Barcode</option>
+                        <option value="qr" @selected(request('scan_method') === 'qr')>QR Code</option>
                         <option value="manual" @selected(request('scan_method') === 'manual')>Manual</option>
+                        <option value="barcode" @selected(request('scan_method') === 'barcode')>Barcode (Histori)</option>
                     </select>
                 </div>
                 <div class="col-md-6 col-lg-10 d-flex align-items-end justify-content-end gap-2">

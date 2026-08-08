@@ -8,6 +8,7 @@ use App\Models\EventAttendance;
 use App\Models\EventParticipant;
 use App\Models\Institution;
 use App\Models\Position;
+use App\Services\EmployeeQrTokenService;
 use App\Services\EventAttendanceService;
 use App\Support\Attendances\AttendanceResult;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +19,10 @@ use Illuminate\View\View;
 
 class EventAttendanceController extends Controller
 {
-    public function __construct(private readonly EventAttendanceService $attendanceService) {}
+    public function __construct(
+        private readonly EventAttendanceService $attendanceService,
+        private readonly EmployeeQrTokenService $qrTokenService,
+    ) {}
 
     public function index(Request $request, Event $event): View
     {
@@ -111,35 +115,29 @@ class EventAttendanceController extends Controller
 
     public function scan(Request $request, Event $event): JsonResponse|RedirectResponse
     {
-        $scanInput = $request->input('employee_number', $request->input('scan_code'));
+        $scanInput = $request->input('qr_payload', $request->input('payload'));
 
         if (blank($scanInput)) {
-            return $this->scanResponse($request, false, 'NUP / Nomor Pegawai wajib diisi.');
+            return $this->scanResponse($request, false, 'QR Code wajib dipindai.');
         }
 
         if ($message = $this->attendanceService->inactiveEventMessage($event)) {
             return $this->scanResponse($request, false, $message);
         }
 
-        $normalizedInput = preg_replace('/\D+/', '', (string) $scanInput) ?? '';
+        $qrToken = $this->qrTokenService->resolvePayload((string) $scanInput);
 
-        if (strlen($normalizedInput) !== Employee::EMPLOYEE_NUMBER_LENGTH || ! ctype_digit($normalizedInput)) {
-            return $this->scanResponse($request, false, 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
+        if (! $qrToken?->employee) {
+            return $this->scanResponse($request, false, 'QR Code tidak valid atau sudah tidak aktif.');
         }
 
-        $employee = Employee::query()
-            ->with(['institution', 'position'])
-            ->where('employee_number', $normalizedInput)
-            ->first();
+        $employee = $qrToken->employee->loadMissing(['institution', 'position']);
 
-        if (! $employee) {
-            return $this->scanResponse($request, false, 'NUP / Nomor Pegawai tidak ditemukan.');
-        }
-
-        $result = $this->attendanceService->recordBarcodeAttendance(
+        $result = $this->attendanceService->recordQrAttendance(
             $event,
             $employee,
-            $request->user()
+            $request->user(),
+            $qrToken,
         );
 
         return $this->attendanceResultResponse($request, $result, $employee);

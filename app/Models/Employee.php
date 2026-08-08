@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\EmployeeNikProtectionService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +66,13 @@ class Employee extends Model
         'verified_at',
     ];
 
+    protected $hidden = [
+        'nik',
+        'nik_encrypted',
+        'nik_lookup',
+        'nik_migrated_at',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -73,6 +82,7 @@ class Employee extends Model
     {
         return [
             'birth_date' => 'date',
+            'nik_migrated_at' => 'datetime',
             'family_card_number' => 'encrypted',
             'domicile_same_as_identity' => 'boolean',
             'join_date' => 'date',
@@ -81,6 +91,48 @@ class Employee extends Model
             'profile_reviewed_at' => 'datetime',
             'profile_rejected_sections' => 'array',
         ];
+    }
+
+    protected function nik(): Attribute
+    {
+        return Attribute::make(
+            get: function (?string $legacyNik, array $attributes): ?string {
+                $encryptedNik = $attributes['nik_encrypted'] ?? null;
+
+                if (filled($encryptedNik)) {
+                    return app(EmployeeNikProtectionService::class)->decrypt($encryptedNik);
+                }
+
+                return $legacyNik;
+            },
+            set: function (?string $nik): array {
+                $service = app(EmployeeNikProtectionService::class);
+                $normalized = $service->normalize($nik);
+
+                if ($normalized === null) {
+                    return [
+                        'nik' => null,
+                        'nik_encrypted' => null,
+                        'nik_lookup' => null,
+                        'nik_migrated_at' => null,
+                    ];
+                }
+
+                return [
+                    'nik' => null,
+                    'nik_encrypted' => $service->encrypt($normalized),
+                    'nik_lookup' => $service->lookup($normalized),
+                    'nik_migrated_at' => now(),
+                ];
+            },
+        );
+    }
+
+    protected function maskedNik(): Attribute
+    {
+        return Attribute::get(
+            fn (): ?string => app(EmployeeNikProtectionService::class)->mask($this->nik)
+        );
     }
 
     public function user(): BelongsTo
@@ -237,6 +289,13 @@ class Employee extends Model
         return is_string($this->employee_number)
             && strlen($this->employee_number) === self::EMPLOYEE_NUMBER_LENGTH
             && ctype_digit($this->employee_number);
+    }
+
+    public function isEligibleForIdCard(): bool
+    {
+        return $this->isVerified()
+            && $this->hasValidEmployeeNumber()
+            && ! in_array($this->employment_status, ['nonaktif', 'resign'], true);
     }
 
     public function canEditProfile(): bool

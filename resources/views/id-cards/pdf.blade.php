@@ -45,17 +45,18 @@
             font-size: 12px;
         }
 
-        .barcode {
+        .qr-code {
             padding: 14px;
             text-align: center;
             border-top: 1px dashed #cbd5e1;
             background: #f8fafc;
         }
 
-        .barcode img {
-            width: 100%;
-            max-height: 70px;
-            object-fit: contain;
+        .qr-code svg {
+            width: 145px;
+            height: 145px;
+            padding: 5px;
+            background: #ffffff;
         }
 
         .number {
@@ -80,14 +81,11 @@
             <div class="meta">Status: Terverifikasi</div>
         </div>
 
-        <div class="barcode">
-            @if ($barcodeBase64)
-                <img src="data:image/png;base64,{{ $barcodeBase64 }}" alt="Barcode {{ $employee->employee_number }}">
-            @elseif ($barcodeSvg)
-                {!! $barcodeSvg !!}
+        <div class="qr-code">
+            @if ($qrCodeSvg)
+                {!! $qrCodeSvg !!}
             @endif
-            <div class="number">{{ $employee->employee_number }}</div>
-            <div class="meta">Scan barcode ini untuk absensi kegiatan.</div>
+            <div class="meta">Pindai QR Code untuk absensi kegiatan.</div>
         </div>
     </div>
 </body>

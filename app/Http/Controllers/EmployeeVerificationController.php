@@ -31,7 +31,6 @@ class EmployeeVerificationController extends Controller
                     $query->where('full_name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
-                        ->orWhere('nik', 'like', "%{$search}%")
                         ->orWhere('employee_number', 'like', "%{$search}%");
                 });
             })
@@ -199,4 +198,5 @@ class EmployeeVerificationController extends Controller
             ->route('verifications.show', $document->employee)
             ->with('success', 'Status dokumen berhasil diperbarui.');
     }
+
 }

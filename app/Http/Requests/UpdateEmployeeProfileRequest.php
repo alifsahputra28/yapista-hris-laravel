@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Employee;
+use App\Rules\UniqueEmployeeNik;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,7 +26,7 @@ class UpdateEmployeeProfileRequest extends FormRequest
         return [
             'full_name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('employees', 'email')->ignore($employeeId)],
-            'nik' => ['nullable', 'digits:16', Rule::unique('employees', 'nik')->ignore($employeeId)],
+            'nik' => ['nullable', 'digits:16', new UniqueEmployeeNik($employeeId)],
             'family_card_number' => ['nullable', 'digits:16'],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
             'birth_place' => ['nullable', 'string', 'max:100'],

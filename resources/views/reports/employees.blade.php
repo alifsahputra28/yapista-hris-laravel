@@ -83,7 +83,7 @@
             <div class="row g-3">
                 <div class="col-lg-4">
                     <label for="search" class="form-label">Search</label>
-                    <input type="text" name="search" id="search" class="form-control" value="{{ request('search') }}" placeholder="Nama, email, HP, NIK, atau NUP / nomor pegawai">
+                    <input type="text" name="search" id="search" class="form-control" value="{{ request('search') }}" placeholder="Nama, email, HP, atau NUP / nomor pegawai">
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <label for="institution_id" class="form-label">Unit Kerja</label>

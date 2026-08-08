@@ -108,7 +108,7 @@
                         name="search"
                         value="{{ $search }}"
                         class="form-control"
-                        placeholder="Cari nama, email, HP, NIK, atau nomor pegawai"
+                        placeholder="Cari nama, email, HP, atau nomor pegawai"
                     >
                 </div>
 
@@ -169,6 +169,18 @@
                     <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">
                         Reset
                     </a>
+                </div>
+            </form>
+            <hr class="my-4">
+            <form method="POST" action="{{ route('employees.nik-search') }}" class="row g-3 align-items-end" autocomplete="off">
+                @csrf
+                <div class="col-lg-6">
+                    <label for="nik_exact" class="form-label">Pencarian NIK Exact</label>
+                    <input id="nik_exact" type="text" name="nik" class="form-control" maxlength="16" inputmode="numeric" autocomplete="off" placeholder="Masukkan 16 digit NIK">
+                    <div class="form-text">NIK diproses melalui pencarian aman dan tidak disimpan pada URL.</div>
+                </div>
+                <div class="col-lg-6">
+                    <button type="submit" class="btn btn-outline-primary"><i class="ti ti-search"></i> Cari NIK</button>
                 </div>
             </form>
         </div>

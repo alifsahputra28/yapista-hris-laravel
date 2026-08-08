@@ -46,7 +46,7 @@
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                 <div>
                     <h4 class="mb-1">Kegiatan Yayasan</h4>
-                    <p class="mb-0 text-muted">Kelola kegiatan, target peserta, dan status kegiatan sebelum absensi barcode digunakan.</p>
+                    <p class="mb-0 text-muted">Kelola kegiatan, target peserta, dan status kegiatan sebelum absensi QR Code digunakan.</p>
                 </div>
 
                 <a href="{{ route('events.create') }}" class="btn btn-primary">
@@ -198,8 +198,8 @@
 
                                                 @if ($event->canScanAttendance())
                                                     <a href="{{ route('events.scanner', $event) }}" class="dropdown-item">
-                                                        <i class="ti ti-barcode"></i>
-                                                        Scan Barcode
+                                                        <i class="ti ti-qrcode"></i>
+                                                        Scan QR Code
                                                     </a>
                                                 @endif
 

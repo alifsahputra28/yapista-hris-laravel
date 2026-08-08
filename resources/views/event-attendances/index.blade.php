@@ -62,8 +62,8 @@
                 <div class="d-flex flex-wrap gap-2">
                     @if ($event->canScanAttendance())
                         <a href="{{ route('events.scanner', $event) }}" class="btn btn-primary">
-                            <i class="ti ti-barcode"></i>
-                            Scan Barcode
+                            <i class="ti ti-qrcode"></i>
+                            Scan QR Code
                         </a>
                     @endif
                     <a href="{{ $eventBackRoute }}" class="btn btn-light-secondary">Kembali</a>
@@ -202,7 +202,7 @@
                     </div>
                     <div class="col-lg-5">
                         <label for="note" class="form-label">Catatan</label>
-                        <input id="note" type="text" name="note" class="form-control" placeholder="Contoh: barcode rusak atau scanner bermasalah">
+                        <input id="note" type="text" name="note" class="form-control" placeholder="Contoh: QR Code rusak atau scanner bermasalah">
                     </div>
                     <div class="col-lg-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">

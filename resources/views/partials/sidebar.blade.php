@@ -120,7 +120,7 @@
                 @if ($isPanitia)
                     <li class="pc-item pc-caption">
                         <label>Scanner</label>
-                        <i class="ti ti-barcode"></i>
+                        <i class="ti ti-qrcode"></i>
                     </li>
 
                     <li class="pc-item {{ request()->routeIs('scanner.dashboard') || request()->routeIs('events.scanner') || request()->routeIs('events.attendances.*') ? 'active' : '' }}">

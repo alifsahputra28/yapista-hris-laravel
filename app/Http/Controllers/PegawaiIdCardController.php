@@ -3,23 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Support\IdCards\BarcodeRenderer;
+use App\Models\EmployeeQrToken;
+use App\Services\EmployeeQrTokenService;
+use App\Support\IdCards\QrCodeRenderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Throwable;
 
 class PegawaiIdCardController extends Controller
 {
+    public function __construct(
+        private readonly EmployeeQrTokenService $tokenService,
+        private readonly QrCodeRenderer $qrCodeRenderer,
+    ) {}
+
     public function show(): View
     {
-        $employee = auth()->user()?->employee?->load(['institution', 'position']);
+        $employee = auth()->user()?->employee?->load(['institution', 'position', 'activeQrToken']);
+        $qrCodeSvg = $employee ? $this->qrCodeSvg($employee->activeQrToken) : null;
+        $warnings = $employee
+            ? $this->warnings($employee)
+            : ['Data pegawai belum terhubung dengan akun Anda.'];
+
+        if ($employee && $this->isValidForIdCard($employee) && ! $employee->activeQrToken) {
+            $warnings[] = 'QR Code belum tersedia. Silakan hubungi HR/Admin.';
+        } elseif ($employee?->activeQrToken && $qrCodeSvg === null) {
+            $warnings[] = 'QR Code tidak dapat ditampilkan. Silakan hubungi HR/Admin.';
+        }
 
         return view('pegawai.id-card.show', [
             'employee' => $employee,
-            'barcodeBase64' => $employee ? $this->barcodeBase64($employee) : null,
-            'barcodeSvg' => $employee ? $this->barcodeSvg($employee) : null,
-            'warnings' => $employee
-                ? $this->warnings($employee)
-                : ['Data pegawai belum terhubung dengan akun Anda.'],
+            'qrCodeSvg' => $qrCodeSvg,
+            'warnings' => $warnings,
             'isValidForIdCard' => $employee ? $this->isValidForIdCard($employee) : false,
         ]);
     }
@@ -48,30 +63,28 @@ class PegawaiIdCardController extends Controller
             $warnings[] = 'NUP / Nomor Pegawai harus 10 digit angka.';
         }
 
+        if (in_array($employee->employment_status, ['nonaktif', 'resign'], true)) {
+            $warnings[] = 'ID Card tidak tersedia untuk status kepegawaian saat ini.';
+        }
+
         return $warnings;
     }
 
     private function isValidForIdCard(Employee $employee): bool
     {
-        return $employee->isVerified()
-            && $employee->hasValidEmployeeNumber();
+        return $employee->isEligibleForIdCard();
     }
 
-    private function barcodeBase64(Employee $employee): ?string
+    private function qrCodeSvg(?EmployeeQrToken $token): ?string
     {
-        if (! $this->isValidForIdCard($employee)) {
+        if (! $token || ! $token->isActive()) {
             return null;
         }
 
-        return app(BarcodeRenderer::class)->base64Png($employee->employee_number);
-    }
-
-    private function barcodeSvg(Employee $employee): ?string
-    {
-        if (! $this->isValidForIdCard($employee) || $this->barcodeBase64($employee)) {
+        try {
+            return $this->qrCodeRenderer->render($this->tokenService->payloadFor($token));
+        } catch (Throwable) {
             return null;
         }
-
-        return app(BarcodeRenderer::class)->code128Svg($employee->employee_number);
     }
 }

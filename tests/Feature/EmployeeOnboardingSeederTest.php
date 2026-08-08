@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use App\Models\Employee;
 use App\Models\EmployeeDocument;
 use App\Models\User;
-use Database\Seeders\EmployeeSeeder;
 use Database\Seeders\EmployeeQrTokenSeeder;
+use Database\Seeders\EmployeeSeeder;
 use Database\Seeders\InstitutionSeeder;
 use Database\Seeders\PositionSeeder;
 use Database\Seeders\UserSeeder;
@@ -210,8 +210,10 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->seed(EmployeeQrTokenSeeder::class);
 
         $token = $employee->qrTokens()->where('is_active', true)->firstOrFail();
-        $this->assertSame(64, strlen($token->token));
-        $this->assertNotSame($employee->employee_number, $token->token);
+        $this->assertSame(64, strlen($token->token_encrypted));
+        $this->assertNotSame($employee->employee_number, $token->token_encrypted);
+        $this->assertSame(hash('sha256', $token->token_encrypted), $token->token_hash);
+        $this->assertNotSame($token->token_encrypted, $token->getRawOriginal('token_encrypted'));
         $this->assertTrue($token->isActive());
 
         $this->seed(EmployeeQrTokenSeeder::class);

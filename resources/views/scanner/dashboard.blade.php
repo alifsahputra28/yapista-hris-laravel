@@ -93,8 +93,8 @@
                                     <td class="text-end">
                                         <div class="table-actions">
                                             <a href="{{ route('events.scanner', $event) }}" class="btn btn-sm btn-primary">
-                                                <i class="ti ti-barcode"></i>
-                                                Scan Barcode
+                                                <i class="ti ti-qrcode"></i>
+                                                Scan QR Code
                                             </a>
                                             <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-sm btn-light-secondary">
                                                 <i class="ti ti-list-check"></i>

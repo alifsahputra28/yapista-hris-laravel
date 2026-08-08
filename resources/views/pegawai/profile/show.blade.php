@@ -77,7 +77,7 @@
 
             <div class="card"><div class="card-header"><h5 class="mb-0">Identitas Pribadi</h5></div><div class="card-body"><div class="row">
                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Nama Lengkap</small>{{ $employee->full_name }}</div>
-                <div class="col-md-6 mb-3"><small class="text-muted d-block">NIK</small>{{ $display($employee->nik) }}</div>
+                <div class="col-md-6 mb-3"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? 'Belum diisi' }}</div>
                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Nomor Kartu Keluarga</small>{{ $maskedFamilyCard }}</div>
                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Kelamin</small>{{ $genderLabels[$employee->gender] ?? 'Belum diisi' }}</div>
                 <div class="col-md-6 mb-3"><small class="text-muted d-block">Tempat Lahir</small>{{ $display($employee->birth_place) }}</div>

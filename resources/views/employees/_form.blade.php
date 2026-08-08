@@ -180,7 +180,7 @@
             <small class="text-muted">
                 {{ $employee->isVerified()
                     ? 'NUP wajib dipertahankan untuk pegawai yang sudah terverifikasi.'
-                    : 'Isi 10 digit angka yang sama dengan barcode pada ID Card.' }}
+                    : 'Isi tepat 10 digit angka sebagai identitas administrasi pegawai.' }}
             </small>
 
             @error('employee_number')

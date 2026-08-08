@@ -93,7 +93,7 @@
             <form method="GET" action="{{ route('verifications.index') }}" class="row g-3">
                 <div class="col-lg-4">
                     <label for="search" class="form-label">Pencarian</label>
-                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, NIK, atau NUP / nomor pegawai">
+                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, atau NUP / nomor pegawai">
                 </div>
 
                 <div class="col-md-6 col-lg-2">

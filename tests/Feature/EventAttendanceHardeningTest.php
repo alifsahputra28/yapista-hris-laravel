@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\Employee;
+use App\Models\EmployeeQrToken;
 use App\Models\Event;
 use App\Models\EventAttendance;
 use App\Models\EventParticipant;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\EmployeeQrTokenService;
 use App\Services\EventAttendanceService;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -104,7 +106,7 @@ class EventAttendanceHardeningTest extends TestCase
         $this->assertDatabaseHas('event_attendances', ['id' => $closedAttendance->id]);
     }
 
-    public function test_valid_barcode_scan_records_complete_attendance_and_returns_employee(): void
+    public function test_valid_qr_scan_records_complete_attendance_and_returns_employee(): void
     {
         $scanner = $this->user('panitia');
         $event = $this->event();
@@ -113,10 +115,11 @@ class EventAttendanceHardeningTest extends TestCase
             'employee_number' => '7770930002',
         ]);
         $this->participant($event, $employee);
+        $payload = $this->qrPayload($employee, $scanner);
 
         $this->actingAs($scanner)
             ->postJson(route('events.scan', $event, absolute: false), [
-                'employee_number' => '7770930002',
+                'qr_payload' => $payload,
             ])
             ->assertOk()
             ->assertJsonPath('success', true)
@@ -128,25 +131,26 @@ class EventAttendanceHardeningTest extends TestCase
         $this->assertSame($employee->id, $attendance->employee_id);
         $this->assertSame($scanner->id, $attendance->scanned_by);
         $this->assertNotNull($attendance->scanned_at);
-        $this->assertSame('barcode', $attendance->scan_method);
+        $this->assertSame('qr', $attendance->scan_method);
+        $this->assertNotNull($attendance->qr_token_id);
         $this->assertSame('present', $attendance->attendance_status);
     }
 
-    public function test_scanner_rejects_empty_wrong_length_and_unknown_numbers(): void
+    public function test_scanner_rejects_empty_nup_and_invalid_qr_payloads(): void
     {
         $scanner = $this->user('panitia');
         $event = $this->event();
 
         $cases = [
-            ['', 'NUP / Nomor Pegawai wajib diisi.'],
-            ['777093001', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.'],
-            ['77709300022', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.'],
-            ['7770930999', 'NUP / Nomor Pegawai tidak ditemukan.'],
+            ['', 'QR Code wajib dipindai.'],
+            ['777093001', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['7770930002', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['YAPISTA:EMPLOYEE:unknown', 'QR Code tidak valid atau sudah tidak aktif.'],
         ];
 
         foreach ($cases as [$input, $message]) {
             $this->actingAs($scanner)
-                ->postJson(route('events.scan', $event, absolute: false), ['employee_number' => $input])
+                ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $input])
                 ->assertUnprocessable()
                 ->assertJsonPath('message', $message);
         }
@@ -154,23 +158,23 @@ class EventAttendanceHardeningTest extends TestCase
         $this->assertDatabaseCount('event_attendances', 0);
     }
 
-    public function test_scanner_normalizes_spaces_and_call_prefix(): void
+    public function test_scanner_trims_outer_whitespace_but_rejects_modified_payload(): void
     {
         $scanner = $this->user('panitia');
         $event = $this->event();
-        $spaced = $this->employee(['employee_number' => '7770930003']);
-        $called = $this->employee(['employee_number' => '7770930004']);
-        $this->participant($event, $spaced);
-        $this->participant($event, $called);
+        $employee = $this->employee(['employee_number' => '7770930003']);
+        $this->participant($event, $employee);
+        $payload = $this->qrPayload($employee, $scanner);
 
         $this->actingAs($scanner)
-            ->postJson(route('events.scan', $event, absolute: false), ['scan_code' => '777 093 0003'])
-            ->assertOk();
-        $this->actingAs($scanner)
-            ->postJson(route('events.scan', $event, absolute: false), ['scan_code' => 'Call 7770930004'])
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => "  {$payload}\r\n"])
             ->assertOk();
 
-        $this->assertDatabaseCount('event_attendances', 2);
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => str_replace(':', ' : ', $payload)])
+            ->assertUnprocessable();
+
+        $this->assertDatabaseCount('event_attendances', 1);
     }
 
     public function test_draft_closed_and_cancelled_events_reject_new_attendance(): void
@@ -186,10 +190,11 @@ class EventAttendanceHardeningTest extends TestCase
         foreach ($statuses as $status => $message) {
             $event = $this->event(['status' => $status]);
             $this->participant($event, $employee);
+            $payload = $this->qrPayload($employee, $scanner);
 
             $this->actingAs($scanner)
                 ->postJson(route('events.scan', $event, absolute: false), [
-                    'employee_number' => $employee->employee_number,
+                    'qr_payload' => $payload,
                 ])
                 ->assertUnprocessable()
                 ->assertJsonPath('message', $message);
@@ -210,11 +215,20 @@ class EventAttendanceHardeningTest extends TestCase
         $cancelled = $this->employee(['employee_number' => '7770930008']);
         $inactive = $this->employee([
             'employee_number' => '7770930009',
-            'employment_status' => 'nonaktif',
         ]);
         $this->participant($event, $unverified);
         $this->participant($event, $cancelled, 'cancelled');
         $this->participant($event, $inactive);
+
+        $unverified->update(['verification_status' => 'verified']);
+        $payloads = [
+            $unverified->id => $this->qrPayload($unverified, $scanner),
+            $nonParticipant->id => $this->qrPayload($nonParticipant, $scanner),
+            $cancelled->id => $this->qrPayload($cancelled, $scanner),
+            $inactive->id => $this->qrPayload($inactive, $scanner),
+        ];
+        $unverified->update(['verification_status' => 'submitted']);
+        $inactive->update(['employment_status' => 'nonaktif']);
 
         $cases = [
             [$unverified, 'Pegawai belum terverifikasi.'],
@@ -226,7 +240,7 @@ class EventAttendanceHardeningTest extends TestCase
         foreach ($cases as [$employee, $message]) {
             $this->actingAs($scanner)
                 ->postJson(route('events.scan', $event, absolute: false), [
-                    'employee_number' => $employee->employee_number,
+                    'qr_payload' => $payloads[$employee->id],
                 ])
                 ->assertUnprocessable()
                 ->assertJsonPath('message', $message);
@@ -240,9 +254,10 @@ class EventAttendanceHardeningTest extends TestCase
         $event = $this->event();
         $employee = $this->employee(['employee_number' => 'invalid']);
         $this->participant($event, $employee);
+        $token = $this->rawQrToken($employee);
 
         $result = app(EventAttendanceService::class)
-            ->recordBarcodeAttendance($event, $employee, $this->user('panitia'));
+            ->recordQrAttendance($event, $employee, $this->user('panitia'), $token);
 
         $this->assertSame('rejected', $result->status);
         $this->assertSame('Pegawai belum memiliki NUP / Nomor Pegawai yang valid.', $result->message);
@@ -258,16 +273,17 @@ class EventAttendanceHardeningTest extends TestCase
             'employee_number' => '7770930010',
         ]);
         $this->participant($event, $employee);
+        $payload = $this->qrPayload($employee, $scanner);
 
         $this->actingAs($scanner)
             ->postJson(route('events.scan', $event, absolute: false), [
-                'employee_number' => $employee->employee_number,
+                'qr_payload' => $payload,
             ])
             ->assertOk();
 
         $response = $this->actingAs($scanner)
             ->postJson(route('events.scan', $event, absolute: false), [
-                'employee_number' => $employee->employee_number,
+                'qr_payload' => $payload,
             ]);
 
         $response
@@ -284,35 +300,37 @@ class EventAttendanceHardeningTest extends TestCase
         $this->assertDatabaseCount('event_attendances', 1);
     }
 
-    public function test_barcode_and_manual_attendance_reject_each_other_as_duplicates(): void
+    public function test_qr_and_manual_attendance_reject_each_other_as_duplicates(): void
     {
         $scanner = $this->user('panitia');
         $event = $this->event();
-        $barcodeFirst = $this->employee(['employee_number' => '7770930011']);
+        $qrFirst = $this->employee(['employee_number' => '7770930011']);
         $manualFirst = $this->employee(['employee_number' => '7770930012']);
-        $this->participant($event, $barcodeFirst);
+        $this->participant($event, $qrFirst);
         $this->participant($event, $manualFirst);
+        $qrFirstPayload = $this->qrPayload($qrFirst, $scanner);
+        $manualFirstPayload = $this->qrPayload($manualFirst, $scanner);
 
         $this->actingAs($scanner)
             ->post(route('events.scan', $event, absolute: false), [
-                'employee_number' => $barcodeFirst->employee_number,
+                'qr_payload' => $qrFirstPayload,
             ])
             ->assertSessionHas('success');
         $this->actingAs($scanner)
             ->post(route('events.attendances.manual', $event, absolute: false), [
-                'employee_id' => $barcodeFirst->id,
+                'employee_id' => $qrFirst->id,
             ])
             ->assertSessionHas('warning');
 
         $this->actingAs($scanner)
             ->post(route('events.attendances.manual', $event, absolute: false), [
                 'employee_id' => $manualFirst->id,
-                'note' => 'Barcode rusak',
+                'note' => 'QR Code rusak',
             ])
             ->assertSessionHas('success');
         $this->actingAs($scanner)
             ->post(route('events.scan', $event, absolute: false), [
-                'employee_number' => $manualFirst->employee_number,
+                'qr_payload' => $manualFirstPayload,
             ])
             ->assertSessionHas('warning');
 
@@ -366,6 +384,7 @@ class EventAttendanceHardeningTest extends TestCase
         ]);
         $this->participant($event, $employee);
         $existing = $this->attendance($event, $employee, $scanner);
+        $qrToken = $this->rawQrToken($employee);
         $exception = $this->uniqueException(['event_id', 'employee_id']);
 
         $service = new class($existing, $exception) extends EventAttendanceService
@@ -388,7 +407,7 @@ class EventAttendanceHardeningTest extends TestCase
             }
         };
 
-        $result = $service->recordBarcodeAttendance($event, $employee, $scanner);
+        $result = $service->recordQrAttendance($event, $employee, $scanner, $qrToken);
 
         $this->assertSame('already_attended', $result->status);
         $this->assertSame($existing->id, $result->attendance?->id);
@@ -402,6 +421,7 @@ class EventAttendanceHardeningTest extends TestCase
         $event = $this->event();
         $employee = $this->employee(['employee_number' => '7770930015']);
         $this->participant($event, $employee);
+        $qrToken = $this->rawQrToken($employee);
         $wrongUnique = $this->uniqueException(['another_column']);
 
         $uniqueService = new class($wrongUnique) extends EventAttendanceService
@@ -415,7 +435,7 @@ class EventAttendanceHardeningTest extends TestCase
         };
 
         try {
-            $uniqueService->recordBarcodeAttendance($event, $employee, $scanner);
+            $uniqueService->recordQrAttendance($event, $employee, $scanner, $qrToken);
             $this->fail('Unique constraint lain seharusnya dilempar kembali.');
         } catch (UniqueConstraintViolationException $exception) {
             $this->assertSame($wrongUnique, $exception);
@@ -438,7 +458,7 @@ class EventAttendanceHardeningTest extends TestCase
         };
 
         $this->expectException(QueryException::class);
-        $queryService->recordBarcodeAttendance($event, $employee, $scanner);
+        $queryService->recordQrAttendance($event, $employee, $scanner, $qrToken);
     }
 
     public function test_summary_excludes_cancelled_participants_and_their_historical_attendance(): void
@@ -523,6 +543,26 @@ class EventAttendanceHardeningTest extends TestCase
             'scanned_at' => now(),
             'attendance_status' => 'present',
             'scan_method' => 'barcode',
+        ]);
+    }
+
+    private function qrPayload(Employee $employee, User $creator): string
+    {
+        $service = app(EmployeeQrTokenService::class);
+
+        return $service->payloadFor($service->generate($employee, $creator));
+    }
+
+    private function rawQrToken(Employee $employee): EmployeeQrToken
+    {
+        $rawToken = str_repeat('A', 60).str_pad((string) $employee->id, 4, '0', STR_PAD_LEFT);
+
+        return EmployeeQrToken::create([
+            'employee_id' => $employee->id,
+            'token_hash' => hash('sha256', $rawToken),
+            'token_encrypted' => $rawToken,
+            'is_active' => true,
+            'issued_at' => now(),
         ]);
     }
 

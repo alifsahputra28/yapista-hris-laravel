@@ -114,7 +114,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Nama Lengkap</small>{{ $employee->full_name }}</div>
-                        <div class="col-md-6 mb-3"><small class="text-muted d-block">NIK</small>{{ $employee->nik ?? '-' }}</div>
+                        <div class="col-md-6 mb-3"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Kelamin</small>{{ $employee->gender === 'male' ? 'Laki-laki' : ($employee->gender === 'female' ? 'Perempuan' : '-') }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Tempat, Tanggal Lahir</small>{{ $employee->birth_place ?? '-' }}{{ $employee->birth_date ? ', '.$employee->birth_date->format('d M Y') : '' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Nomor HP</small>{{ $employee->phone ?? '-' }}</div>

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Employee;
+use App\Models\EmployeeQrToken;
 use App\Models\Event;
 use App\Models\EventAttendance;
 use App\Models\EventParticipant;
@@ -12,12 +13,24 @@ use Illuminate\Database\UniqueConstraintViolationException;
 
 class EventAttendanceService
 {
-    public function recordBarcodeAttendance(
+    public function recordQrAttendance(
         Event $event,
         Employee $employee,
         User $scanner,
+        EmployeeQrToken $qrToken,
     ): AttendanceResult {
-        return $this->record($event, $employee, $scanner, 'barcode', null);
+        $activeToken = EmployeeQrToken::query()
+            ->whereKey($qrToken->id)
+            ->where('employee_id', $employee->id)
+            ->where('is_active', true)
+            ->whereNull('revoked_at')
+            ->first();
+
+        if (! $activeToken) {
+            return AttendanceResult::rejected('QR Code tidak valid atau sudah tidak aktif.');
+        }
+
+        return $this->record($event, $employee, $scanner, 'qr', null, $activeToken->id);
     }
 
     public function recordManualAttendance(
@@ -26,7 +39,7 @@ class EventAttendanceService
         User $scanner,
         ?string $note = null,
     ): AttendanceResult {
-        return $this->record($event, $employee, $scanner, 'manual', $note);
+        return $this->record($event, $employee, $scanner, 'manual', $note, null);
     }
 
     public function inactiveEventMessage(Event $event): ?string
@@ -46,6 +59,7 @@ class EventAttendanceService
         User $scanner,
         string $scanMethod,
         ?string $note,
+        ?int $qrTokenId,
     ): AttendanceResult {
         if ($message = $this->validationError($event, $employee)) {
             return AttendanceResult::rejected($message);
@@ -59,7 +73,7 @@ class EventAttendanceService
             $attendance = $this->createAttendance([
                 'event_id' => $event->id,
                 'employee_id' => $employee->id,
-                'qr_token_id' => null,
+                'qr_token_id' => $qrTokenId,
                 'scanned_by' => $scanner->id,
                 'scanned_at' => now(),
                 'attendance_status' => 'present',

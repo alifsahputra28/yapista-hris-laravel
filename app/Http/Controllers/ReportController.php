@@ -174,7 +174,6 @@ class ReportController extends Controller
                     $query->where('full_name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
-                        ->orWhere('nik', 'like', "%{$search}%")
                         ->orWhere('employee_number', 'like', "%{$search}%");
                 });
             })
@@ -280,7 +279,7 @@ class ReportController extends Controller
                     $query->where('event_id', $event->id);
                 });
             })
-            ->when(in_array($scanMethod, ['barcode', 'manual'], true), function (Builder $query) use ($event, $scanMethod): void {
+            ->when(in_array($scanMethod, ['qr', 'qr_code', 'barcode', 'manual'], true), function (Builder $query) use ($event, $scanMethod): void {
                 $query->whereHas('employee.eventAttendances', function (Builder $query) use ($event, $scanMethod): void {
                     $query->where('event_id', $event->id)
                         ->where('scan_method', $scanMethod);
@@ -293,4 +292,5 @@ class ReportController extends Controller
     {
         return Str::slug($value) ?: 'kegiatan';
     }
+
 }

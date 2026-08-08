@@ -130,6 +130,7 @@ class XlsxExportTest extends TestCase
         $this->assertContains('7770950003', $attendanceValues);
         $this->assertNotContains('Cancelled Export', $attendanceValues);
         $this->assertNotContains('7770950004', $attendanceValues);
+        $this->assertContains('QR Code', $attendanceValues);
 
         $attendanceRows = $this->worksheetRows($attendanceResponse->streamedContent());
         $absentRow = collect($attendanceRows)->first(fn (array $row): bool => in_array('Absent Export', $row, true));
@@ -163,7 +164,7 @@ class XlsxExportTest extends TestCase
             'scanned_by' => $this->admin->id,
             'scanned_at' => now(),
             'attendance_status' => 'present',
-            'scan_method' => 'barcode',
+            'scan_method' => 'qr',
         ]);
     }
 

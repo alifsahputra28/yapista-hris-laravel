@@ -13,11 +13,17 @@ class EmployeeQrToken extends Model
 
     protected $fillable = [
         'employee_id',
-        'token',
+        'token_hash',
+        'token_encrypted',
         'is_active',
         'issued_at',
         'revoked_at',
         'created_by',
+    ];
+
+    protected $hidden = [
+        'token_hash',
+        'token_encrypted',
     ];
 
     /**
@@ -29,6 +35,7 @@ class EmployeeQrToken extends Model
     {
         return [
             'is_active' => 'boolean',
+            'token_encrypted' => 'encrypted',
             'issued_at' => 'datetime',
             'revoked_at' => 'datetime',
         ];
@@ -52,5 +59,13 @@ class EmployeeQrToken extends Model
     public function isActive(): bool
     {
         return $this->is_active && $this->revoked_at === null;
+    }
+
+    public function revoke(): void
+    {
+        $this->forceFill([
+            'is_active' => false,
+            'revoked_at' => now(),
+        ])->save();
     }
 }

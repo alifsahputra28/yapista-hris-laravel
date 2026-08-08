@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Institution;
 use App\Models\Position;
+use App\Rules\UniqueEmployeeNik;
+use App\Services\EmployeeNikProtectionService;
+use InvalidArgumentException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +16,8 @@ use Illuminate\View\View;
 
 class EmployeeController extends Controller
 {
+    public function __construct(private readonly EmployeeNikProtectionService $nikProtectionService) {}
+
     public function index(Request $request): View
     {
         $search = $request->string('search')->toString();
@@ -24,7 +29,6 @@ class EmployeeController extends Controller
                     $query->where('full_name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
-                        ->orWhere('nik', 'like', "%{$search}%")
                         ->orWhere('employee_number', 'like', "%{$search}%");
                 });
             })
@@ -98,6 +102,23 @@ class EmployeeController extends Controller
         return view('employees.show', compact('employee'));
     }
 
+    public function findByNik(Request $request): RedirectResponse
+    {
+        try {
+            $lookup = $this->nikProtectionService->lookup((string) $request->input('nik'));
+        } catch (InvalidArgumentException) {
+            return back()->with('error', 'NIK harus terdiri dari 16 digit angka.');
+        }
+
+        $employee = $lookup === null ? null : Employee::where('nik_lookup', $lookup)->first();
+
+        if (! $employee) {
+            return back()->with('error', 'Data pegawai dengan NIK tersebut tidak ditemukan.');
+        }
+
+        return redirect()->route('employees.show', $employee);
+    }
+
     public function edit(Employee $employee): View
     {
         $institutions = $this->activeInstitutions();
@@ -142,12 +163,10 @@ class EmployeeController extends Controller
     private function validatedData(Request $request, ?Employee $employee = null): array
     {
         $emailRule = Rule::unique('employees', 'email');
-        $nikRule = Rule::unique('employees', 'nik');
         $employeeNumberRule = Rule::unique('employees', 'employee_number');
 
         if ($employee) {
             $emailRule->ignore($employee->id);
-            $nikRule->ignore($employee->id);
             $employeeNumberRule->ignore($employee->id);
         }
 
@@ -163,7 +182,7 @@ class EmployeeController extends Controller
             'position_id' => ['required', 'exists:positions,id'],
             'employee_number' => $employeeNumberRules,
             'email' => ['nullable', 'email', $emailRule],
-            'nik' => ['nullable', 'string', 'max:30', $nikRule],
+            'nik' => ['nullable', 'digits:16', new UniqueEmployeeNik($employee?->id)],
             'gender' => ['nullable', 'in:male,female'],
             'birth_place' => ['nullable', 'string', 'max:100'],
             'birth_date' => ['nullable', 'date'],
@@ -200,4 +219,5 @@ class EmployeeController extends Controller
             ->orderBy('name')
             ->get();
     }
+
 }

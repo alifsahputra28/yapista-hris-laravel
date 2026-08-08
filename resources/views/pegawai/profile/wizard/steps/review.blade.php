@@ -74,7 +74,7 @@
     <div class="row g-3">
         <div class="col-md-6"><small class="text-muted d-block">Nama Lengkap</small>{{ $employee->full_name }}</div>
         <div class="col-md-6"><small class="text-muted d-block">NUP / Nomor Pegawai</small>{{ $employee->formatted_employee_number }}</div>
-        <div class="col-md-6"><small class="text-muted d-block">NIK</small>{{ $mask($employee->nik) }}</div>
+        <div class="col-md-6"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? 'Belum diisi' }}</div>
         <div class="col-md-6"><small class="text-muted d-block">Nomor Kartu Keluarga</small>{{ $mask($employee->family_card_number) }}</div>
         <div class="col-md-6"><small class="text-muted d-block">Unit & Jabatan</small>{{ $employee->institution?->name ?? 'Belum diisi' }} / {{ $employee->position?->name ?? 'Belum diisi' }}</div>
         <div class="col-md-6"><small class="text-muted d-block">Jenis & Status Pegawai</small>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }} / {{ $employee->employment_status }}</div>

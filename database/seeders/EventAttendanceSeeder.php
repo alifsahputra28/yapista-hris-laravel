@@ -21,18 +21,18 @@ class EventAttendanceSeeder extends Seeder
         $panitia = User::where('email', 'panitia@yapista.test')->first();
 
         $this->seedAttendance('Rapat Koordinasi Yayasan', [
-            ['email' => 'ahmad.fauzi@yapista.test', 'method' => 'barcode', 'minutes' => 5],
-            ['email' => 'budi.santoso@yapista.test', 'method' => 'barcode', 'minutes' => 12],
-            ['email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 18, 'note' => 'Input manual karena barcode sulit terbaca.'],
+            ['email' => 'ahmad.fauzi@yapista.test', 'method' => 'qr', 'minutes' => 5],
+            ['email' => 'budi.santoso@yapista.test', 'method' => 'qr', 'minutes' => 12],
+            ['email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 18, 'note' => 'Input manual karena QR Code sulit terbaca.'],
         ], $panitia?->id);
 
         $this->seedAttendance('Halal Bihalal YAPISTA', [
-            ['email' => 'ahmad.fauzi@yapista.test', 'method' => 'barcode', 'minutes' => 3],
-            ['email' => 'budi.santoso@yapista.test', 'method' => 'barcode', 'minutes' => 6],
-            ['email' => 'andi.pratama@yapista.test', 'method' => 'barcode', 'minutes' => 8],
+            ['email' => 'ahmad.fauzi@yapista.test', 'method' => 'qr', 'minutes' => 3],
+            ['email' => 'budi.santoso@yapista.test', 'method' => 'qr', 'minutes' => 6],
+            ['email' => 'andi.pratama@yapista.test', 'method' => 'qr', 'minutes' => 8],
             ['email' => 'dewi.lestari@yapista.test', 'method' => 'manual', 'minutes' => 10, 'note' => 'Input manual saat antrean scan penuh.'],
-            ['email' => 'fajar.ramadhan@yapista.test', 'method' => 'barcode', 'minutes' => 13],
-            ['email' => 'rahmat.hidayat@yapista.test', 'method' => 'barcode', 'minutes' => 17],
+            ['email' => 'fajar.ramadhan@yapista.test', 'method' => 'qr', 'minutes' => 13],
+            ['email' => 'rahmat.hidayat@yapista.test', 'method' => 'qr', 'minutes' => 17],
         ], $panitia?->id);
     }
 

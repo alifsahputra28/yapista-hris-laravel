@@ -116,7 +116,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">NIK</small>
-                            {{ $employee->nik ?? '-' }}
+                            {{ $employee->masked_nik ?? '-' }}
                         </div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Jenis Kelamin</small>

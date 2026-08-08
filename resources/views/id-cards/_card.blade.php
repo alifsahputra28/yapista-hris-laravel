@@ -36,19 +36,17 @@
         </div>
     </div>
 
-    <div class="id-card-barcode">
-        @if ($barcodeBase64)
-            <img src="data:image/png;base64,{{ $barcodeBase64 }}" alt="Barcode {{ $employee->employee_number }}" class="barcode-image">
-        @elseif ($barcodeSvg)
-            <div class="barcode-svg">{!! $barcodeSvg !!}</div>
+    <div class="id-card-qr">
+        @if ($qrCodeSvg)
+            <div class="qr-code-svg" role="img" aria-label="QR Code absensi pegawai">{!! $qrCodeSvg !!}</div>
         @else
-            <div class="barcode-placeholder">
-                <i class="ti ti-barcode"></i>
-                <span>Barcode belum tersedia</span>
+            <div class="qr-code-placeholder">
+                <i class="ti ti-qrcode"></i>
+                <span>QR Code belum tersedia</span>
             </div>
         @endif
 
-        <div class="barcode-number">{{ $employee->employee_number }}</div>
-        <div class="barcode-note">Scan barcode ini untuk absensi kegiatan.</div>
+        <div class="qr-code-label">QR ABSENSI</div>
+        <div class="qr-code-note">Pindai QR Code untuk absensi kegiatan.</div>
     </div>
 </div>

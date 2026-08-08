@@ -10,6 +10,7 @@ use App\Models\EventParticipant;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\EmployeeQrTokenService;
 use App\Services\EventParticipantService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -272,7 +273,7 @@ class EmployeeNumberConsistencyTest extends TestCase
         $this->assertDatabaseMissing('event_participants', ['event_id' => $event->id, 'employee_id' => $invalid->id]);
     }
 
-    public function test_id_card_only_generates_barcode_for_valid_verified_employee_number(): void
+    public function test_id_card_only_renders_qr_for_valid_verified_employee_with_active_token(): void
     {
         $invalid = $this->employee([
             'email' => 'card-invalid@yapista.test',
@@ -289,28 +290,36 @@ class EmployeeNumberConsistencyTest extends TestCase
             ->get(route('employees.id-card.show', $invalid, absolute: false))
             ->assertOk()
             ->assertViewHas('isValidForIdCard', false)
-            ->assertViewHas('barcodeBase64', null);
+            ->assertViewHas('qrCodeSvg', null);
 
         $this->actingAs($this->admin)
             ->get(route('employees.id-card.show', $valid, absolute: false))
             ->assertOk()
             ->assertViewHas('isValidForIdCard', true)
-            ->assertViewHas('barcodeBase64', fn ($barcode): bool => is_string($barcode) && $barcode !== '');
+            ->assertViewHas('qrCodeSvg', null)
+            ->assertSee('QR Code belum tersedia.');
+
+        app(EmployeeQrTokenService::class)->generate($valid, $this->admin);
+
+        $this->actingAs($this->admin)
+            ->get(route('employees.id-card.show', $valid, absolute: false))
+            ->assertOk()
+            ->assertViewHas('qrCodeSvg', fn ($qrCode): bool => is_string($qrCode) && str_contains($qrCode, '<svg'));
     }
 
-    public function test_scanner_rejects_normalized_input_that_is_not_ten_digits(): void
+    public function test_scanner_rejects_non_qr_input(): void
     {
         $panitia = User::factory()->create(['role' => 'panitia']);
         $event = $this->event(['status' => 'active']);
 
         $this->actingAs($panitia)
-            ->post(route('events.scan', $event, absolute: false), ['employee_number' => 'Call 777 0923'])
-            ->assertSessionHas('error', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
+            ->post(route('events.scan', $event, absolute: false), ['qr_payload' => 'Call 777 0923'])
+            ->assertSessionHas('error', 'QR Code tidak valid atau sudah tidak aktif.');
 
         $this->assertDatabaseCount('event_attendances', 0);
     }
 
-    public function test_scanner_uses_employee_number_and_never_legacy_nup(): void
+    public function test_scanner_uses_qr_token_and_never_employee_number_or_legacy_nup(): void
     {
         $panitia = User::factory()->create(['role' => 'panitia']);
         $employee = $this->employee([
@@ -322,18 +331,21 @@ class EmployeeNumberConsistencyTest extends TestCase
         $employee->save();
         $event = $this->event(['status' => 'active']);
         EventParticipant::create(['event_id' => $event->id, 'employee_id' => $employee->id]);
+        $tokenService = app(EmployeeQrTokenService::class);
+        $token = $tokenService->generate($employee, $panitia);
 
         $this->actingAs($panitia)
-            ->post(route('events.scan', $event, absolute: false), ['scan_code' => '7770924999'])
-            ->assertSessionHas('error', 'NUP / Nomor Pegawai tidak ditemukan.');
+            ->post(route('events.scan', $event, absolute: false), ['qr_payload' => '7770924999'])
+            ->assertSessionHas('error', 'QR Code tidak valid atau sudah tidak aktif.');
 
         $this->actingAs($panitia)
-            ->post(route('events.scan', $event, absolute: false), ['scan_code' => 'Call 777 0924013'])
+            ->post(route('events.scan', $event, absolute: false), ['qr_payload' => $tokenService->payloadFor($token)])
             ->assertSessionHas('success', 'Absensi berhasil dicatat.');
 
         $attendance = EventAttendance::query()->firstOrFail();
         $this->assertSame($employee->id, $attendance->employee_id);
-        $this->assertSame('barcode', $attendance->scan_method);
+        $this->assertSame('qr', $attendance->scan_method);
+        $this->assertSame($token->id, $attendance->qr_token_id);
     }
 
     public function test_report_has_nup_filter_means_valid_employee_number_not_merely_non_null(): void
@@ -399,8 +411,10 @@ class EmployeeNumberConsistencyTest extends TestCase
      */
     private function approvalReadyEmployee(array $overrides = []): Employee
     {
+        static $nikSequence = 0;
+
         $employee = $this->employee(array_merge([
-            'nik' => uniqid('nik'),
+            'nik' => '320101010101'.str_pad((string) ++$nikSequence, 4, '0', STR_PAD_LEFT),
             'phone' => '081234567890',
             'address' => 'Jl. Pengujian',
             'photo' => 'employees/photos/profile.jpg',

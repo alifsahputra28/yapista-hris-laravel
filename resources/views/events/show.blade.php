@@ -152,8 +152,8 @@
 
                         @if ($event->canScanAttendance())
                             <a href="{{ route('events.scanner', $event) }}" class="btn btn-success">
-                                <i class="ti ti-barcode"></i>
-                                Scan Barcode
+                                <i class="ti ti-qrcode"></i>
+                                Scan QR Code
                             </a>
                         @endif
 
