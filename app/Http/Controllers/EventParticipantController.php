@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Event;
 use App\Models\EventParticipant;
+use App\Models\Institution;
+use App\Models\Position;
 use App\Services\EventParticipantService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,16 +18,49 @@ class EventParticipantController extends Controller
 {
     public function __construct(private readonly EventParticipantService $participantService) {}
 
-    public function index(Event $event): View
+    public function index(Request $request, Event $event): View
     {
-        $event->load([
-            'participants' => fn ($query) => $query
-                ->with(['employee.institution', 'employee.position'])
-                ->orderBy('id'),
-        ]);
-        $eligibleEmployees = $this->employeeOptions();
+        $search = trim($request->string('search')->toString());
 
-        return view('events.participants', compact('event', 'eligibleEmployees'));
+        $participants = EventParticipant::query()
+            ->where('event_id', $event->id)
+            ->with(['employee.institution', 'employee.position'])
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->whereHas('employee', function ($query) use ($search): void {
+                    $query->where('full_name', 'like', "%{$search}%")
+                        ->orWhere('employee_number', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('participant_status'), function ($query) use ($request): void {
+                $query->where('participant_status', $request->string('participant_status')->toString());
+            })
+            ->when($request->filled('institution_id'), function ($query) use ($request): void {
+                $query->whereHas('employee', function ($query) use ($request): void {
+                    $query->where('institution_id', $request->integer('institution_id'));
+                });
+            })
+            ->when($request->filled('position_id'), function ($query) use ($request): void {
+                $query->whereHas('employee', function ($query) use ($request): void {
+                    $query->where('position_id', $request->integer('position_id'));
+                });
+            })
+            ->orderBy('id')
+            ->paginate(20)
+            ->withQueryString();
+
+        $event->loadCount('participants');
+        $eligibleEmployees = $this->employeeOptions();
+        $institutions = Institution::query()->orderBy('name')->get();
+        $positions = Position::query()->with('institution')->orderBy('name')->get();
+
+        return view('events.participants', compact(
+            'event',
+            'participants',
+            'eligibleEmployees',
+            'institutions',
+            'positions',
+            'search'
+        ));
     }
 
     public function generate(Request $request, Event $event): RedirectResponse

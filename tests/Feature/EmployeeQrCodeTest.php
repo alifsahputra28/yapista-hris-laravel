@@ -212,7 +212,8 @@ class EmployeeQrCodeTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('QR ABSENSI')
+            ->assertSee('Pindai QR Code untuk absensi kegiatan')
+            ->assertSee('employee-e-card', escape: false)
             ->assertSee($employee->employee_number)
             ->assertDontSee('Barcode belum tersedia')
             ->assertDontSee('Scan barcode')
@@ -233,7 +234,8 @@ class EmployeeQrCodeTest extends TestCase
         $this->actingAs($owner)
             ->get(route('pegawai.id-card.show', absolute: false))
             ->assertOk()
-            ->assertSee('QR ABSENSI')
+            ->assertSee('Pindai QR Code untuk absensi kegiatan')
+            ->assertSee('employee-e-card', escape: false)
             ->assertDontSee('Buat Ulang QR Code')
             ->assertDontSee($token->token_encrypted);
 

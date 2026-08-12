@@ -1,30 +1,15 @@
 @csrf
 
 @php
-    $employeeTypes = [
-        'guru' => 'Guru', 'dosen' => 'Dosen', 'tenaga_kependidikan' => 'Tenaga Kependidikan',
-        'staff_yayasan' => 'Staff Yayasan', 'security' => 'Security', 'cleaning_service' => 'Cleaning Service',
-        'driver' => 'Driver', 'teknisi' => 'Teknisi',
-    ];
-    $employmentStatuses = [
-        'aktif' => 'Aktif', 'kontrak' => 'Kontrak', 'honorer' => 'Honorer',
-        'part_time' => 'Part Time', 'nonaktif' => 'Nonaktif', 'resign' => 'Resign',
-    ];
     $sameAddress = (bool) old('domicile_same_as_identity', $employee->domicile_same_as_identity);
 @endphp
 
-<div class="card">
-    <div class="card-header"><h5 class="mb-0">Informasi Kepegawaian</h5></div>
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-6 col-xl-4"><small class="text-muted d-block">NUP / Nomor Pegawai</small><strong>{{ $employee->formatted_employee_number }}</strong></div>
-            <div class="col-md-6 col-xl-4"><small class="text-muted d-block">Unit Kerja</small><strong>{{ $employee->institution?->name ?? 'Belum diisi' }}</strong></div>
-            <div class="col-md-6 col-xl-4"><small class="text-muted d-block">Jabatan</small><strong>{{ $employee->position?->name ?? 'Belum diisi' }}</strong></div>
-            <div class="col-md-6 col-xl-4"><small class="text-muted d-block">Jenis Pegawai</small><strong>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}</strong></div>
-            <div class="col-md-6 col-xl-4"><small class="text-muted d-block">Status Kepegawaian</small><strong>{{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}</strong></div>
-            <div class="col-md-6 col-xl-4"><small class="text-muted d-block">Tanggal Masuk</small><strong>{{ $employee->join_date?->format('d M Y') ?? 'Belum diisi' }}</strong></div>
-        </div>
-    </div>
+<div class="alert alert-light-primary d-flex flex-wrap gap-2 mb-3" role="note">
+    <span><strong>NUP</strong> {{ $employee->formatted_employee_number }}</span>
+    <span aria-hidden="true">&bull;</span>
+    <span>{{ $employee->institution?->name ?? 'Unit belum ditetapkan' }}</span>
+    <span aria-hidden="true">&bull;</span>
+    <span>{{ $employee->position?->name ?? 'Jabatan belum ditetapkan' }}</span>
 </div>
 
 <div class="card">
@@ -32,7 +17,7 @@
     <div class="card-body">
         <div class="row align-items-center g-3">
             @if ($employee->photo)
-                <div class="col-auto"><img src="{{ asset('storage/'.$employee->photo) }}" alt="{{ $employee->full_name }}" class="rounded wid-100 hei-100" style="object-fit: cover;"></div>
+                <div class="col-auto"><img src="{{ asset('storage/'.$employee->photo) }}" alt="{{ $employee->full_name }}" class="rounded wid-100 hei-100 object-fit-cover"></div>
             @endif
             <div class="col-md-6">
                 <label for="photo" class="form-label">Pilih Foto</label>

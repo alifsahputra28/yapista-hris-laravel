@@ -28,10 +28,20 @@
             'verified' => ['label' => 'Terverifikasi', 'class' => 'bg-light-success text-success'],
             'rejected' => ['label' => 'Ditolak', 'class' => 'bg-light-danger text-danger'],
         ];
+        $activeInstitution = $institutions->firstWhere('id', (int) request('institution_id'))?->name;
+        $activePosition = $positions->firstWhere('id', (int) request('position_id'))?->name;
+        $advancedFilterCount = collect(['verification_status', 'employee_type'])->filter(fn ($key) => request()->filled($key))->count();
+        $hasActiveFilters = collect(['search', 'institution_id', 'position_id', 'employment_status', 'verification_status', 'employee_type'])
+            ->contains(fn ($key) => request()->filled($key));
+        $activeFilterCount = collect(['institution_id', 'position_id', 'employment_status', 'verification_status', 'employee_type'])->filter(fn ($key) => request()->filled($key))->count();
+        $advancedOpen = $advancedFilterCount > 0 || session()->has('error');
     @endphp
 
     <x-page-header title="Data Pegawai" subtitle="Cari dan kelola data pegawai YAPISTA." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Data Pegawai']]">
-        <x-slot:actions><a href="{{ route('employees.create') }}" class="btn btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Tambah Pegawai</a></x-slot:actions>
+        <x-slot:actions>
+            <x-import-excel-button target="#importEmployeeModal" />
+            <a href="{{ route('employees.create') }}" class="btn btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Tambah Pegawai</a>
+        </x-slot:actions>
     </x-page-header>
 
     @if (session('success'))
@@ -42,6 +52,40 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
+    @if (session('import_summary'))
+        @php
+            $importSummary = session('import_summary');
+        @endphp
+        <div class="alert alert-success" role="status">
+            <div class="fw-semibold mb-2">Import selesai.</div>
+            <div class="d-flex flex-wrap gap-3 small">
+                <span>Berhasil: <strong>{{ $importSummary['created'] }}</strong></span>
+                <span>Dilewati: <strong>{{ $importSummary['skipped'] }}</strong></span>
+                <span>Gagal: <strong>{{ $importSummary['failed'] }}</strong></span>
+                <span>QR dibuat: <strong>{{ $importSummary['qr_tokens_created'] }}</strong></span>
+            </div>
+            @if ($importSummary['errors'])
+                <details class="mt-2">
+                    <summary class="small fw-medium">Lihat catatan baris</summary>
+                    <ul class="small mb-0 mt-2 ps-3">
+                        @foreach ($importSummary['errors'] as $importError)
+                            <li>{{ $importError }}</li>
+                        @endforeach
+                    </ul>
+                </details>
+            @endif
+        </div>
+    @endif
+
+    <x-import-excel-modal
+        modal-id="importEmployeeModal"
+        title="Import Excel Data Pegawai"
+        :upload-route="route('employees.import.store')"
+        :template-route="route('employees.import.template')"
+        :required-columns="$importRequiredColumns"
+        :optional-columns="$importOptionalColumns"
+    />
+
     <div class="metric-strip" aria-label="Ringkasan pegawai">
         <div class="metric-item"><div class="metric-label">Total Pegawai</div><div class="metric-value">{{ number_format($totalEmployees) }}</div></div>
         <div class="metric-item"><div class="metric-label">Pegawai Aktif</div><div class="metric-value">{{ number_format($activeEmployees) }}</div></div>
@@ -49,25 +93,22 @@
         <div class="metric-item"><div class="metric-label">Akun Terhubung</div><div class="metric-value">{{ number_format($registeredEmployees) }}</div></div>
     </div>
 
-    <div class="card">
+    <div class="card filter-card">
         <div class="card-header">
             <h5 class="mb-0">Filter Pegawai</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('employees.index') }}" class="row g-3">
-                <div class="col-lg-6">
-                    <label for="search" class="form-label">Pencarian</label>
-                    <input
-                        id="search"
-                        type="search"
-                        name="search"
-                        value="{{ $search }}"
-                        class="form-control"
-                        placeholder="Cari nama, email, HP, atau nomor pegawai"
-                    >
+            <form id="employee-filter-form" method="GET" action="{{ route('employees.index') }}">
+                <div class="row g-3 align-items-end">
+                <div class="col-lg-5">
+                    <label for="search" class="form-label">Cari Pegawai</label>
+                    <div class="filter-search-wrap">
+                        <i class="ti ti-search" aria-hidden="true"></i>
+                        <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, atau NUP..." aria-label="Cari nama, email, HP, atau NUP">
+                    </div>
                 </div>
-
-                <div class="col-md-6 col-lg-3">
+                <div class="col-12 d-lg-none"><button class="btn btn-light-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target=".employee-mobile-filter" aria-expanded="{{ $activeFilterCount ? 'true' : 'false' }}"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filter @if ($activeFilterCount)({{ $activeFilterCount }})@endif</button></div>
+                <div class="col-md-6 col-lg-2 collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select id="institution_id" name="institution_id" class="form-select">
                         <option value="">Semua unit</option>
@@ -79,7 +120,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 col-lg-3">
+                <div class="col-md-6 col-lg-2 collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="position_id" class="form-label">Jabatan</label>
                     <select id="position_id" name="position_id" class="form-select">
                         <option value="">Semua jabatan</option>
@@ -91,19 +132,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <label for="verification_status" class="form-label">Status Verifikasi</label>
-                    <select id="verification_status" name="verification_status" class="form-select">
-                        <option value="">Semua verifikasi</option>
-                        @foreach ($verificationStatuses as $value => $status)
-                            <option value="{{ $value }}" @selected(request('verification_status') === $value)>
-                                {{ $status['label'] }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-6 col-lg-3">
+                <div class="col-md-6 col-lg-2 collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="employment_status" class="form-label">Status Kerja</label>
                     <select id="employment_status" name="employment_status" class="form-select">
                         <option value="">Semua status</option>
@@ -115,29 +144,73 @@
                     </select>
                 </div>
 
-                <div class="col-md-12 col-lg-6 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="ti ti-filter"></i>
-                        Filter
+                <div class="col-lg-1 filter-primary-actions collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
+                    <button type="submit" class="btn btn-primary w-100" title="Terapkan Filter">
+                        <i class="ti ti-filter" aria-hidden="true"></i>
+                        <span class="d-lg-none">Terapkan Filter</span>
                     </button>
+                </div>
+                </div>
+            </form>
 
-                    <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">
-                        Reset
-                    </a>
+            <div class="filter-secondary-row collapse d-lg-flex employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
+                <button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#employee-advanced-filter" aria-expanded="{{ $advancedOpen ? 'true' : 'false' }}" aria-controls="employee-advanced-filter">
+                    <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>
+                    Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif
+                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+                </button>
+                @if ($hasActiveFilters)
+                    <a href="{{ route('employees.index') }}" class="btn btn-sm btn-link text-muted">Reset semua</a>
+                @endif
+            </div>
+
+            <div id="employee-advanced-filter" class="collapse {{ $advancedOpen ? 'show' : '' }}">
+                <div class="filter-advanced-panel">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-lg-3">
+                            <label for="verification_status" class="form-label">Status Verifikasi</label>
+                            <select id="verification_status" name="verification_status" class="form-select" form="employee-filter-form">
+                                <option value="">Semua verifikasi</option>
+                                @foreach ($verificationStatuses as $value => $status)
+                                    <option value="{{ $value }}" @selected(request('verification_status') === $value)>{{ $status['label'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <label for="employee_type" class="form-label">Jenis Pegawai</label>
+                            <select id="employee_type" name="employee_type" class="form-select" form="employee-filter-form">
+                                <option value="">Semua jenis</option>
+                                @foreach ($employeeTypes as $value => $label)
+                                    <option value="{{ $value }}" @selected(request('employee_type') === $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12"><hr class="my-1"></div>
+                        <div class="col-12">
+                            <form method="POST" action="{{ route('employees.nik-search') }}" class="row g-3 align-items-end" autocomplete="off">
+                                @csrf
+                                <div class="col-lg-7">
+                                    <label for="nik_exact" class="form-label">Cari berdasarkan NIK</label>
+                                    <input id="nik_exact" type="text" name="nik" class="form-control" maxlength="16" inputmode="numeric" autocomplete="off" placeholder="Masukkan 16 digit NIK">
+                                    <div class="form-text">Pencarian NIK menggunakan exact secure lookup dan tidak disimpan pada URL.</div>
+                                </div>
+                                <div class="col-lg-auto"><button type="submit" class="btn btn-outline-primary"><i class="ti ti-search" aria-hidden="true"></i> Cari NIK</button></div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-            </form>
-            <hr class="my-4">
-            <form method="POST" action="{{ route('employees.nik-search') }}" class="row g-3 align-items-end" autocomplete="off">
-                @csrf
-                <div class="col-lg-6">
-                    <label for="nik_exact" class="form-label">Pencarian NIK Exact</label>
-                    <input id="nik_exact" type="text" name="nik" class="form-control" maxlength="16" inputmode="numeric" autocomplete="off" placeholder="Masukkan 16 digit NIK">
-                    <div class="form-text">NIK diproses melalui pencarian aman dan tidak disimpan pada URL.</div>
+            </div>
+
+            @if ($hasActiveFilters)
+                <div class="active-filter-summary" aria-label="Filter aktif">
+                    <span class="active-filter-label">Filter aktif:</span>
+                    @if ($activeInstitution)<x-active-filter-chip label="Unit" :value="$activeInstitution" :url="route('employees.index', request()->except('institution_id', 'page'))" />@endif
+                    @if ($activePosition)<x-active-filter-chip label="Jabatan" :value="$activePosition" :url="route('employees.index', request()->except('position_id', 'page'))" />@endif
+                    @if (request('employment_status'))<x-active-filter-chip label="Status" :value="$employmentStatuses[request('employment_status')]['label'] ?? request('employment_status')" :url="route('employees.index', request()->except('employment_status', 'page'))" />@endif
+                    @if (request('verification_status'))<x-active-filter-chip label="Verifikasi" :value="$verificationStatuses[request('verification_status')]['label'] ?? request('verification_status')" :url="route('employees.index', request()->except('verification_status', 'page'))" />@endif
+                    @if (request('employee_type'))<x-active-filter-chip label="Jenis" :value="$employeeTypes[request('employee_type')] ?? request('employee_type')" :url="route('employees.index', request()->except('employee_type', 'page'))" />@endif
                 </div>
-                <div class="col-lg-6">
-                    <button type="submit" class="btn btn-outline-primary"><i class="ti ti-search"></i> Cari NIK</button>
-                </div>
-            </form>
+            @endif
         </div>
     </div>
 
@@ -276,11 +349,11 @@
                                         <div class="avtar avtar-l bg-light-secondary text-secondary mx-auto mb-3">
                                             <i class="ti ti-users f-28"></i>
                                         </div>
-                                        <h5 class="mb-1">Belum ada data pegawai.</h5>
-                                        <p class="text-muted mb-3">Silakan tambahkan pegawai baru terlebih dahulu.</p>
-                                        <a href="{{ route('employees.create') }}" class="btn btn-primary">
-                                            <i class="ti ti-plus"></i>
-                                            Tambah Pegawai
+                                        <h5 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada pegawai yang sesuai dengan filter.' : 'Belum ada data pegawai.' }}</h5>
+                                        <p class="text-muted mb-3">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat data lainnya.' : 'Silakan tambahkan pegawai baru terlebih dahulu.' }}</p>
+                                        <a href="{{ $hasActiveFilters ? route('employees.index') : route('employees.create') }}" class="btn btn-primary">
+                                            <i class="ti {{ $hasActiveFilters ? 'ti-filter-off' : 'ti-plus' }}"></i>
+                                            {{ $hasActiveFilters ? 'Reset Filter' : 'Tambah Pegawai' }}
                                         </a>
                                     </div>
                                 </td>

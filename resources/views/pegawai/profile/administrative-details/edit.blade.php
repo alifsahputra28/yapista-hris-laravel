@@ -13,7 +13,7 @@
         );
     @endphp
 
-    <x-page-header title="Edit Data Administrasi" subtitle="Kelola informasi rekening, pajak, dan kepesertaan BPJS." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('pegawai.dashboard')], ['label' => 'Profil Saya', 'url' => route('pegawai.profile.show')], ['label' => 'Data Administrasi']]">
+    <x-page-header title="Edit Data Administrasi" subtitle="Kelola informasi rekening, pajak, dan kepesertaan BPJS." :breadcrumbs="[['label' => 'Beranda', 'url' => route('pegawai.dashboard')], ['label' => 'Akun', 'url' => route('pegawai.profile.show')], ['label' => 'Data Administrasi']]">
         <x-slot:actions><a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a></x-slot:actions>
     </x-page-header>
 

@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Profil | YAPISTA HRIS')
+@section('title', 'Data Pribadi | YAPISTA HRIS')
 
 @section('content')
-    <x-page-header title="Edit Profil Pegawai" subtitle="Perbarui identitas, kontak, dan alamat pribadi Anda." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('pegawai.dashboard')], ['label' => 'Profil Saya', 'url' => route('pegawai.profile.show')], ['label' => 'Edit Profil']]">
+    <x-page-header title="Data Pribadi" subtitle="Perbarui identitas, kontak, dan alamat pribadi Anda." :breadcrumbs="[['label' => 'Beranda', 'url' => route('pegawai.dashboard')], ['label' => 'Akun', 'url' => route('pegawai.profile.show')], ['label' => 'Data Pribadi']]">
         <x-slot:actions><a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a></x-slot:actions>
     </x-page-header>
 

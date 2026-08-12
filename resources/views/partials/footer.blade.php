@@ -18,7 +18,7 @@
             <div class="col-auto my-1">
                 <ul class="list-inline footer-link mb-0">
                     <li class="list-inline-item">
-                        <a href="{{ route($dashboardRoute) }}">Dashboard</a>
+                        <a href="{{ route($dashboardRoute) }}">{{ Auth::user()?->isPegawai() ? 'Beranda' : 'Dashboard' }}</a>
                     </li>
                 </ul>
             </div>

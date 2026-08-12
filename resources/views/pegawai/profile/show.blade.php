@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Profil Saya | YAPISTA HRIS')
+@section('title', 'Akun | YAPISTA HRIS')
 
 @section('content')
     @php
@@ -22,25 +22,87 @@
         $display = fn ($value) => filled($value) ? $value : 'Belum diisi';
         $familyCardNumber = $employee->family_card_number;
         $maskedFamilyCard = filled($familyCardNumber) ? str_repeat('*', max(strlen($familyCardNumber) - 4, 0)).substr($familyCardNumber, -4) : 'Belum diisi';
+        $accountPhoto = $employee->photo ? asset('storage/'.$employee->photo) : asset('assets/images/user/avatar-2.jpg');
     @endphp
 
+    <div class="d-lg-none">
+        <h1 class="h4 mb-3">Akun</h1>
+
+        @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+        @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+        @if ($employee->isSubmitted())
+            <div class="alert alert-warning">Data sedang diperiksa HR dan sementara tidak dapat diubah.</div>
+        @elseif ($employee->verification_status === 'rejected' && filled($employee->verification_note))
+            <div class="alert alert-danger"><strong>Perlu perbaikan:</strong> {{ $employee->verification_note }}</div>
+        @endif
+
+        <div class="d-flex align-items-center gap-3 p-3 mb-3 border rounded bg-white">
+            <img src="{{ $accountPhoto }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle wid-60 hei-60 object-fit-cover flex-shrink-0">
+            <div>
+                <strong class="d-block">{{ $employee->full_name }}</strong>
+                <span class="text-muted small">NUP {{ $employee->formatted_employee_number }}</span>
+            </div>
+        </div>
+
+        <div class="list-group list-group-flush border-top border-bottom bg-white mb-3">
+            <a href="{{ route('pegawai.profile.wizard.show', 'identification') }}" class="list-group-item list-group-item-action px-3 py-3">
+                <div class="d-flex align-items-center justify-content-between gap-3"><div class="d-flex align-items-center gap-3"><i class="ti ti-user text-primary f-20" aria-hidden="true"></i><span>Data Pribadi</span></div><i class="ti ti-chevron-right text-muted" aria-hidden="true"></i></div>
+            </a>
+            <button type="button" class="list-group-item list-group-item-action px-3 py-3" data-bs-toggle="collapse" data-bs-target="#mobile-employment-information" aria-expanded="false" aria-controls="mobile-employment-information">
+                <span class="d-flex align-items-center justify-content-between gap-3"><span class="d-flex align-items-center gap-3"><i class="ti ti-briefcase text-primary f-20" aria-hidden="true"></i><span>Informasi Kepegawaian</span></span><i class="ti ti-chevron-down text-muted" aria-hidden="true"></i></span>
+            </button>
+            <a href="{{ route('profile.edit') }}" class="list-group-item list-group-item-action px-3 py-3">
+                <div class="d-flex align-items-center justify-content-between gap-3"><div class="d-flex align-items-center gap-3"><i class="ti ti-shield-lock text-primary f-20" aria-hidden="true"></i><span>Keamanan Akun</span></div><i class="ti ti-chevron-right text-muted" aria-hidden="true"></i></div>
+            </a>
+            <a href="{{ route('profile.edit') }}#password-heading" class="list-group-item list-group-item-action px-3 py-3">
+                <div class="d-flex align-items-center justify-content-between gap-3"><div class="d-flex align-items-center gap-3"><i class="ti ti-key text-primary f-20" aria-hidden="true"></i><span>Ubah Password</span></div><i class="ti ti-chevron-right text-muted" aria-hidden="true"></i></div>
+            </a>
+        </div>
+
+        <div class="collapse mb-3" id="mobile-employment-information">
+            <div class="border rounded bg-white px-3">
+                @foreach ([
+                    'NUP' => $employee->formatted_employee_number,
+                    'Unit' => $employee->institution?->name ?? 'Belum ditetapkan',
+                    'Jabatan' => $employee->position?->name ?? 'Belum ditetapkan',
+                    'Jenis Pegawai' => $employeeTypes[$employee->employee_type] ?? $employee->employee_type,
+                    'Status Kerja' => $employmentStatuses[$employee->employment_status] ?? $employee->employment_status,
+                    'Tanggal Masuk' => $employee->join_date?->format('d M Y') ?? 'Belum diisi',
+                ] as $label => $value)
+                    <div class="d-flex align-items-start justify-content-between gap-3 py-3 border-bottom">
+                        <span class="text-muted small">{{ $label }}</span><strong class="small text-end">{{ $value }}</strong>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <a href="{{ route('pegawai.profile.wizard.index') }}" class="d-flex align-items-center justify-content-between gap-3 p-3 mb-3 border rounded bg-white text-body text-decoration-none">
+            <div><strong class="d-block">Data tambahan</strong><span class="text-muted small">Opsional &bull; perbarui jika diperlukan</span></div><i class="ti ti-chevron-right text-muted" aria-hidden="true"></i>
+        </a>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="btn btn-light-danger w-100"><i class="ti ti-logout me-1" aria-hidden="true"></i> Keluar</button>
+        </form>
+    </div>
+
+    <div class="d-none d-lg-block">
+
     <x-page-header
-        title="Profil Saya"
-        subtitle="Data pribadi dan administrasi kepegawaian Anda."
+        title="Akun"
+        subtitle="Data pribadi dan informasi kepegawaian Anda."
         :badge-label="$verificationStatuses[$employee->verification_status] ?? $employee->verification_status"
         :badge-class="$verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary'"
         :breadcrumbs="[
-            ['label' => 'Dashboard', 'url' => route('pegawai.dashboard')],
-            ['label' => 'Profil Saya'],
+            ['label' => 'Beranda', 'url' => route('pegawai.dashboard')],
+            ['label' => 'Akun'],
         ]"
     >
-        <x-slot:meta><x-employee-context :employee="$employee" /></x-slot:meta>
         <x-slot:actions>
             <a href="{{ route('pegawai.profile.wizard.index') }}" class="btn btn-primary">
                 <i class="ti ti-edit" aria-hidden="true"></i>
                 {{ $employee->canEditProfileCompletion() ? 'Perbarui Data' : 'Lihat Data Profil' }}
             </a>
-            <a href="{{ route('pegawai.documents.index') }}" class="btn btn-light-secondary"><i class="ti ti-files" aria-hidden="true"></i> Dokumen</a>
         </x-slot:actions>
     </x-page-header>
 
@@ -52,21 +114,27 @@
         <div class="alert alert-danger"><strong>Perlu perbaikan:</strong> {{ $employee->verification_note }}</div>
     @endif
 
-    <div class="d-flex justify-content-between gap-3 mb-2">
-        <span class="fw-semibold">{{ $employee->isVerified() ? 'Data profil tambahan' : 'Kelengkapan Profil' }}</span>
-        <span>{{ $profileProgress['percentage'] }}% terisi</span>
-    </div>
-    <div class="progress profile-progress" role="progressbar" aria-label="Kelengkapan profil" aria-valuenow="{{ $profileProgress['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar" style="width: {{ $profileProgress['percentage'] }}%"></div>
-    </div>
     @if ($employee->isVerified())
-        <p class="text-muted small mt-n3 mb-4">Data tambahan bersifat opsional dan tidak memengaruhi status pegawai.</p>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 border-bottom pb-3 mb-4">
+            <div>
+                <span class="fw-semibold">Data tambahan</span>
+                <span class="text-muted small ms-1">Opsional</span>
+            </div>
+            <span class="text-muted small">{{ $profileProgress['percentage'] }}% terisi</span>
+        </div>
+    @else
+        <div class="d-flex justify-content-between gap-3 mb-2">
+            <span class="fw-semibold">Kelengkapan Profil</span>
+            <span>{{ $profileProgress['percentage'] }}% terisi</span>
+        </div>
+        <div class="progress profile-progress" role="progressbar" aria-label="Kelengkapan profil" aria-valuenow="{{ $profileProgress['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: {{ $profileProgress['percentage'] }}%"></div>
+        </div>
     @endif
 
     <section class="content-section" aria-labelledby="employment-heading">
-        <div class="content-section-header"><h2 id="employment-heading">Data Utama</h2></div>
+        <div class="content-section-header"><h2 id="employment-heading">Informasi Kepegawaian</h2></div>
         <div class="content-section-body detail-grid">
-            <div class="detail-item"><span class="detail-label">Nama Lengkap</span>{{ $employee->full_name }}</div>
             <div class="detail-item"><span class="detail-label">NUP / Nomor Pegawai</span>{{ $employee->formatted_employee_number }}</div>
             <div class="detail-item"><span class="detail-label">Unit Kerja</span>{{ $employee->institution?->name ?? 'Belum ditetapkan' }}</div>
             <div class="detail-item"><span class="detail-label">Jabatan</span>{{ $employee->position?->name ?? 'Belum ditetapkan' }}</div>
@@ -78,6 +146,7 @@
     <section class="content-section" aria-labelledby="identity-heading">
         <div class="content-section-header"><h2 id="identity-heading">Identitas dan Kontak</h2></div>
         <div class="content-section-body detail-grid">
+            <div class="detail-item"><span class="detail-label">Nama Lengkap</span>{{ $employee->full_name }}</div>
             <div class="detail-item"><span class="detail-label">NIK</span>{{ $employee->masked_nik ?? 'Belum diisi' }}</div>
             <div class="detail-item"><span class="detail-label">Nomor Kartu Keluarga</span>{{ $maskedFamilyCard }}</div>
             <div class="detail-item"><span class="detail-label">Tempat, Tanggal Lahir</span>{{ $display($employee->birth_place) }}, {{ $employee->birth_date?->format('d M Y') ?? 'Belum diisi' }}</div>
@@ -154,9 +223,33 @@
         </div>
     </section>
 
+    <section class="content-section" aria-labelledby="security-heading">
+        <div class="content-section-header">
+            <div>
+                <h2 id="security-heading">Keamanan Akun</h2>
+                <p>Kelola email login dan password akun Anda.</p>
+            </div>
+        </div>
+        <div class="list-group list-group-flush">
+            <a href="{{ route('profile.edit') }}" class="list-group-item list-group-item-action px-3 px-md-4 py-3">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="avtar avtar-s bg-light-primary text-primary"><i class="ti ti-lock" aria-hidden="true"></i></span>
+                        <div>
+                            <strong class="d-block">Email dan Password</strong>
+                            <span class="text-muted small">Perbarui informasi login dan keamanan akun.</span>
+                        </div>
+                    </div>
+                    <i class="ti ti-chevron-right text-muted" aria-hidden="true"></i>
+                </div>
+            </a>
+        </div>
+    </section>
+
     @unless ($employee->isVerified())
         <section class="content-section" aria-labelledby="review-heading">
             <div class="content-section-header"><div><h2 id="review-heading">Review dan Pengajuan</h2><p>Periksa dokumen sebelum mengirim profil ke HR.</p></div><a href="{{ route('pegawai.profile.wizard.show', 'review') }}" class="btn btn-primary">Buka Review</a></div>
         </section>
     @endunless
+    </div>
 @endsection

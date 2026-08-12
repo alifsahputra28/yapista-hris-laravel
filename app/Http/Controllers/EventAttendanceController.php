@@ -30,6 +30,7 @@ class EventAttendanceController extends Controller
 
         $search = $request->string('search')->toString();
         $attendanceStatus = $request->string('attendance_status')->toString();
+        $scanMethod = $request->string('scan_method')->toString();
 
         $participantsQuery = EventParticipant::query()
             ->where('event_id', $event->id)
@@ -61,6 +62,12 @@ class EventAttendanceController extends Controller
             ->when($attendanceStatus === 'belum_hadir', function ($query) use ($event): void {
                 $query->whereDoesntHave('employee.eventAttendances', function ($query) use ($event): void {
                     $query->where('event_id', $event->id);
+                });
+            })
+            ->when(in_array($scanMethod, ['qr', 'manual', 'barcode'], true), function ($query) use ($event, $scanMethod): void {
+                $query->whereHas('employee.eventAttendances', function ($query) use ($event, $scanMethod): void {
+                    $query->where('event_id', $event->id)
+                        ->where('scan_method', $scanMethod);
                 });
             })
             ->orderBy('id');

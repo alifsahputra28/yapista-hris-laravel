@@ -7,12 +7,13 @@ use App\Models\Institution;
 use App\Models\Position;
 use App\Rules\UniqueEmployeeNik;
 use App\Services\EmployeeNikProtectionService;
-use InvalidArgumentException;
+use App\Support\Imports\EmployeeImportColumns;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use InvalidArgumentException;
 
 class EmployeeController extends Controller
 {
@@ -44,6 +45,9 @@ class EmployeeController extends Controller
             ->when($request->filled('employment_status'), function ($query) use ($request): void {
                 $query->where('employment_status', $request->string('employment_status')->toString());
             })
+            ->when($request->filled('employee_type'), function ($query) use ($request): void {
+                $query->where('employee_type', $request->string('employee_type')->toString());
+            })
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -54,6 +58,8 @@ class EmployeeController extends Controller
         $activeEmployees = Employee::query()->where('employment_status', 'aktif')->count();
         $submittedEmployees = Employee::query()->where('verification_status', 'submitted')->count();
         $registeredEmployees = Employee::query()->whereNotNull('user_id')->count();
+        $importRequiredColumns = EmployeeImportColumns::requiredLabels();
+        $importOptionalColumns = EmployeeImportColumns::optionalLabels();
 
         return view('employees.index', compact(
             'employees',
@@ -63,7 +69,9 @@ class EmployeeController extends Controller
             'totalEmployees',
             'activeEmployees',
             'submittedEmployees',
-            'registeredEmployees'
+            'registeredEmployees',
+            'importRequiredColumns',
+            'importOptionalColumns'
         ));
     }
 
@@ -219,5 +227,4 @@ class EmployeeController extends Controller
             ->orderBy('name')
             ->get();
     }
-
 }

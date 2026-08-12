@@ -35,6 +35,7 @@ class EmployeeIdCardController extends Controller
             'hasActiveQrToken' => $employee->activeQrToken !== null,
             'warnings' => $warnings,
             'isValidForIdCard' => $this->isValidForIdCard($employee),
+            'isReadyForIdCard' => $this->isValidForIdCard($employee) && $qrCodeSvg !== null,
         ]);
     }
 

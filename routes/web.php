@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeActivityController;
 use App\Http\Controllers\EmployeeAdministrativeDetailController;
 use App\Http\Controllers\EmployeeCertificationController;
 use App\Http\Controllers\EmployeeController;
@@ -8,6 +10,7 @@ use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeEducationController;
 use App\Http\Controllers\EmployeeFamilyMemberController;
 use App\Http\Controllers\EmployeeIdCardController;
+use App\Http\Controllers\EmployeeImportController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeProfileSubmissionController;
@@ -22,28 +25,34 @@ use App\Http\Controllers\PegawaiIdCardController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Support\Auth\UserRedirector;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function (Request $request, UserRedirector $redirector) {
+    return $request->user()
+        ? redirect($redirector->pathFor($request->user()))
+        : redirect()->route('login');
+})->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'role:super_admin,hr_admin'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)
+    ->middleware(['auth', 'role:super_admin,hr_admin'])
+    ->name('dashboard');
 
 Route::get('/scanner/dashboard', function () {
     return view('scanner.dashboard');
 })->middleware(['auth', 'role:panitia'])->name('scanner.dashboard');
 
-Route::get('/pegawai/dashboard', function () {
-    return view('pegawai.dashboard');
-})->middleware(['auth', 'role:pegawai'])->name('pegawai.dashboard');
+Route::get('/pegawai/dashboard', [DashboardController::class, 'employee'])
+    ->middleware(['auth', 'role:pegawai'])
+    ->name('pegawai.dashboard');
 
 Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::resource('institutions', InstitutionController::class)->except(['show']);
     Route::resource('positions', PositionController::class)->except(['show']);
     Route::post('/employees/nik-search', [EmployeeController::class, 'findByNik'])->name('employees.nik-search');
+    Route::get('/employees/import/template', [EmployeeImportController::class, 'template'])->name('employees.import.template');
+    Route::post('/employees/import', [EmployeeImportController::class, 'store'])->name('employees.import.store');
     Route::resource('employees', EmployeeController::class);
     Route::get('/employees/{employee}/id-card', [EmployeeIdCardController::class, 'show'])->name('employees.id-card.show');
     Route::get('/employees/{employee}/id-card/download', [EmployeeIdCardController::class, 'download'])->name('employees.id-card.download');
@@ -100,6 +109,8 @@ Route::middleware(['auth', 'role:super_admin,hr_admin,pegawai'])->group(function
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
+    Route::get('/activities', [EmployeeActivityController::class, 'index'])->name('activities.index');
+    Route::get('/activities/{event}', [EmployeeActivityController::class, 'show'])->name('activities.show');
     Route::get('/profile', [EmployeeProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [EmployeeProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [EmployeeProfileController::class, 'update'])->name('profile.update');

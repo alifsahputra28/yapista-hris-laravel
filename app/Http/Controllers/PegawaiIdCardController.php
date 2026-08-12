@@ -36,6 +36,9 @@ class PegawaiIdCardController extends Controller
             'qrCodeSvg' => $qrCodeSvg,
             'warnings' => $warnings,
             'isValidForIdCard' => $employee ? $this->isValidForIdCard($employee) : false,
+            'isReadyForIdCard' => $employee
+                ? $this->isValidForIdCard($employee) && $qrCodeSvg !== null
+                : false,
         ]);
     }
 

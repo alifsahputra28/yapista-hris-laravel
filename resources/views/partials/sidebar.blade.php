@@ -23,7 +23,7 @@
                 <li class="pc-item {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
                     <a href="{{ route($dashboardRoute) }}" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
-                        <span class="pc-mtext">Dashboard</span>
+                        <span class="pc-mtext">{{ $isPegawai ? 'Beranda' : 'Dashboard' }}</span>
                     </a>
                 </li>
 
@@ -127,21 +127,14 @@
 
                 @if ($isPegawai)
                     <li class="pc-item pc-caption">
-                        <label>Akun Saya</label>
+                        <label>Layanan Pegawai</label>
                         <i class="ti ti-user-circle"></i>
                     </li>
 
-                    <li class="pc-item {{ request()->routeIs('pegawai.profile.*') ? 'active' : '' }}">
-                        <a href="{{ route('pegawai.profile.show') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-user"></i></span>
-                            <span class="pc-mtext">Profil Saya</span>
-                        </a>
-                    </li>
-
-                    <li class="pc-item {{ request()->routeIs('pegawai.documents.*') ? 'active' : '' }}">
-                        <a href="{{ route('pegawai.documents.index') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-files"></i></span>
-                            <span class="pc-mtext">Dokumen Saya</span>
+                    <li class="pc-item {{ request()->routeIs('pegawai.activities.*') ? 'active' : '' }}">
+                        <a href="{{ route('pegawai.activities.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
+                            <span class="pc-mtext">Kegiatan</span>
                         </a>
                     </li>
 
@@ -149,10 +142,24 @@
                         <li class="pc-item {{ request()->routeIs('pegawai.id-card.*') ? 'active' : '' }}">
                             <a href="{{ route('pegawai.id-card.show') }}" class="pc-link">
                                 <span class="pc-micon"><i class="ti ti-id"></i></span>
-                                <span class="pc-mtext">ID Card Saya</span>
+                                <span class="pc-mtext">ID Card</span>
                             </a>
                         </li>
                     @endif
+
+                    <li class="pc-item {{ request()->routeIs('pegawai.documents.*') ? 'active' : '' }}">
+                        <a href="{{ route('pegawai.documents.index') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-files"></i></span>
+                            <span class="pc-mtext">Dokumen</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item {{ request()->routeIs('pegawai.profile.*') || request()->routeIs('profile.edit') ? 'active' : '' }}">
+                        <a href="{{ route('pegawai.profile.show') }}" class="pc-link">
+                            <span class="pc-micon"><i class="ti ti-user-circle"></i></span>
+                            <span class="pc-mtext">Akun</span>
+                        </a>
+                    </li>
                 @endif
             </ul>
         </div>

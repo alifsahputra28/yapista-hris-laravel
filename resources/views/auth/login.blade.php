@@ -6,8 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="HRIS YAPISTA Core">
-    <meta name="keywords" content="YAPISTA, HRIS, Pegawai, ID Card, Absensi">
+    <meta name="description" content="Sistem Informasi Kepegawaian YAPISTA">
     <meta name="author" content="YAPISTA">
 
     <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon">
@@ -21,132 +20,130 @@
     <link rel="stylesheet" href="{{ asset('assets/css/yapista-ui.css') }}">
 </head>
 
-<body>
+<body class="auth-login-page">
     <div class="loader-bg">
         <div class="loader-track">
             <div class="loader-fill"></div>
         </div>
     </div>
 
-    <div class="auth-main">
-        <div class="auth-wrapper v3">
-            <div class="auth-form">
-                <div class="auth-header">
-                    <a href="{{ url('/') }}">
-                        <x-application-logo class="auth-brand-logo" />
-                    </a>
-                </div>
-
-                <div class="card my-5">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-end mb-4">
-                            <h3 class="mb-0"><b>Login</b></h3>
-                            <span class="text-muted">Registrasi via undangan</span>
-                        </div>
-
-                        @if (session('status'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="alert alert-danger" role="alert">
-                                {{ $errors->first() }}
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-
-                            <div class="form-group mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    value="{{ old('email') }}"
-                                    class="form-control @error('email') is-invalid @enderror"
-                                    placeholder="Email"
-                                    autocomplete="username"
-                                    required
-                                    autofocus
-                                >
-
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    class="form-control @error('password') is-invalid @enderror"
-                                    placeholder="Password"
-                                    autocomplete="current-password"
-                                    required
-                                >
-
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="d-flex mt-1 justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input
-                                        id="remember_me"
-                                        class="form-check-input input-primary"
-                                        type="checkbox"
-                                        name="remember"
-                                        @checked(old('remember'))
-                                    >
-                                    <label class="form-check-label text-muted" for="remember_me">Ingat saya</label>
-                                </div>
-
-                                @if (Route::has('password.request'))
-                                    <a href="{{ route('password.request') }}" class="link-secondary f-w-400">
-                                        Lupa password?
-                                    </a>
-                                @endif
-                            </div>
-
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-primary">Login</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="auth-footer row">
-                    <div class="col my-1">
-                        <p class="m-0">YAPISTA HRIS &copy; {{ date('Y') }}</p>
-                    </div>
-
-                    <div class="col-auto my-1">
-                        <ul class="list-inline footer-link mb-0">
-                            <li class="list-inline-item"><a href="{{ url('/') }}">Home</a></li>
-                        </ul>
-                    </div>
+    <main class="auth-login-shell">
+        <section class="auth-brand-panel" aria-label="YAPISTA HRIS">
+            <div class="auth-brand-content">
+                <x-application-logo class="auth-login-brand-logo" image-class="auth-login-brand-image" />
+                <div class="auth-brand-copy">
+                    <p class="auth-brand-eyebrow">Yayasan Pendidikan Ibnu Sina Batam</p>
+                    <h1>Sistem Informasi Kepegawaian</h1>
+                    <p>Kelola layanan kepegawaian YAPISTA secara aman dalam satu sistem.</p>
                 </div>
             </div>
-        </div>
-    </div>
+            <p class="auth-brand-footer mb-0">&copy; {{ date('Y') }} YAPISTA HRIS</p>
+        </section>
+
+        <section class="auth-form-panel">
+            <div class="auth-login-form">
+                <div class="mb-4">
+                    <h2 class="auth-login-title">Selamat Datang</h2>
+                    <p class="text-muted mb-0">Masuk untuk mengakses YAPISTA HRIS.</p>
+                </div>
+
+                @if (session('status'))
+                    <div class="alert alert-success py-2" role="status">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}" novalidate>
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            class="form-control @error('email') is-invalid @enderror"
+                            placeholder="nama@contoh.com"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group auth-password-group">
+                            <input
+                                id="password"
+                                type="password"
+                                name="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                placeholder="Masukkan password"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button
+                                type="button"
+                                class="btn btn-light-secondary auth-password-toggle"
+                                id="password-toggle"
+                                aria-label="Tampilkan password"
+                                aria-controls="password"
+                                aria-pressed="false"
+                            >
+                                <i class="ti ti-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        @error('password')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="auth-session-options">
+                        <div class="form-check mb-0">
+                            <input
+                                id="remember_me"
+                                class="form-check-input input-primary"
+                                type="checkbox"
+                                name="remember"
+                                @checked(old('remember'))
+                            >
+                            <label class="form-check-label text-muted" for="remember_me">Ingat saya</label>
+                        </div>
+
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}" class="link-primary f-w-500">
+                                Lupa password?
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary auth-login-submit">Masuk</button>
+                    </div>
+                </form>
+
+                <p class="auth-form-footer mb-0">Gunakan akun yang telah diberikan oleh HR/Admin.</p>
+            </div>
+        </section>
+    </main>
 
     <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('assets/js/fonts/custom-font.js') }}"></script>
-    <script src="{{ asset('assets/js/pcoded.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
+    <script>
+        document.getElementById('password-toggle')?.addEventListener('click', function () {
+            const password = document.getElementById('password');
+            const showing = password.type === 'text';
 
-    <script>layout_change('light');</script>
-    <script>change_box_container('false');</script>
-    <script>layout_rtl_change('false');</script>
-    <script>preset_change("preset-1");</script>
-    <script>font_change("Public-Sans");</script>
+            password.type = showing ? 'password' : 'text';
+            this.setAttribute('aria-pressed', showing ? 'false' : 'true');
+            this.setAttribute('aria-label', showing ? 'Tampilkan password' : 'Sembunyikan password');
+            this.querySelector('i')?.classList.toggle('ti-eye', showing);
+            this.querySelector('i')?.classList.toggle('ti-eye-off', ! showing);
+        });
+    </script>
 </body>
 </html>

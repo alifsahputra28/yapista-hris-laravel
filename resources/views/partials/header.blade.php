@@ -12,7 +12,18 @@
     ];
 @endphp
 
-<header class="pc-header">
+@if ($headerUser?->isPegawai())
+    <header class="employee-mobile-appbar d-lg-none">
+        <a href="{{ route('pegawai.dashboard') }}" class="employee-mobile-brand" aria-label="Beranda YAPISTA HRIS">
+            <x-application-logo class="employee-mobile-logo" image-class="img-fluid" />
+        </a>
+        <a href="{{ route('pegawai.profile.show') }}" class="employee-mobile-account" aria-label="Buka Akun">
+            <img src="{{ $headerAvatar }}" alt="Foto {{ $headerUser->name }}" class="user-avtar">
+        </a>
+    </header>
+@endif
+
+<header class="pc-header {{ $headerUser?->isPegawai() ? 'employee-desktop-header' : '' }}">
     <div class="header-wrapper">
         <div class="me-auto pc-mob-drp">
             <ul class="list-unstyled mb-0">
@@ -51,13 +62,13 @@
                         <div class="dropdown-divider"></div>
                         <a href="{{ $headerUser?->isPegawai() ? route('pegawai.profile.show') : route('profile.edit') }}" class="dropdown-item">
                             <i class="ti ti-user" aria-hidden="true"></i>
-                            <span>Profil Saya</span>
+                            <span>{{ $headerUser?->isPegawai() ? 'Akun' : 'Profil Saya' }}</span>
                         </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="dropdown-item">
                                 <i class="ti ti-power" aria-hidden="true"></i>
-                                <span>Logout</span>
+                                <span>{{ $headerUser?->isPegawai() ? 'Keluar' : 'Logout' }}</span>
                             </button>
                         </form>
                     </div>

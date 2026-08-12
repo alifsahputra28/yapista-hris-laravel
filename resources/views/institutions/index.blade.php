@@ -59,17 +59,14 @@
             <h5 class="mb-0">Filter Unit Kerja</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('institutions.index') }}" class="row g-3">
-                <div class="col-lg-8">
-                    <label for="search" class="form-label">Pencarian</label>
-                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, level, alamat, atau status">
+            <form method="GET" action="{{ route('institutions.index') }}" class="row g-3 align-items-end">
+                <div class="col-lg-9">
+                    <label for="search" class="form-label">Cari Unit Kerja</label>
+                    <div class="filter-search-wrap"><i class="ti ti-search" aria-hidden="true"></i><input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, level, alamat, atau status..." aria-label="Cari unit kerja"></div>
                 </div>
-                <div class="col-lg-4 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="ti ti-filter"></i>
-                        Filter
-                    </button>
-                    <a href="{{ route('institutions.index') }}" class="btn btn-light-secondary">Reset</a>
+                <div class="col-lg-3 filter-primary-actions">
+                    <button type="submit" class="btn btn-primary flex-fill"><i class="ti ti-filter" aria-hidden="true"></i> Terapkan Filter</button>
+                    @if (request()->filled('search'))<a href="{{ route('institutions.index') }}" class="btn btn-light-secondary">Reset</a>@endif
                 </div>
             </form>
         </div>

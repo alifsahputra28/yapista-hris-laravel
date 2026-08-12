@@ -2,173 +2,16 @@
 
 @section('title', 'ID Card Saya | YAPISTA HRIS')
 
-@push('styles')
-    <style>
-        .id-card-preview-wrap {
-            display: flex;
-            justify-content: center;
-            padding: 1.5rem;
-            background: #f8fafc;
-            border-radius: 8px;
-        }
-
-        .yapista-id-card {
-            width: 360px;
-            max-width: 100%;
-            overflow: hidden;
-            border: 1px solid #dbe3ea;
-            border-radius: 12px;
-            background: #ffffff;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-        }
-
-        .id-card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            color: #ffffff;
-            background: #1d4ed8;
-        }
-
-        .id-card-logo {
-            width: 54px;
-            height: 54px;
-            padding: 0.35rem;
-            object-fit: contain;
-            border-radius: 8px;
-            background: #ffffff;
-        }
-
-        .id-card-brand {
-            font-size: 1.25rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .id-card-subtitle {
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            opacity: 0.9;
-        }
-
-        .id-card-body {
-            padding: 1.25rem 1rem;
-            text-align: center;
-        }
-
-        .id-card-photo {
-            width: 104px;
-            height: 104px;
-            margin-bottom: 0.85rem;
-            object-fit: cover;
-            border: 4px solid #eef2f7;
-            border-radius: 50%;
-        }
-
-        .id-card-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .id-card-number {
-            margin-top: 0.25rem;
-            color: #5b6b79;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .id-card-info {
-            display: grid;
-            gap: 0.55rem;
-            margin-top: 1rem;
-            text-align: left;
-        }
-
-        .id-card-info div {
-            padding: 0.65rem 0.75rem;
-            border-radius: 8px;
-            background: #f8fafc;
-        }
-
-        .id-card-info span {
-            display: block;
-            color: #64748b;
-            font-size: 0.73rem;
-        }
-
-        .id-card-info strong {
-            display: block;
-            margin-top: 0.1rem;
-            color: #111827;
-            font-size: 0.88rem;
-        }
-
-        .id-card-qr {
-            padding: 1rem;
-            text-align: center;
-            border-top: 1px dashed #cbd5e1;
-            background: #f8fafc;
-        }
-
-        .qr-code-svg {
-            width: 150px;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 6px;
-            background: #ffffff;
-        }
-
-        .qr-code-svg svg {
-            display: block;
-            width: 100%;
-            height: auto;
-        }
-
-        .qr-code-placeholder {
-            display: grid;
-            width: 150px;
-            min-height: 150px;
-            margin: 0 auto;
-            place-items: center;
-            color: #64748b;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            background: #ffffff;
-        }
-
-        .qr-code-placeholder i {
-            font-size: 1.5rem;
-        }
-
-        .qr-code-label {
-            margin-top: 0.4rem;
-            color: #111827;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .qr-code-note {
-            margin-top: 0.15rem;
-            color: #64748b;
-            font-size: 0.75rem;
-        }
-    </style>
-@endpush
-
 @section('content')
-    <x-page-header
-        title="ID Card Saya"
-        subtitle="Kartu pegawai dan QR Code absensi kegiatan."
-        :breadcrumbs="[
-            ['label' => 'Dashboard', 'url' => route('pegawai.dashboard')],
-            ['label' => 'ID Card Saya'],
-        ]"
-    >
-        <x-slot:actions><a href="{{ route('pegawai.id-card.download') }}" class="btn btn-primary"><i class="ti ti-download" aria-hidden="true"></i> Download</a></x-slot:actions>
-    </x-page-header>
+    <div class="d-none d-lg-block">
+        <x-page-header
+            title="ID Card Saya"
+            subtitle="Kartu pegawai digital dan QR Code absensi kegiatan."
+            :breadcrumbs="[['label' => 'Beranda', 'url' => route('pegawai.dashboard')], ['label' => 'ID Card']]"
+        />
+    </div>
+
+    <h1 class="h4 d-lg-none mb-3">ID Card Saya</h1>
 
     @if (session('error'))
         <div class="alert alert-warning">{{ session('error') }}</div>
@@ -178,22 +21,48 @@
         <div class="alert alert-warning">{{ $warning }}</div>
     @endforeach
 
-    <section aria-label="Preview ID Card">
-            @if ($employee && $isValidForIdCard)
-                <div class="id-card-preview-wrap">
-                    @include('id-cards._card', [
-                        'employee' => $employee,
-                        'qrCodeSvg' => $qrCodeSvg,
-                    ])
-                </div>
-            @else
-                <div class="empty-state">
-                    <div class="avtar avtar-l bg-light-warning text-warning">
-                        <i class="ti ti-id-off f-28"></i>
+    <section class="employee-e-card-stage" aria-label="ID Card digital saya">
+        @if ($employee && $isReadyForIdCard)
+            <x-employee-e-card :employee="$employee" :qr-code-svg="$qrCodeSvg" />
+
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#employee-qr-modal">
+                    <i class="ti ti-qrcode" aria-hidden="true"></i>
+                    Tampilkan QR Besar
+                </button>
+                <a href="{{ route('pegawai.id-card.download') }}" class="btn btn-light-secondary">
+                    <i class="ti ti-download" aria-hidden="true"></i>
+                    Download
+                </a>
+            </div>
+        @else
+            <div class="card employee-e-card-unavailable mb-0">
+                <div class="card-body text-center py-4">
+                    <div class="avtar avtar-l bg-light-warning text-warning mx-auto mb-3">
+                        <i class="ti ti-id-off f-28" aria-hidden="true"></i>
                     </div>
-                    <h5 class="mb-1">ID Card belum tersedia.</h5>
-                    <p class="text-muted mb-0">ID Card akan tampil setelah data Anda terhubung, terverifikasi, dan memiliki NUP / Nomor Pegawai valid.</p>
+                    <h2 class="h5 mb-1">ID Card belum tersedia.</h2>
+                    <p class="text-muted mb-0">ID Card akan tersedia setelah pegawai mendapatkan NUP dan proses verifikasi selesai.</p>
                 </div>
-            @endif
+            </div>
+        @endif
     </section>
+
+    @if ($employee && $isReadyForIdCard)
+        <div class="modal fade" id="employee-qr-modal" tabindex="-1" aria-labelledby="employee-qr-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered mx-3 mx-sm-auto">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="employee-qr-modal-title">QR Code Saya</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
+                    <div class="modal-body text-center p-4">
+                        <div class="employee-e-card-qr-modal mx-auto" role="img" aria-label="QR Code absensi pegawai">{!! $qrCodeSvg !!}</div>
+                        <p class="fw-semibold mt-3 mb-1">NUP {{ $employee->employee_number }}</p>
+                        <p class="text-muted small mb-0">Arahkan QR Code ini ke scanner kegiatan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

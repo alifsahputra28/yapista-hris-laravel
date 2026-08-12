@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
+use App\Support\Auth\UserRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +12,8 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    public function __construct(private readonly UserRedirector $redirector) {}
+
     /**
      * Display the login view.
      */
@@ -29,7 +31,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect($this->redirectPathFor($request->user()));
+        $destination = $this->redirector->pullSafeIntendedPath($request, $request->user())
+            ?? $this->redirector->pathFor($request->user());
+
+        return redirect($destination);
     }
 
     /**
@@ -44,15 +49,5 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
-    }
-
-    private function redirectPathFor(User $user): string
-    {
-        return match ($user->role) {
-            'super_admin', 'hr_admin' => route('dashboard', absolute: false),
-            'panitia' => route('scanner.dashboard', absolute: false),
-            'pegawai' => route('pegawai.dashboard', absolute: false),
-            default => route('pegawai.dashboard', absolute: false),
-        };
     }
 }

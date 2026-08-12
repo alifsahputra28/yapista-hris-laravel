@@ -26,7 +26,7 @@
     @stack('styles')
 </head>
 
-<body data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
+<body class="{{ Auth::user()?->isPegawai() ? 'employee-app' : '' }}" data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
 
     <div class="loader-bg">
         <div class="loader-track">
@@ -46,6 +46,10 @@
     </div>
 
     @include('partials.footer')
+
+    @if (Auth::user()?->isPegawai())
+        @include('partials.employee-bottom-nav')
+    @endif
 
     @stack('page-scripts')
 

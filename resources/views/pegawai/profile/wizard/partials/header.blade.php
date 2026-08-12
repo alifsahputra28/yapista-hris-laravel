@@ -13,24 +13,34 @@
     :badge-label="$verificationLabel"
     :badge-class="$verificationClass"
     :breadcrumbs="[
-        ['label' => 'Dashboard', 'url' => route('pegawai.dashboard')],
-        ['label' => 'Profil Saya', 'url' => route('pegawai.profile.show')],
+        ['label' => 'Beranda', 'url' => route('pegawai.dashboard')],
+        ['label' => 'Akun', 'url' => route('pegawai.profile.show')],
         ['label' => $steps[$step]['short_label']],
     ]"
 >
-    <x-slot:meta><x-employee-context :employee="$employee" /></x-slot:meta>
     <x-slot:actions>
         <a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left"></i> Kembali</a>
     </x-slot:actions>
 </x-page-header>
 
-<div class="profile-progress">
-    <div class="d-flex justify-content-between gap-3 mb-2">
-        <span class="fw-semibold">{{ $employee->isVerified() ? 'Data profil tambahan' : 'Kelengkapan data profil' }}</span>
-        <strong>{{ $profileProgress['percentage'] }}% terisi</strong>
-    </div>
-    <div class="progress" style="height: 8px;" role="progressbar" aria-label="Kelengkapan profil" aria-valuenow="{{ $profileProgress['percentage'] }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width: {{ $profileProgress['percentage'] }}%"></div></div>
+@if ($step !== 'review')
     @if ($employee->isVerified())
-        <small class="text-muted">Data tambahan bersifat opsional dan tidak memengaruhi status pegawai.</small>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 border-bottom pb-3 mb-4">
+            <div>
+                <span class="fw-semibold">Data tambahan</span>
+                <span class="text-muted small ms-1">Opsional</span>
+            </div>
+            <span class="text-muted small">{{ $profileProgress['percentage'] }}% terisi</span>
+        </div>
+    @else
+        <div class="profile-progress">
+            <div class="d-flex justify-content-between gap-3 mb-2">
+                <span class="fw-semibold">Kelengkapan data profil</span>
+                <strong>{{ $profileProgress['percentage'] }}% terisi</strong>
+            </div>
+            <div class="progress" role="progressbar" aria-label="Kelengkapan profil" aria-valuenow="{{ $profileProgress['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: {{ $profileProgress['percentage'] }}%"></div>
+            </div>
+        </div>
     @endif
-</div>
+@endif

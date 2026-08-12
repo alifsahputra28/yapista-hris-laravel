@@ -16,6 +16,9 @@
             ['label' => 'Kedaluwarsa', 'value' => $expiredInvitations ?? 0, 'icon' => 'ti-clock-exclamation', 'class' => 'bg-light-warning text-warning'],
             ['label' => 'Dibatalkan', 'value' => $revokedInvitations ?? 0, 'icon' => 'ti-ban', 'class' => 'bg-light-danger text-danger'],
         ];
+        $activeInstitution = $institutions->firstWhere('id', (int) request('institution_id'))?->name;
+        $hasActiveFilters = request()->filled('search') || request()->filled('status') || request()->filled('institution_id');
+        $activeFilterCount = collect(['status', 'institution_id'])->filter(fn ($key) => request()->filled($key))->count();
     @endphp
 
     <x-page-header
@@ -68,13 +71,13 @@
             <h5 class="mb-0">Filter Undangan</h5>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('invitations.index') }}" class="row g-3">
+            <form method="GET" action="{{ route('invitations.index') }}" class="row g-3 align-items-end">
                 <div class="col-lg-5">
-                    <label for="search" class="form-label">Pencarian</label>
-                    <input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, atau kode undangan">
+                    <label for="search" class="form-label">Cari Undangan</label>
+                    <div class="filter-search-wrap"><i class="ti ti-search" aria-hidden="true"></i><input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, email, HP, atau kode undangan..." aria-label="Cari undangan pegawai"></div>
                 </div>
-
-                <div class="col-md-6 col-lg-3">
+                <div class="col-12 d-lg-none"><button class="btn btn-light-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target=".invitation-mobile-filter" aria-expanded="{{ $activeFilterCount ? 'true' : 'false' }}"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filter @if ($activeFilterCount)({{ $activeFilterCount }})@endif</button></div>
+                <div class="col-md-6 col-lg-3 collapse d-lg-block invitation-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="status" class="form-label">Status</label>
                     <select id="status" name="status" class="form-select">
                         <option value="">Semua status</option>
@@ -84,7 +87,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 col-lg-3">
+                <div class="col-md-6 col-lg-3 collapse d-lg-block invitation-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select id="institution_id" name="institution_id" class="form-select">
                         <option value="">Semua unit kerja</option>
@@ -96,16 +99,17 @@
                     </select>
                 </div>
 
-                <div class="col-lg-1 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="ti ti-filter"></i>
-                    </button>
-                </div>
-
-                <div class="col-12">
-                    <a href="{{ route('invitations.index') }}" class="btn btn-light-secondary">Reset</a>
+                <div class="col-lg-1 filter-primary-actions collapse d-lg-block invitation-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
+                    <button type="submit" class="btn btn-primary w-100" title="Terapkan Filter"><i class="ti ti-filter" aria-hidden="true"></i><span class="d-lg-none">Terapkan Filter</span></button>
                 </div>
             </form>
+            @if ($hasActiveFilters)
+                <div class="filter-secondary-row justify-content-end"><a href="{{ route('invitations.index') }}" class="btn btn-sm btn-link text-muted">Reset semua</a></div>
+                <div class="active-filter-summary" aria-label="Filter aktif"><span class="active-filter-label">Filter aktif:</span>
+                    @if (request('status'))<x-active-filter-chip label="Status" :value="$statuses[request('status')]['label'] ?? request('status')" :url="route('invitations.index', request()->except('status', 'page'))" />@endif
+                    @if ($activeInstitution)<x-active-filter-chip label="Unit" :value="$activeInstitution" :url="route('invitations.index', request()->except('institution_id', 'page'))" />@endif
+                </div>
+            @endif
         </div>
     </div>
 
@@ -179,11 +183,11 @@
                                         <div class="avtar avtar-l bg-light-secondary text-secondary">
                                             <i class="ti ti-mail-off f-28"></i>
                                         </div>
-                                        <h5 class="mb-1">Belum ada undangan registrasi.</h5>
-                                        <p class="text-muted mb-3">Buat undangan dari halaman Data Pegawai untuk pegawai yang belum punya akun.</p>
-                                        <a href="{{ route('employees.index') }}" class="btn btn-primary">
-                                            <i class="ti ti-users"></i>
-                                            Buka Data Pegawai
+                                        <h5 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada undangan yang sesuai dengan filter.' : 'Belum ada undangan registrasi.' }}</h5>
+                                        <p class="text-muted mb-3">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat undangan lainnya.' : 'Buat undangan dari halaman Data Pegawai untuk pegawai yang belum punya akun.' }}</p>
+                                        <a href="{{ $hasActiveFilters ? route('invitations.index') : route('employees.index') }}" class="btn btn-primary">
+                                            <i class="ti {{ $hasActiveFilters ? 'ti-filter-off' : 'ti-users' }}"></i>
+                                            {{ $hasActiveFilters ? 'Reset Filter' : 'Buka Data Pegawai' }}
                                         </a>
                                     </div>
                                 </td>
