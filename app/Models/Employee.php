@@ -71,6 +71,7 @@ class Employee extends Model
         'nik_encrypted',
         'nik_lookup',
         'nik_migrated_at',
+        'family_card_number',
     ];
 
     /**

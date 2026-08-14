@@ -40,6 +40,10 @@ class EmployeeEducation extends Model
         'is_highest',
     ];
 
+    protected $hidden = [
+        'certificate_number',
+    ];
+
     protected function casts(): array
     {
         return [

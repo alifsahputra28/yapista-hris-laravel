@@ -39,7 +39,7 @@
         :badge-class="$eventStatusClasses[$event->status] ?? 'bg-light-secondary text-secondary'"
     >
         <x-slot:meta>
-            <span>{{ $event->event_date?->format('d M Y') }}</span><span aria-hidden="true">•</span>
+            <span>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') }}</span><span aria-hidden="true">•</span>
             <span>{{ $event->start_time?->format('H:i') ?? '-' }}{{ $event->end_time ? ' - '.$event->end_time->format('H:i') : '' }}</span><span aria-hidden="true">•</span>
             <span>{{ $event->location ?? 'Lokasi belum diisi' }}</span>
         </x-slot:meta>
@@ -203,13 +203,13 @@
                                         <span class="badge {{ $attendanceClass }}">Belum Hadir</span>
                                     @endif
                                 </td>
-                                <td>{{ $attendance?->scanned_at?->format('d M Y H:i:s') ?? '-' }}</td>
+                                <td>{{ $attendance?->scanned_at?->locale('id')->translatedFormat('d M Y H:i:s') ?? '-' }}</td>
                                 <td>{{ $attendance?->scan_method_label ?? '-' }}</td>
                                 <td>{{ $attendance?->scanner?->name ?? '-' }}</td>
                                 <td class="text-end pe-4">
                                     <div class="table-actions">
                                         @if ($attendance && $canManageAttendance && ! $event->isClosed())
-                                            <form method="POST" action="{{ route('event-attendances.destroy', $attendance) }}" onsubmit="return confirm('Hapus attendance ini?')">
+                                            <form method="POST" action="{{ route('event-attendances.destroy', $attendance) }}" data-confirm-title="Hapus Kehadiran?" data-confirm-message="Catatan kehadiran ini akan dihapus. Lanjutkan?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-light-danger btn-icon" title="Hapus">
@@ -227,7 +227,7 @@
                                 <td colspan="8">
                                     <div class="empty-state">
                                         <div class="avtar avtar-l bg-light-secondary text-secondary">
-                                            <i class="ti ti-users-off f-28"></i>
+                                            <i class="ti ti-users f-28"></i>
                                         </div>
                                         <h5 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada peserta yang sesuai dengan filter.' : 'Belum ada peserta.' }}</h5>
                                         <p class="text-muted {{ $hasActiveFilters ? 'mb-3' : 'mb-0' }}">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat peserta lainnya.' : 'Daftar hadir akan muncul setelah peserta kegiatan dibuat.' }}</p>

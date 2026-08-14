@@ -79,7 +79,7 @@ class EventAttendanceSeeder extends Seeder
                     'employee_id' => $employee->id,
                 ],
                 [
-                    'qr_token_id' => $qrToken?->id,
+                    'qr_token_id' => $attendance['method'] === 'manual' ? null : $qrToken?->id,
                     'scanned_by' => $scannerId,
                     'scanned_at' => $baseTime->copy()->addMinutes($attendance['minutes']),
                     'attendance_status' => $attendance['method'] === 'manual' ? 'manual' : 'present',

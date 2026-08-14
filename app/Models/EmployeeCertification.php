@@ -28,6 +28,10 @@ class EmployeeCertification extends Model
         'is_active',
     ];
 
+    protected $hidden = [
+        'certificate_number',
+    ];
+
     protected function casts(): array
     {
         return [

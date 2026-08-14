@@ -69,7 +69,7 @@
                             <span class="badge bg-light-primary text-primary">{{ $nextEvent->participants->first()?->participant_status_label ?? 'Peserta' }}</span>
                         </div>
                         <div class="text-muted small d-grid gap-1">
-                            <span>{{ $nextEvent->event_date->format('d M Y') }} &bull; {{ $nextEvent->start_time?->format('H:i') ?? '-' }} WIB</span>
+                            <span>{{ $nextEvent->event_date->locale('id')->translatedFormat('d M Y') }} &bull; {{ $nextEvent->start_time?->format('H:i') ?? '-' }} WIB</span>
                             <span>{{ $nextEvent->location ?: 'Lokasi belum ditentukan' }}</span>
                         </div>
                     </a>
@@ -88,10 +88,10 @@
                             <div class="list-group-item px-0 py-3 bg-transparent">
                                 <div class="d-flex align-items-center justify-content-between gap-3">
                                     <div class="d-flex align-items-start gap-2">
-                                        <i class="ti ti-circle-check-filled text-success mt-1" aria-hidden="true"></i>
+                                        <i class="ti ti-circle-check text-success mt-1" aria-hidden="true"></i>
                                         <div>
                                             <strong class="d-block">{{ $attendance->event?->name ?? 'Kegiatan tidak tersedia' }}</strong>
-                                            <span class="text-muted small">{{ $attendance->scanned_at?->format('d M Y') ?? '-' }}</span>
+                                            <span class="text-muted small">{{ $attendance->scanned_at?->locale('id')->translatedFormat('d M Y') ?? '-' }}</span>
                                         </div>
                                     </div>
                                     <span class="badge bg-light-success text-success">{{ $attendance->attendance_status_label }}</span>
@@ -114,7 +114,7 @@
                         <div class="card-body">
                             @if ($nextEvent)
                                 <div class="d-flex align-items-start justify-content-between gap-3">
-                                    <div><h3 class="h5 mb-2">{{ $nextEvent->name }}</h3><div class="d-grid gap-2 text-muted"><span><i class="ti ti-calendar me-2"></i>{{ $nextEvent->event_date->format('d M Y') }}</span><span><i class="ti ti-clock me-2"></i>{{ $nextEvent->start_time?->format('H:i') ?? '-' }} WIB</span><span><i class="ti ti-map-pin me-2"></i>{{ $nextEvent->location ?: 'Lokasi belum ditentukan' }}</span></div></div>
+                                    <div><h3 class="h5 mb-2">{{ $nextEvent->name }}</h3><div class="d-grid gap-2 text-muted"><span><i class="ti ti-calendar me-2"></i>{{ $nextEvent->event_date->locale('id')->translatedFormat('d M Y') }}</span><span><i class="ti ti-clock me-2"></i>{{ $nextEvent->start_time?->format('H:i') ?? '-' }} WIB</span><span><i class="ti ti-map-pin me-2"></i>{{ $nextEvent->location ?: 'Lokasi belum ditentukan' }}</span></div></div>
                                     <span class="badge bg-light-primary text-primary">{{ $nextEvent->participants->first()?->participant_status_label ?? 'Peserta' }}</span>
                                 </div>
                             @else
@@ -138,7 +138,7 @@
                         @if ($recentAttendances->isEmpty())
                             <div class="card-body"><p class="text-muted mb-0">Belum ada riwayat kehadiran.</p></div>
                         @else
-                            <div class="list-group list-group-flush">@foreach ($recentAttendances as $attendance)<div class="list-group-item px-4 py-3"><div class="d-flex align-items-center justify-content-between gap-2"><div><strong class="d-block">{{ $attendance->event?->name ?? 'Kegiatan tidak tersedia' }}</strong><span class="text-muted small">{{ $attendance->scanned_at?->format('d M Y, H:i') ?? '-' }} WIB</span></div><span class="badge bg-light-success text-success">{{ $attendance->attendance_status_label }}</span></div></div>@endforeach</div>
+                            <div class="list-group list-group-flush">@foreach ($recentAttendances as $attendance)<div class="list-group-item px-4 py-3"><div class="d-flex align-items-center justify-content-between gap-2"><div><strong class="d-block">{{ $attendance->event?->name ?? 'Kegiatan tidak tersedia' }}</strong><span class="text-muted small">{{ $attendance->scanned_at?->locale('id')->translatedFormat('d M Y, H:i') ?? '-' }} WIB</span></div><span class="badge bg-light-success text-success">{{ $attendance->attendance_status_label }}</span></div></div>@endforeach</div>
                         @endif
                     </section>
                 </div>

@@ -82,7 +82,7 @@ class EmployeeInvitationTest extends TestCase
 
         $response = $this->post(route('invitation.register.store', $invitation->invitation_code, absolute: false), [
             'name' => $employee->full_name,
-            'email' => 'ahmad.account@yapista.test',
+            'email' => $invitation->email,
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
@@ -90,7 +90,7 @@ class EmployeeInvitationTest extends TestCase
         $response->assertRedirect(route('pegawai.dashboard', absolute: false));
         $this->assertAuthenticated();
 
-        $user = User::where('email', 'ahmad.account@yapista.test')->firstOrFail();
+        $user = User::where('email', $invitation->email)->firstOrFail();
         $this->assertSame('pegawai', $user->role);
         $this->assertSame('active', $user->status);
         $this->assertSame($user->id, $employee->refresh()->user_id);

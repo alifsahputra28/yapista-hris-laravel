@@ -2,7 +2,7 @@
     $headerUser = Auth::user();
     $headerEmployee = $headerUser?->employee;
     $headerAvatar = $headerEmployee?->photo
-        ? asset('storage/'.$headerEmployee->photo)
+        ? route('employees.photo', $headerEmployee)
         : asset('assets/images/user/avatar-2.jpg');
     $roleLabels = [
         'super_admin' => 'Super Admin',

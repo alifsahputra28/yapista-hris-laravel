@@ -284,7 +284,7 @@ class EmployeeImportService
     private function generateInvitationCode(): string
     {
         do {
-            $code = 'YAPISTA-REG-'.Str::upper(Str::random(8));
+            $code = 'YAPISTA-REG-'.Str::upper(Str::random(32));
         } while (EmployeeInvitation::query()->where('invitation_code', $code)->exists());
 
         return $code;

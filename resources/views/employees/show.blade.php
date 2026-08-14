@@ -48,7 +48,7 @@
             'rejected' => 'bg-light-danger text-danger',
         ];
         $photoUrl = $employee->photo
-            ? asset('storage/'.$employee->photo)
+            ? route('employees.photo', $employee)
             : asset('assets/images/user/avatar-2.jpg');
     @endphp
 
@@ -65,7 +65,7 @@
     >
         <x-slot:meta>
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ $photoUrl }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle" width="48" height="48" style="object-fit: cover;">
+                <img src="{{ $photoUrl }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle object-fit-cover" width="48" height="48">
                 <x-employee-context :employee="$employee" />
             </div>
         </x-slot:meta>
@@ -101,7 +101,7 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Tempat, Tanggal Lahir</span>
-                            {{ $employee->birth_place ?? 'Belum diisi' }}{{ $employee->birth_date ? ', '.$employee->birth_date->format('d M Y') : '' }}
+                            {{ $employee->birth_place ?? 'Belum diisi' }}{{ $employee->birth_date ? ', '.$employee->birth_date->locale('id')->translatedFormat('d M Y') : '' }}
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Jenis Pegawai</span>
@@ -109,7 +109,7 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Tanggal Masuk</span>
-                            {{ $employee->join_date?->format('d M Y') ?? 'Belum diisi' }}
+                            {{ $employee->join_date?->locale('id')->translatedFormat('d M Y') ?? 'Belum diisi' }}
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">NUP / Nomor Pegawai</span>
@@ -203,7 +203,7 @@
                                                 {{ ['pending' => 'Menunggu', 'valid' => 'Valid', 'rejected' => 'Ditolak'][$document->status] ?? $document->status }}
                                             </span>
                                         </td>
-                                        <td>{{ $document->uploaded_at?->format('d M Y H:i') ?? '-' }}</td>
+                                        <td>{{ $document->uploaded_at?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}</td>
                                         <td>{{ $document->note ?? '-' }}</td>
                                         <td class="text-end">
                                             <div class="table-actions">

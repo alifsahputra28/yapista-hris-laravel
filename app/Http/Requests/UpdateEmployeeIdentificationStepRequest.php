@@ -31,7 +31,13 @@ class UpdateEmployeeIdentificationStepRequest extends FormRequest
             'marital_status' => ['nullable', Rule::in(['single', 'married', 'divorced', 'widowed'])],
             'nationality' => ['nullable', 'string', 'max:100'],
             'blood_type' => ['nullable', Rule::in(['A', 'B', 'AB', 'O'])],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'mimetypes:image/jpeg,image/png,image/webp',
+                'max:2048',
+            ],
             'wizard_action' => ['required', Rule::in(['stay', 'next'])],
         ];
     }

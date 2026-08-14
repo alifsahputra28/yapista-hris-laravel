@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateEmployeeProfileRequest;
 use App\Models\Employee;
+use App\Services\EmployeePhotoStorageService;
 use App\Services\EmployeeProfileProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Throwable;
 
 class EmployeeProfileController extends Controller
 {
+    public function __construct(
+        private readonly EmployeePhotoStorageService $photoStorageService,
+    ) {}
+
     public function show(EmployeeProfileProgressService $progressService): RedirectResponse|View
     {
         $employee = $this->currentEmployee();
@@ -67,15 +72,26 @@ class EmployeeProfileController extends Controller
             $data['address'] = $data['identity_address'];
         }
 
-        if ($request->hasFile('photo')) {
-            if ($employee->photo) {
-                Storage::disk('public')->delete($employee->photo);
-            }
+        $oldPhoto = $employee->photo;
+        $newPhoto = $request->hasFile('photo')
+            ? $this->photoStorageService->store($request->file('photo'))
+            : null;
 
-            $data['photo'] = $request->file('photo')->store('employees/photos', 'public');
+        if ($newPhoto !== null) {
+            $data['photo'] = $newPhoto;
         }
 
-        $employee->update($data);
+        try {
+            $employee->update($data);
+        } catch (Throwable $exception) {
+            $this->photoStorageService->deletePath($newPhoto);
+
+            throw $exception;
+        }
+
+        if ($newPhoto !== null) {
+            $this->photoStorageService->deletePath($oldPhoto);
+        }
 
         return redirect()
             ->route('pegawai.profile.show')

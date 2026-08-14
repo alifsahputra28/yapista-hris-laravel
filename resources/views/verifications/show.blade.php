@@ -39,7 +39,7 @@
             'valid' => 'bg-light-success text-success',
             'rejected' => 'bg-light-danger text-danger',
         ];
-        $photoUrl = $employee->photo ? asset('storage/'.$employee->photo) : asset('assets/images/user/avatar-2.jpg');
+        $photoUrl = $employee->photo ? route('employees.photo', $employee) : asset('assets/images/user/avatar-2.jpg');
     @endphp
 
     <x-page-header
@@ -55,7 +55,7 @@
     >
         <x-slot:meta>
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ $photoUrl }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle" width="48" height="48" style="object-fit: cover;">
+                <img src="{{ $photoUrl }}" alt="Foto {{ $employee->full_name }}" class="rounded-circle object-fit-cover" width="48" height="48">
                 <x-employee-context :employee="$employee" />
             </div>
         </x-slot:meta>
@@ -95,7 +95,7 @@
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Nama Lengkap</small>{{ $employee->full_name }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Kelamin</small>{{ $employee->gender === 'male' ? 'Laki-laki' : ($employee->gender === 'female' ? 'Perempuan' : '-') }}</div>
-                        <div class="col-md-6 mb-3"><small class="text-muted d-block">Tempat, Tanggal Lahir</small>{{ $employee->birth_place ?? '-' }}{{ $employee->birth_date ? ', '.$employee->birth_date->format('d M Y') : '' }}</div>
+                        <div class="col-md-6 mb-3"><small class="text-muted d-block">Tempat, Tanggal Lahir</small>{{ $employee->birth_place ?? '-' }}{{ $employee->birth_date ? ', '.$employee->birth_date->locale('id')->translatedFormat('d M Y') : '' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Nomor HP</small>{{ $employee->phone ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Email</small>{{ $employee->email ?? '-' }}</div>
                         <div class="col-12"><small class="text-muted d-block">Alamat</small>{{ $employee->address ?? '-' }}</div>
@@ -115,7 +115,7 @@
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jabatan</small>{{ $employee->position?->name ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Pegawai</small>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Status Kepegawaian</small>{{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}</div>
-                        <div class="col-md-6 mb-3"><small class="text-muted d-block">Tanggal Masuk</small>{{ $employee->join_date?->format('d M Y') ?? '-' }}</div>
+                        <div class="col-md-6 mb-3"><small class="text-muted d-block">Tanggal Masuk</small>{{ $employee->join_date?->locale('id')->translatedFormat('d M Y') ?? '-' }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">NUP / Nomor Pegawai</small>{{ $employee->formatted_employee_number }}</div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Status Verifikasi</small>
@@ -161,7 +161,7 @@
                                     </span>
                                 </td>
                                 <td>{{ $document->note ?? '-' }}</td>
-                                <td>{{ $document->uploaded_at?->format('d M Y H:i') ?? '-' }}</td>
+                                <td>{{ $document->uploaded_at?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}</td>
                                 <td>
                                     <div class="table-actions mb-2">
                                         <a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary">
@@ -217,19 +217,19 @@
         <div class="content-section-body">
             @if ($employee->isSubmitted())
                 <div class="d-flex flex-wrap gap-2 mb-3">
-                    <form method="POST" action="{{ route('verifications.approve', $employee) }}" onsubmit="return confirm('Approve data pegawai ini?')">
+                    <form method="POST" action="{{ route('verifications.approve', $employee) }}" data-confirm-title="Setujui Data Pegawai?" data-confirm-message="Data pegawai akan ditandai terverifikasi. Lanjutkan?">
                         @csrf
                         <button type="submit" class="btn btn-success">
                             <i class="ti ti-check"></i>
-                            Approve
+                            Setujui
                         </button>
                     </form>
                 </div>
 
-                <form method="POST" action="{{ route('verifications.reject', $employee) }}" onsubmit="return confirm('Reject data pegawai ini?')">
+                <form method="POST" action="{{ route('verifications.reject', $employee) }}" data-confirm-title="Tolak Data Pegawai?" data-confirm-message="Data akan dikembalikan kepada pegawai untuk diperbaiki. Lanjutkan?">
                     @csrf
                     <div class="form-group mb-3">
-                        <label for="verification_note" class="form-label">Catatan Reject</label>
+                        <label for="verification_note" class="form-label">Catatan Penolakan</label>
                         <textarea id="verification_note" name="verification_note" rows="4" class="form-control @error('verification_note') is-invalid @enderror" required>{{ old('verification_note') }}</textarea>
                         @error('verification_note')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -237,7 +237,7 @@
                     </div>
                     <button type="submit" class="btn btn-danger">
                         <i class="ti ti-x"></i>
-                        Reject
+                        Tolak
                     </button>
                 </form>
             @else

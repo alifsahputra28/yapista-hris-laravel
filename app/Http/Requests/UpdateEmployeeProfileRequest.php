@@ -49,7 +49,13 @@ class UpdateEmployeeProfileRequest extends FormRequest
             'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
             'emergency_contact_phone' => ['nullable', 'string', 'max:30', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{6,12}$/'],
             'emergency_contact_address' => ['nullable', 'string', 'max:2000'],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'mimetypes:image/jpeg,image/png,image/webp',
+                'max:2048',
+            ],
         ];
     }
 

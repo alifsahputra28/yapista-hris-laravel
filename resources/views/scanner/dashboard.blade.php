@@ -30,7 +30,7 @@
         <div class="card-body">
             @if ($activeEvents->isNotEmpty())
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 scanner-event-table">
                         <thead>
                             <tr>
                                 <th>Kegiatan</th>
@@ -48,7 +48,7 @@
                                         <div class="data-meta">Status: {{ $event->status_label }}</div>
                                     </td>
                                     <td>
-                                        <div>{{ $event->event_date?->format('d M Y') }}</div>
+                                        <div>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') }}</div>
                                         <div class="data-meta">
                                             {{ $event->start_time?->format('H:i') ?? '-' }}
                                             @if ($event->end_time)

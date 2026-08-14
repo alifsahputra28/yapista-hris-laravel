@@ -8,6 +8,7 @@ use App\Models\Institution;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class EmployeeInvitationController extends Controller
@@ -72,6 +73,12 @@ class EmployeeInvitationController extends Controller
             return redirect()
                 ->route('employees.index')
                 ->with('error', 'Pegawai ini sudah memiliki akun.');
+        }
+
+        if (! is_string($employee->email) || ! filter_var($employee->email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()
+                ->route('employees.index')
+                ->with('error', 'Email pegawai yang valid diperlukan sebelum membuat undangan.');
         }
 
         $activeInvitation = $employee->invitations()
@@ -139,13 +146,6 @@ class EmployeeInvitationController extends Controller
 
     private function randomSuffix(): string
     {
-        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $suffix = '';
-
-        for ($i = 0; $i < 6; $i++) {
-            $suffix .= $characters[random_int(0, strlen($characters) - 1)];
-        }
-
-        return $suffix;
+        return Str::upper(Str::random(32));
     }
 }

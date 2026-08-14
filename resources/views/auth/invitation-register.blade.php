@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 <head>
     <title>Registrasi Pegawai YAPISTA</title>
 
@@ -90,10 +90,11 @@
                                         id="email"
                                         type="email"
                                         name="email"
-                                        value="{{ old('email', $employee->email) }}"
+                                        value="{{ $invitation->email }}"
                                         class="form-control @error('email') is-invalid @enderror"
                                         placeholder="email@domain.com"
                                         required
+                                        readonly
                                         autocomplete="username"
                                     >
 

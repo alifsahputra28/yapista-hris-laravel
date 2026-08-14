@@ -38,6 +38,10 @@ class EmployeeFamilyMember extends Model
         'bpjs_status',
     ];
 
+    protected $hidden = [
+        'nik',
+    ];
+
     protected function casts(): array
     {
         return [

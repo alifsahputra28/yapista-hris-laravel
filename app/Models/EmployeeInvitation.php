@@ -21,6 +21,10 @@ class EmployeeInvitation extends Model
         'created_by',
     ];
 
+    protected $hidden = [
+        'invitation_code',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

@@ -28,6 +28,10 @@ class EmployeeDocument extends Model
         'uploaded_at',
     ];
 
+    protected $hidden = [
+        'file_path',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

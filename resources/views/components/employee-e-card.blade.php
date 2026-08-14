@@ -6,7 +6,7 @@
 @php
     $fallbackPhotoUrl = asset('assets/images/user/avatar-2.jpg');
     $photoUrl = $employee->photo
-        ? asset('storage/'.$employee->photo)
+        ? route('employees.photo', $employee)
         : $fallbackPhotoUrl;
     $statusLabel = match ($employee->employment_status) {
         'aktif' => 'Aktif',

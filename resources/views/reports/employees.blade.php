@@ -26,7 +26,7 @@
 @endphp
 
 <x-page-header title="Laporan Pegawai" subtitle="Filter dan ekspor data pegawai." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Laporan Pegawai']]">
-    <x-slot:actions><a href="{{ route('reports.employees.export', request()->query()) }}" class="btn btn-primary"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
+    <x-slot:actions><a href="{{ route('reports.employees.export', request()->query()) }}" class="btn btn-primary"><i class="ti ti-file-export" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
 </x-page-header>
 
 <div class="metric-strip" aria-label="Ringkasan laporan pegawai">

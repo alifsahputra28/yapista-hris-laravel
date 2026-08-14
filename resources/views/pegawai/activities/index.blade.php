@@ -35,7 +35,7 @@
                                         <span class="badge bg-light-primary text-primary">{{ $participant->participant_status_label }}</span>
                                     </div>
                                     <div class="d-grid gap-2 text-muted small">
-                                        <span><i class="ti ti-calendar me-2" aria-hidden="true"></i>{{ $participant->event->event_date?->format('d M Y') ?? '-' }} &bull; {{ $participant->event->start_time?->format('H:i') ?? '-' }} WIB</span>
+                                        <span><i class="ti ti-calendar me-2" aria-hidden="true"></i>{{ $participant->event->event_date?->locale('id')->translatedFormat('d M Y') ?? '-' }} &bull; {{ $participant->event->start_time?->format('H:i') ?? '-' }} WIB</span>
                                         <span><i class="ti ti-map-pin me-2" aria-hidden="true"></i>{{ $participant->event->location ?: 'Lokasi belum ditentukan' }}</span>
                                     </div>
                                     <span class="text-primary small d-inline-flex align-items-center gap-1 mt-3">Detail <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
@@ -56,10 +56,10 @@
                         <a href="{{ $attendance->event ? route('pegawai.activities.show', $attendance->event) : '#' }}" class="list-group-item list-group-item-action px-3 py-3">
                             <div class="d-flex align-items-center justify-content-between gap-3">
                                 <div class="d-flex align-items-start gap-2">
-                                    <i class="ti ti-circle-check-filled text-success mt-1" aria-hidden="true"></i>
+                                    <i class="ti ti-circle-check text-success mt-1" aria-hidden="true"></i>
                                     <div>
                                         <strong class="d-block">{{ $attendance->event?->name ?? 'Kegiatan tidak tersedia' }}</strong>
-                                        <span class="text-muted small">{{ $attendance->scanned_at?->format('d M Y, H:i') ?? '-' }} WIB</span>
+                                        <span class="text-muted small">{{ $attendance->scanned_at?->locale('id')->translatedFormat('d M Y, H:i') ?? '-' }} WIB</span>
                                     </div>
                                 </div>
                                 <span class="badge bg-light-success text-success">{{ $attendance->attendance_status_label }}</span>

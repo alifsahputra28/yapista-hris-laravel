@@ -22,7 +22,7 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-6"><span class="text-muted small d-block mb-1">Tanggal</span><strong>{{ $event->event_date?->format('d M Y') ?? '-' }}</strong></div>
+                <div class="col-md-6"><span class="text-muted small d-block mb-1">Tanggal</span><strong>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') ?? '-' }}</strong></div>
                 <div class="col-md-6"><span class="text-muted small d-block mb-1">Waktu</span><strong>{{ $event->start_time?->format('H:i') ?? '-' }}{{ $event->end_time ? ' - '.$event->end_time->format('H:i') : '' }} WIB</strong></div>
                 <div class="col-md-6"><span class="text-muted small d-block mb-1">Lokasi</span><strong>{{ $event->location ?: 'Belum ditentukan' }}</strong></div>
                 <div class="col-md-6"><span class="text-muted small d-block mb-1">Kehadiran</span><strong>{{ $attendance?->attendance_status_label ?? 'Belum hadir' }}</strong></div>

@@ -284,7 +284,7 @@
                 id="photo"
                 type="file"
                 name="photo"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 class="form-control @error('photo') is-invalid @enderror"
             >
 

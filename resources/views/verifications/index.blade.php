@@ -153,7 +153,7 @@
                                 <td>
                                     <span class="badge bg-light-info text-info">{{ $employee->documents->count() }} dokumen</span>
                                 </td>
-                                <td>{{ $employee->updated_at?->format('d M Y H:i') ?? '-' }}</td>
+                                <td>{{ $employee->updated_at?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}</td>
                                 <td class="text-end pe-4">
                                     <div class="table-actions">
                                         <a href="{{ route('verifications.show', $employee) }}" class="btn btn-sm btn-primary">

@@ -836,18 +836,27 @@
         padding: 0.72rem 0.85rem;
     }
 
-    .metric-strip,
     .detail-grid {
         grid-template-columns: 1fr;
     }
 
-    .metric-item,
-    .metric-item:nth-child(2) {
+    .metric-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .metric-item {
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 0;
+    }
+
+    .metric-item:nth-child(even) {
         border-right: 0;
+    }
+
+    .metric-item:nth-child(-n + 2) {
         border-bottom: 1px solid #e2e8f0;
     }
 
-    .metric-item:last-child,
     .detail-item:nth-last-child(-n + 2) {
         border-bottom: 1px solid #e2e8f0;
     }
@@ -893,6 +902,10 @@
     }
 }
 
+.scanner-event-table {
+    min-width: 700px;
+}
+
 /* Login shell: isolated from dashboard, guest, and employee application layouts. */
 .auth-login-page {
     min-height: 100vh;
@@ -928,25 +941,6 @@
     z-index: -1;
     content: '';
     pointer-events: none;
-}
-
-.auth-brand-panel::before {
-    top: -20%;
-    right: -18%;
-    width: 48%;
-    height: 115%;
-    transform: rotate(22deg);
-    background: rgba(255, 255, 255, 0.07);
-}
-
-.auth-brand-panel::after {
-    right: -12%;
-    bottom: -30%;
-    width: 62%;
-    height: 62%;
-    transform: rotate(-16deg);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
 }
 
 .auth-brand-content {

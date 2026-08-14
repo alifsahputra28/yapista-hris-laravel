@@ -50,7 +50,8 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->assertNotSame(999, $employee->institution_id);
         $this->assertNull($employee->employee_number);
         $this->assertNotNull($employee->photo);
-        Storage::disk('public')->assertExists($employee->photo);
+        Storage::disk('private')->assertExists($employee->photo);
+        Storage::disk('public')->assertMissing($employee->photo);
 
         $this->actingAs($user)
             ->post('/pegawai/documents', [

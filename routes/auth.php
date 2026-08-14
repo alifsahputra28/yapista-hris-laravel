@@ -26,9 +26,11 @@ Route::middleware('guest')->group(function () {
     });
 
     Route::get('invitation/register/{code}', [InvitationRegisterController::class, 'show'])
+        ->middleware('throttle:10,1')
         ->name('invitation.register.show');
 
     Route::post('invitation/register/{code}', [InvitationRegisterController::class, 'register'])
+        ->middleware('throttle:10,1')
         ->name('invitation.register.store');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])

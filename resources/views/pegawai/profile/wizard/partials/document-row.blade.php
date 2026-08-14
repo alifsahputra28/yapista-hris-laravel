@@ -30,7 +30,7 @@
                     <button type="submit" class="btn btn-sm btn-outline-primary"><i class="ti ti-upload"></i> {{ $item['uploaded'] ? 'Ganti' : 'Unggah' }}</button>
                 </form>
                 @if ($item['document_id'] && $item['document_status'] !== 'valid')
-                    <form method="POST" action="{{ route('pegawai.documents.destroy', $item['document_id']) }}" onsubmit="return confirm('Hapus dokumen ini?')">
+                    <form method="POST" action="{{ route('pegawai.documents.destroy', $item['document_id']) }}" data-confirm-title="Hapus Dokumen?" data-confirm-message="Dokumen ini akan dihapus. Lanjutkan?">
                         @csrf @method('DELETE')
                         <input type="hidden" name="document_context" value="wizard">
                         <button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i><span class="visually-hidden">Hapus</span></button>

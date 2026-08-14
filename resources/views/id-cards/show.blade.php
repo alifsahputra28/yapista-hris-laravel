@@ -19,7 +19,7 @@
                 Kembali
             </a>
             @if ($isValidForIdCard && $hasActiveQrToken)
-                <form method="POST" action="{{ route('employees.id-card.qr.regenerate', $employee) }}" onsubmit="return confirm('QR Code lama akan langsung tidak berlaku. Lanjutkan membuat QR baru?')">
+                <form method="POST" action="{{ route('employees.id-card.qr.regenerate', $employee) }}" data-confirm-title="Buat Ulang QR Code?" data-confirm-message="QR Code lama akan langsung tidak berlaku. Lanjutkan membuat QR baru?">
                     @csrf
                     <button type="submit" class="btn btn-warning">
                         <i class="ti ti-refresh" aria-hidden="true"></i>
@@ -68,7 +68,7 @@
             <div class="card employee-e-card-unavailable mb-0">
                 <div class="card-body text-center py-4">
                     <div class="avtar avtar-l bg-light-warning text-warning mx-auto mb-3">
-                        <i class="ti ti-id-off f-28" aria-hidden="true"></i>
+                        <i class="ti ti-id f-28" aria-hidden="true"></i>
                     </div>
                     <h2 class="h5 mb-1">ID Card belum tersedia.</h2>
                     <p class="fw-semibold mb-1">NUP {{ $employee->formatted_employee_number }}</p>

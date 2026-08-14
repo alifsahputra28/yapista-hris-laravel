@@ -113,7 +113,7 @@ class EmployeeNumberConsistencyTest extends TestCase
         $this->assertDatabaseMissing('employees', ['email' => 'duplicate@yapista.test']);
     }
 
-    public function test_admin_can_set_and_clear_employee_number_before_verification(): void
+    public function test_adding_employee_number_verifies_employee_and_prevents_removal(): void
     {
         $employee = $this->employee(['verification_status' => 'draft']);
 
@@ -124,16 +124,19 @@ class EmployeeNumberConsistencyTest extends TestCase
             ]))
             ->assertRedirect(route('employees.index', absolute: false));
 
-        $this->assertSame('7770924003', $employee->refresh()->employee_number);
+        $employee->refresh();
+        $this->assertSame('7770924003', $employee->employee_number);
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertTrue($employee->activeQrToken()->exists());
 
         $this->actingAs($this->admin)
             ->put(route('employees.update', $employee, absolute: false), $this->employeePayload([
                 'email' => $employee->email,
                 'employee_number' => '',
             ]))
-            ->assertRedirect(route('employees.index', absolute: false));
+            ->assertSessionHasErrors(['employee_number']);
 
-        $this->assertNull($employee->refresh()->employee_number);
+        $this->assertSame('7770924003', $employee->refresh()->employee_number);
     }
 
     public function test_admin_can_not_clear_employee_number_of_verified_employee(): void

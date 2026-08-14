@@ -12,6 +12,7 @@ use App\Http\Controllers\EmployeeFamilyMemberController;
 use App\Http\Controllers\EmployeeIdCardController;
 use App\Http\Controllers\EmployeeImportController;
 use App\Http\Controllers\EmployeeInvitationController;
+use App\Http\Controllers\EmployeePhotoController;
 use App\Http\Controllers\EmployeeProfileController;
 use App\Http\Controllers\EmployeeProfileSubmissionController;
 use App\Http\Controllers\EmployeeProfileWizardController;
@@ -46,6 +47,10 @@ Route::get('/scanner/dashboard', function () {
 Route::get('/pegawai/dashboard', [DashboardController::class, 'employee'])
     ->middleware(['auth', 'role:pegawai'])
     ->name('pegawai.dashboard');
+
+Route::get('/employee-photos/{employee}', EmployeePhotoController::class)
+    ->middleware(['auth', 'role:super_admin,hr_admin,pegawai'])
+    ->name('employees.photo');
 
 Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::resource('institutions', InstitutionController::class)->except(['show']);

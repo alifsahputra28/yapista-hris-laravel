@@ -83,6 +83,10 @@ class DatabaseSeederIdempotencyTest extends TestCase
             $this->assertSame(0, Employee::query()->whereNotNull('foundation_registry_number')->count());
             $this->assertSame(0, DB::table('employees')->select('employee_number')->groupBy('employee_number')->havingRaw('count(*) > 1')->count());
             $this->assertSame(0, DB::table('users')->select('email')->groupBy('email')->havingRaw('count(*) > 1')->count());
+            $this->assertSame(0, DB::table('event_attendances')
+                ->where('scan_method', 'manual')
+                ->whereNotNull('qr_token_id')
+                ->count());
             $this->assertTrue(Hash::check('password', User::where('email', 'pegawai@yapista.test')->firstOrFail()->password));
         } finally {
             Carbon::setTestNow();

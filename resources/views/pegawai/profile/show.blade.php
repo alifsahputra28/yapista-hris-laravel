@@ -22,7 +22,7 @@
         $display = fn ($value) => filled($value) ? $value : 'Belum diisi';
         $familyCardNumber = $employee->family_card_number;
         $maskedFamilyCard = filled($familyCardNumber) ? str_repeat('*', max(strlen($familyCardNumber) - 4, 0)).substr($familyCardNumber, -4) : 'Belum diisi';
-        $accountPhoto = $employee->photo ? asset('storage/'.$employee->photo) : asset('assets/images/user/avatar-2.jpg');
+        $accountPhoto = $employee->photo ? route('employees.photo', $employee) : asset('assets/images/user/avatar-2.jpg');
     @endphp
 
     <div class="d-lg-none">
@@ -67,7 +67,7 @@
                     'Jabatan' => $employee->position?->name ?? 'Belum ditetapkan',
                     'Jenis Pegawai' => $employeeTypes[$employee->employee_type] ?? $employee->employee_type,
                     'Status Kerja' => $employmentStatuses[$employee->employment_status] ?? $employee->employment_status,
-                    'Tanggal Masuk' => $employee->join_date?->format('d M Y') ?? 'Belum diisi',
+                    'Tanggal Masuk' => $employee->join_date?->locale('id')->translatedFormat('d M Y') ?? 'Belum diisi',
                 ] as $label => $value)
                     <div class="d-flex align-items-start justify-content-between gap-3 py-3 border-bottom">
                         <span class="text-muted small">{{ $label }}</span><strong class="small text-end">{{ $value }}</strong>
@@ -149,7 +149,7 @@
             <div class="detail-item"><span class="detail-label">Nama Lengkap</span>{{ $employee->full_name }}</div>
             <div class="detail-item"><span class="detail-label">NIK</span>{{ $employee->masked_nik ?? 'Belum diisi' }}</div>
             <div class="detail-item"><span class="detail-label">Nomor Kartu Keluarga</span>{{ $maskedFamilyCard }}</div>
-            <div class="detail-item"><span class="detail-label">Tempat, Tanggal Lahir</span>{{ $display($employee->birth_place) }}, {{ $employee->birth_date?->format('d M Y') ?? 'Belum diisi' }}</div>
+            <div class="detail-item"><span class="detail-label">Tempat, Tanggal Lahir</span>{{ $display($employee->birth_place) }}, {{ $employee->birth_date?->locale('id')->translatedFormat('d M Y') ?? 'Belum diisi' }}</div>
             <div class="detail-item"><span class="detail-label">Jenis Kelamin</span>{{ $genderLabels[$employee->gender] ?? 'Belum diisi' }}</div>
             <div class="detail-item"><span class="detail-label">Agama</span>{{ $religionLabels[$employee->religion] ?? 'Belum diisi' }}</div>
             <div class="detail-item"><span class="detail-label">Status Perkawinan</span>{{ $maritalLabels[$employee->marital_status] ?? 'Belum diisi' }}</div>
@@ -177,8 +177,8 @@
                     <thead><tr><th>Nama</th><th>Hubungan</th><th>Tanggal Lahir</th><th>Tanggungan</th>@if ($employee->canEditProfileCompletion())<th class="text-end">Aksi</th>@endif</tr></thead>
                     <tbody>@foreach ($employee->familyMembers as $familyMember)<tr>
                         <td><strong>{{ $familyMember->full_name }}</strong><small class="data-meta d-block">NIK {{ $familyMember->masked_nik }}</small></td>
-                        <td>{{ $familyMember->relationship_label }}</td><td>{{ $familyMember->birth_date?->format('d M Y') ?? '-' }}</td><td>{{ $familyMember->is_dependent ? 'Ya' : 'Tidak' }}</td>
-                        @if ($employee->canEditProfileCompletion())<td class="text-end"><div class="table-actions"><a href="{{ route('pegawai.profile.family-members.edit', $familyMember) }}" class="btn btn-sm btn-light-primary"><i class="ti ti-edit" aria-hidden="true"></i> Edit</a><form method="POST" action="{{ route('pegawai.profile.family-members.destroy', $familyMember) }}" onsubmit="return confirm('Hapus data anggota keluarga ini?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-light-danger" aria-label="Hapus {{ $familyMember->full_name }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form></div></td>@endif
+                        <td>{{ $familyMember->relationship_label }}</td><td>{{ $familyMember->birth_date?->locale('id')->translatedFormat('d M Y') ?? '-' }}</td><td>{{ $familyMember->is_dependent ? 'Ya' : 'Tidak' }}</td>
+                        @if ($employee->canEditProfileCompletion())<td class="text-end"><div class="table-actions"><a href="{{ route('pegawai.profile.family-members.edit', $familyMember) }}" class="btn btn-sm btn-light-primary"><i class="ti ti-edit" aria-hidden="true"></i> Edit</a><form method="POST" action="{{ route('pegawai.profile.family-members.destroy', $familyMember) }}" data-confirm-title="Hapus Anggota Keluarga?" data-confirm-message="Data anggota keluarga ini akan dihapus. Lanjutkan?">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-light-danger" aria-label="Hapus {{ $familyMember->full_name }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form></div></td>@endif
                     </tr>@endforeach</tbody>
                 </table></div>
             @endif

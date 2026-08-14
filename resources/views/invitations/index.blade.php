@@ -12,8 +12,8 @@
         ];
         $summaryCards = [
             ['label' => 'Belum Digunakan', 'value' => $unusedInvitations ?? 0, 'icon' => 'ti-mail', 'class' => 'bg-light-primary text-primary'],
-            ['label' => 'Sudah Digunakan', 'value' => $usedInvitations ?? 0, 'icon' => 'ti-mail-check', 'class' => 'bg-light-success text-success'],
-            ['label' => 'Kedaluwarsa', 'value' => $expiredInvitations ?? 0, 'icon' => 'ti-clock-exclamation', 'class' => 'bg-light-warning text-warning'],
+            ['label' => 'Sudah Digunakan', 'value' => $usedInvitations ?? 0, 'icon' => 'ti-mail-opened', 'class' => 'bg-light-success text-success'],
+            ['label' => 'Kedaluwarsa', 'value' => $expiredInvitations ?? 0, 'icon' => 'ti-clock', 'class' => 'bg-light-warning text-warning'],
             ['label' => 'Dibatalkan', 'value' => $revokedInvitations ?? 0, 'icon' => 'ti-ban', 'class' => 'bg-light-danger text-danger'],
         ];
         $activeInstitution = $institutions->firstWhere('id', (int) request('institution_id'))?->name;
@@ -155,7 +155,7 @@
                                 <td>
                                     <span class="badge {{ $status['class'] }}">{{ $status['label'] }}</span>
                                 </td>
-                                <td>{{ $invitation->expired_at?->format('d M Y H:i') ?? '-' }}</td>
+                                <td>{{ $invitation->expired_at?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}</td>
                                 <td>{{ $invitation->creator?->name ?? '-' }}</td>
                                 <td class="text-end pe-4">
                                     <div class="table-actions">
@@ -165,7 +165,7 @@
                                         </button>
 
                                         @if ($invitation->isUnused())
-                                            <form action="{{ route('invitations.revoke', $invitation) }}" method="POST" onsubmit="return confirm('Batalkan undangan ini?')">
+                                            <form action="{{ route('invitations.revoke', $invitation) }}" method="POST" data-confirm-title="Batalkan Undangan?" data-confirm-message="Undangan ini tidak dapat digunakan setelah dibatalkan. Lanjutkan?">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-sm btn-light-danger btn-icon" title="Batalkan">
@@ -181,7 +181,7 @@
                                 <td colspan="7">
                                     <div class="empty-state">
                                         <div class="avtar avtar-l bg-light-secondary text-secondary">
-                                            <i class="ti ti-mail-off f-28"></i>
+                                            <i class="ti ti-mail f-28"></i>
                                         </div>
                                         <h5 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada undangan yang sesuai dengan filter.' : 'Belum ada undangan registrasi.' }}</h5>
                                         <p class="text-muted mb-3">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat undangan lainnya.' : 'Buat undangan dari halaman Data Pegawai untuk pegawai yang belum punya akun.' }}</p>

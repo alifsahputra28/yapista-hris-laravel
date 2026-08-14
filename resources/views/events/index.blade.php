@@ -125,7 +125,7 @@
                                     <div class="data-meta">{{ $event->location ?? 'Lokasi belum diisi' }}</div>
                                 </td>
                                 <td>
-                                    <div>{{ $event->event_date?->format('d M Y') }}</div>
+                                    <div>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') }}</div>
                                     <div class="data-meta">
                                         {{ $event->start_time?->format('H:i') ?? '-' }}
                                         @if ($event->end_time)
@@ -176,7 +176,7 @@
 
                                                 @if ($event->isDraft() || $event->isCancelled())
                                                     <div class="dropdown-divider"></div>
-                                                    <form action="{{ route('events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus kegiatan ini?')">
+                                                    <form action="{{ route('events.destroy', $event) }}" method="POST" data-confirm-title="Hapus Kegiatan?" data-confirm-message="Kegiatan akan dihapus jika belum memiliki data yang menghalangi penghapusan. Lanjutkan?">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="dropdown-item text-danger">

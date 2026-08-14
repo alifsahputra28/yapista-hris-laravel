@@ -18,7 +18,7 @@
 
     <div class="dashboard-grid">
         <div class="row g-3 mb-3" aria-label="Indikator utama">
-            <div class="col-sm-6 col-xl-3">
+            <div class="col-6 col-xl-3">
                 <div class="card dashboard-kpi-card h-100">
                     <div class="card-body">
                         <div class="dashboard-kpi-heading">
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col-6 col-xl-3">
                 <div class="card dashboard-kpi-card h-100">
                     <div class="card-body">
                         <div class="dashboard-kpi-heading">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col-6 col-xl-3">
                 <div class="card dashboard-kpi-card h-100">
                     <div class="card-body">
                         <div class="dashboard-kpi-heading">
@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col-6 col-xl-3">
                 <div class="card dashboard-kpi-card h-100">
                     <div class="card-body">
                         <div class="dashboard-kpi-heading">
@@ -148,7 +148,7 @@
                     <div class="card-body p-0">
                         <div class="dashboard-insight-list">
                             <a href="{{ route('verifications.index', ['verification_status' => 'submitted']) }}" class="dashboard-insight-item">
-                                <span class="dashboard-insight-icon is-warning"><i class="ti ti-user-question" aria-hidden="true"></i></span>
+                                <span class="dashboard-insight-icon is-warning"><i class="ti ti-user-exclamation" aria-hidden="true"></i></span>
                                 <span class="dashboard-insight-content"><strong>Menunggu Verifikasi</strong><small>Pengajuan data pegawai</small></span>
                                 <span class="dashboard-insight-count">{{ number_format($dashboard['insights']['submittedEmployees']) }}</span>
                             </a>

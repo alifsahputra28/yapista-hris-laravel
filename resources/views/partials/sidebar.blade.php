@@ -128,7 +128,7 @@
                 @if ($isPegawai)
                     <li class="pc-item pc-caption">
                         <label>Layanan Pegawai</label>
-                        <i class="ti ti-user-circle"></i>
+                        <i class="ti ti-user"></i>
                     </li>
 
                     <li class="pc-item {{ request()->routeIs('pegawai.activities.*') ? 'active' : '' }}">
@@ -156,7 +156,7 @@
 
                     <li class="pc-item {{ request()->routeIs('pegawai.profile.*') || request()->routeIs('profile.edit') ? 'active' : '' }}">
                         <a href="{{ route('pegawai.profile.show') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-user-circle"></i></span>
+                            <span class="pc-micon"><i class="ti ti-user"></i></span>
                             <span class="pc-mtext">Akun</span>
                         </a>
                     </li>

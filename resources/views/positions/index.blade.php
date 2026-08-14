@@ -115,7 +115,7 @@
                                             <i class="ti ti-edit"></i>
                                         </a>
 
-                                        <form action="{{ route('positions.destroy', $position) }}" method="POST" onsubmit="return confirm('Hapus jabatan ini?')">
+                                        <form action="{{ route('positions.destroy', $position) }}" method="POST" data-confirm-title="Hapus Jabatan?" data-confirm-message="Jabatan yang masih digunakan tidak dapat dihapus. Lanjutkan?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-light-danger btn-icon" title="Hapus">

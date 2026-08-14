@@ -18,6 +18,7 @@ class EmployeeManagementTest extends TestCase
     public function test_admin_can_manage_employee_data(): void
     {
         Storage::fake('public');
+        Storage::fake('private');
 
         $admin = User::factory()->create([
             'role' => 'super_admin',
@@ -50,9 +51,13 @@ class EmployeeManagementTest extends TestCase
 
         $employee = Employee::where('email', 'ahmad.fauzi@yapista.test')->firstOrFail();
 
-        $this->assertSame('draft', $employee->verification_status);
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertSame($admin->id, $employee->verified_by);
+        $this->assertNotNull($employee->verified_at);
+        $this->assertTrue($employee->activeQrToken()->exists());
         $this->assertNotNull($employee->photo);
-        Storage::disk('public')->assertExists($employee->photo);
+        Storage::disk('private')->assertExists($employee->photo);
+        Storage::disk('public')->assertMissing($employee->photo);
 
         $this->actingAs($admin)
             ->get("/employees/{$employee->id}")
@@ -93,6 +98,7 @@ class EmployeeManagementTest extends TestCase
             'id' => $employee->id,
             'employment_status' => 'nonaktif',
         ]);
+        $this->assertFalse($employee->activeQrToken()->exists());
     }
 
     public function test_employee_index_can_search_and_filter(): void

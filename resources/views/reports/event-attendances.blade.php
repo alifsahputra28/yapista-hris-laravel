@@ -26,8 +26,8 @@
     :badge-class="$eventStatus['class']"
     :breadcrumbs="[['label' => 'Laporan Kegiatan', 'url' => route('reports.events')], ['label' => 'Kehadiran']]"
 >
-    <x-slot:meta><span>{{ $event->event_date?->format('d M Y') ?: '-' }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->location ?: 'Lokasi belum diisi' }}</span></x-slot:meta>
-    <x-slot:actions><a href="{{ route('reports.events') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a><a href="{{ route('reports.events.attendances.export', array_merge(request()->query(), ['event' => $event->id])) }}" class="btn btn-primary"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
+    <x-slot:meta><span>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') ?: '-' }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->location ?: 'Lokasi belum diisi' }}</span></x-slot:meta>
+    <x-slot:actions><a href="{{ route('reports.events') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a><a href="{{ route('reports.events.attendances.export', array_merge(request()->query(), ['event' => $event->id])) }}" class="btn btn-primary"><i class="ti ti-file-export" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
 </x-page-header>
 
 <div class="metric-strip" aria-label="Ringkasan kehadiran">
@@ -121,7 +121,7 @@
                                         <span class="badge bg-light-secondary text-secondary">Belum Hadir</span>
                                     @endif
                                 </td>
-                                <td>{{ $attendance?->scanned_at?->format('d M Y H:i:s') ?: '-' }}</td>
+                                <td>{{ $attendance?->scanned_at?->locale('id')->translatedFormat('d M Y H:i:s') ?: '-' }}</td>
                                 <td>
                                     @if ($attendance)
                                         <span class="badge {{ $attendance->scan_method === 'manual' ? 'bg-light-warning text-warning' : 'bg-light-primary text-primary' }}">
@@ -139,7 +139,7 @@
             </div>
         @else
             <div class="empty-state">
-                <div class="avtar bg-light-secondary text-secondary"><i class="ti ti-clipboard-off"></i></div>
+                <div class="avtar bg-light-secondary text-secondary"><i class="ti ti-clipboard-x"></i></div>
                 <h6 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada peserta yang sesuai dengan filter.' : 'Belum ada data peserta' }}</h6>
                 <p class="text-muted {{ $hasActiveFilters ? 'mb-3' : 'mb-0' }}">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat peserta lainnya.' : 'Pastikan peserta kegiatan sudah dibuat.' }}</p>
                 @if ($hasActiveFilters)<a href="{{ route('reports.events.attendances', $event) }}" class="btn btn-light-primary"><i class="ti ti-filter-off"></i> Reset Filter</a>@endif

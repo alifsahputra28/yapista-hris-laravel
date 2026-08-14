@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Services\EventParticipantService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -158,7 +159,19 @@ class EventController extends Controller
                 ->with('error', 'Kegiatan aktif atau tertutup tidak bisa dihapus.');
         }
 
-        $event->delete();
+        if ($event->attendances()->exists()) {
+            return redirect()
+                ->route('events.index')
+                ->with('error', 'Kegiatan tidak dapat dihapus karena sudah memiliki riwayat kehadiran.');
+        }
+
+        try {
+            $event->delete();
+        } catch (QueryException) {
+            return redirect()
+                ->route('events.index')
+                ->with('error', 'Kegiatan tidak dapat dihapus karena masih digunakan oleh data lain.');
+        }
 
         return redirect()
             ->route('events.index')

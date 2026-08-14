@@ -18,7 +18,7 @@
             ['label' => 'Scan QR Code'],
         ]"
     >
-        <x-slot:meta><span>{{ $event->name }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->event_date?->format('d M Y') }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->location ?? 'Lokasi belum diisi' }}</span></x-slot:meta>
+        <x-slot:meta><span>{{ $event->name }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') }}</span><span aria-hidden="true">&bull;</span><span>{{ $event->location ?? 'Lokasi belum diisi' }}</span></x-slot:meta>
         <x-slot:actions><a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-secondary"><i class="ti ti-list" aria-hidden="true"></i> Daftar Hadir</a></x-slot:actions>
     </x-page-header>
 

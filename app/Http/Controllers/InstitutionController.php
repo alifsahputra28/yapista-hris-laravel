@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Institution;
 use App\Models\Position;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class InstitutionController extends Controller
@@ -53,7 +56,13 @@ class InstitutionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        Institution::create($this->validatedData($request));
+        try {
+            Institution::create($this->validatedData($request));
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withInput()
+                ->withErrors(['name' => 'Nama unit kerja sudah digunakan.']);
+        }
 
         return redirect()
             ->route('institutions.index')
@@ -67,7 +76,13 @@ class InstitutionController extends Controller
 
     public function update(Request $request, Institution $institution): RedirectResponse
     {
-        $institution->update($this->validatedData($request));
+        try {
+            $institution->update($this->validatedData($request, $institution));
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withInput()
+                ->withErrors(['name' => 'Nama unit kerja sudah digunakan.']);
+        }
 
         return redirect()
             ->route('institutions.index')
@@ -76,7 +91,19 @@ class InstitutionController extends Controller
 
     public function destroy(Institution $institution): RedirectResponse
     {
-        $institution->delete();
+        if ($institution->employees()->exists() || $institution->positions()->exists()) {
+            return redirect()
+                ->route('institutions.index')
+                ->with('error', 'Unit kerja tidak dapat dihapus karena masih digunakan oleh jabatan atau pegawai.');
+        }
+
+        try {
+            $institution->delete();
+        } catch (QueryException) {
+            return redirect()
+                ->route('institutions.index')
+                ->with('error', 'Unit kerja tidak dapat dihapus karena masih digunakan oleh data lain.');
+        }
 
         return redirect()
             ->route('institutions.index')
@@ -86,10 +113,16 @@ class InstitutionController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function validatedData(Request $request): array
+    private function validatedData(Request $request, ?Institution $institution = null): array
     {
+        $nameRule = Rule::unique('institutions', 'name');
+
+        if ($institution) {
+            $nameRule->ignore($institution->id);
+        }
+
         return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', $nameRule],
             'level' => ['nullable', 'string', 'max:100'],
             'address' => ['nullable', 'string'],
             'status' => ['required', 'in:active,inactive'],

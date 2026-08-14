@@ -126,7 +126,7 @@
                                 <td class="text-end pe-4">
                                     <div class="table-actions">
                                         @if ($event->isDraft())
-                                            <form method="POST" action="{{ route('event-participants.destroy', $participant) }}" onsubmit="return confirm('Hapus peserta ini?')">
+                                            <form method="POST" action="{{ route('event-participants.destroy', $participant) }}" data-confirm-title="Hapus Peserta?" data-confirm-message="Peserta akan dihapus dari kegiatan ini. Lanjutkan?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-light-danger">
@@ -145,7 +145,7 @@
                                 <td colspan="5">
                                     <div class="empty-state">
                                         <div class="avtar avtar-l bg-light-secondary text-secondary">
-                                            <i class="ti ti-users-off f-28"></i>
+                                            <i class="ti ti-users f-28"></i>
                                         </div>
                                         <h5 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada peserta yang sesuai dengan filter.' : 'Belum ada peserta kegiatan.' }}</h5>
                                         <p class="text-muted {{ $hasActiveFilters ? 'mb-3' : 'mb-0' }}">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat peserta lainnya.' : 'Tambahkan peserta manual saat kegiatan masih draft.' }}</p>

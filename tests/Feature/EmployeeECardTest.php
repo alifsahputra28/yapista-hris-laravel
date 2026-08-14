@@ -79,7 +79,7 @@ class EmployeeECardTest extends TestCase
         $this->actingAs($user)
             ->get(route('pegawai.id-card.show', absolute: false))
             ->assertOk()
-            ->assertSee(asset('storage/employees/photos/ahmad.jpg'), escape: false)
+            ->assertSee(route('employees.photo', $employee), escape: false)
             ->assertSee(asset('assets/images/user/avatar-2.jpg'), escape: false);
 
         [$fallbackUser, $fallbackEmployee] = $this->employeeUser([

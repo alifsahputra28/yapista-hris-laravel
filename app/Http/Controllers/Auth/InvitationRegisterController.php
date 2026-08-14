@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -51,9 +52,24 @@ class InvitationRegisterController extends Controller
             return back()->withErrors(['invitation' => $message])->withInput();
         }
 
+        $expectedEmail = Str::lower(trim((string) $invitation->email));
+        $request->merge([
+            'email' => Str::lower(trim((string) $request->input('email'))),
+        ]);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email',
+                function (string $attribute, mixed $value, \Closure $fail) use ($expectedEmail): void {
+                    if ($expectedEmail === '' || ! hash_equals($expectedEmail, Str::lower((string) $value))) {
+                        $fail('Email harus sama dengan email yang terdaftar pada undangan.');
+                    }
+                },
+            ],
             'password' => ['required', 'confirmed', Rules\Password::min(8)],
         ]);
 
@@ -128,6 +144,10 @@ class InvitationRegisterController extends Controller
 
         if ($invitation->isExpired()) {
             return 'Kode undangan sudah kedaluwarsa.';
+        }
+
+        if (blank($invitation->email)) {
+            return 'Email undangan belum tersedia. Silakan hubungi HR/Admin.';
         }
 
         if (! $invitation->isValid()) {

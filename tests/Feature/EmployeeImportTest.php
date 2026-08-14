@@ -118,6 +118,10 @@ class EmployeeImportTest extends TestCase
             'email' => 'pegawai.import@yapista.test',
             'status' => 'unused',
         ]);
+        $this->assertMatchesRegularExpression(
+            '/\AYAPISTA-REG-[A-Z0-9]{32}\z/',
+            $employee->invitations()->firstOrFail()->invitation_code,
+        );
         $this->assertNull($employee->nik);
         $this->assertNull($employee->getRawOriginal('nik_encrypted'));
     }

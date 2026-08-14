@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <title>@yield('title', 'YAPISTA HRIS')</title>
 
@@ -47,6 +47,8 @@
 
     @include('partials.footer')
 
+    <x-confirm-action-modal />
+
     @if (Auth::user()?->isPegawai())
         @include('partials.employee-bottom-nav')
     @endif
@@ -65,6 +67,7 @@
     <script>layout_rtl_change('false');</script>
     <script>preset_change("preset-1");</script>
     <script>font_change("Public-Sans");</script>
+    <script>document.documentElement.lang = 'id';</script>
 
     @stack('scripts')
 </body>

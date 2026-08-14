@@ -307,7 +307,7 @@
                                                     <form action="{{ route('employees.invitations.generate', $employee) }}" method="POST">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item">
-                                                            <i class="ti ti-mail-plus me-2"></i>
+                                                            <i class="ti ti-mail me-2"></i>
                                                             Buat Undangan
                                                         </button>
                                                     </form>
@@ -329,7 +329,7 @@
 
                                                 <div class="dropdown-divider"></div>
 
-                                                <form action="{{ route('employees.destroy', $employee) }}" method="POST" onsubmit="return confirm('Nonaktifkan pegawai ini?')">
+                                                <form action="{{ route('employees.destroy', $employee) }}" method="POST" data-confirm-title="Nonaktifkan Pegawai?" data-confirm-message="Pegawai akan dinonaktifkan dan tidak lagi berstatus aktif. Lanjutkan?">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="dropdown-item text-danger" @disabled($employee->employment_status === 'nonaktif')>

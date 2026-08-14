@@ -17,11 +17,11 @@
     <div class="card-body">
         <div class="row align-items-center g-3">
             @if ($employee->photo)
-                <div class="col-auto"><img src="{{ asset('storage/'.$employee->photo) }}" alt="{{ $employee->full_name }}" class="rounded wid-100 hei-100 object-fit-cover"></div>
+                <div class="col-auto"><img src="{{ route('employees.photo', $employee) }}" alt="{{ $employee->full_name }}" class="rounded wid-100 hei-100 object-fit-cover"></div>
             @endif
             <div class="col-md-6">
                 <label for="photo" class="form-label">Pilih Foto</label>
-                <input id="photo" type="file" name="photo" accept="image/*" class="form-control @error('photo') is-invalid @enderror">
+                <input id="photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="form-control @error('photo') is-invalid @enderror">
                 <div class="form-text">JPG, JPEG, atau PNG. Maksimal 2 MB.</div>
                 @error('photo')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>

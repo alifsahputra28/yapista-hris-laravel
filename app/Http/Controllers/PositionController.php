@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Institution;
 use App\Models\Position;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class PositionController extends Controller
@@ -57,7 +60,13 @@ class PositionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        Position::create($this->validatedData($request));
+        try {
+            Position::create($this->validatedData($request));
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withInput()
+                ->withErrors(['name' => 'Nama jabatan sudah digunakan pada unit kerja tersebut.']);
+        }
 
         return redirect()
             ->route('positions.index')
@@ -73,7 +82,13 @@ class PositionController extends Controller
 
     public function update(Request $request, Position $position): RedirectResponse
     {
-        $position->update($this->validatedData($request));
+        try {
+            $position->update($this->validatedData($request, $position));
+        } catch (UniqueConstraintViolationException) {
+            return back()
+                ->withInput()
+                ->withErrors(['name' => 'Nama jabatan sudah digunakan pada unit kerja tersebut.']);
+        }
 
         return redirect()
             ->route('positions.index')
@@ -82,7 +97,19 @@ class PositionController extends Controller
 
     public function destroy(Position $position): RedirectResponse
     {
-        $position->delete();
+        if ($position->employees()->exists()) {
+            return redirect()
+                ->route('positions.index')
+                ->with('error', 'Jabatan tidak dapat dihapus karena masih digunakan oleh pegawai.');
+        }
+
+        try {
+            $position->delete();
+        } catch (QueryException) {
+            return redirect()
+                ->route('positions.index')
+                ->with('error', 'Jabatan tidak dapat dihapus karena masih digunakan oleh data lain.');
+        }
 
         return redirect()
             ->route('positions.index')
@@ -92,12 +119,19 @@ class PositionController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function validatedData(Request $request): array
+    private function validatedData(Request $request, ?Position $position = null): array
     {
+        $nameRule = Rule::unique('positions', 'name')
+            ->where(fn ($query) => $query->where('institution_id', $request->integer('institution_id')));
+
+        if ($position) {
+            $nameRule->ignore($position->id);
+        }
+
         return $request->validate([
             'institution_id' => ['required', 'exists:institutions,id'],
-            'name' => ['required', 'string', 'max:255'],
-            'type' => ['nullable', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255', $nameRule],
+            'type' => ['nullable', Rule::in(['struktural', 'fungsional', 'administratif', 'teknis'])],
             'status' => ['required', 'in:active,inactive'],
         ]);
     }

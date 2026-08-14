@@ -6,19 +6,21 @@ use App\Http\Requests\UpdateEmployeeContactAddressStepRequest;
 use App\Http\Requests\UpdateEmployeeEmergencyContactStepRequest;
 use App\Http\Requests\UpdateEmployeeIdentificationStepRequest;
 use App\Models\Employee;
+use App\Services\EmployeePhotoStorageService;
 use App\Services\EmployeeProfileProgressService;
 use App\Services\EmployeeProfileSubmissionService;
 use App\Support\Profiles\ProfileWizardStep;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Throwable;
 
 class EmployeeProfileWizardController extends Controller
 {
     public function __construct(
         private readonly EmployeeProfileProgressService $progressService,
         private readonly EmployeeProfileSubmissionService $submissionService,
+        private readonly EmployeePhotoStorageService $photoStorageService,
     ) {}
 
     public function index(): RedirectResponse
@@ -66,16 +68,25 @@ class EmployeeProfileWizardController extends Controller
         $action = $data['wizard_action'];
         unset($data['wizard_action'], $data['photo']);
 
-        if ($request->hasFile('photo')) {
-            $newPhoto = $request->file('photo')->store('employees/photos', 'public');
-            $oldPhoto = $employee->photo;
+        $oldPhoto = $employee->photo;
+        $newPhoto = $request->hasFile('photo')
+            ? $this->photoStorageService->store($request->file('photo'))
+            : null;
+
+        if ($newPhoto !== null) {
             $data['photo'] = $newPhoto;
         }
 
-        $employee->update($data);
+        try {
+            $employee->update($data);
+        } catch (Throwable $exception) {
+            $this->photoStorageService->deletePath($newPhoto);
 
-        if (isset($oldPhoto) && $oldPhoto !== null) {
-            Storage::disk('public')->delete($oldPhoto);
+            throw $exception;
+        }
+
+        if ($newPhoto !== null) {
+            $this->photoStorageService->deletePath($oldPhoto);
         }
 
         return $this->savedRedirect('identification', $action);

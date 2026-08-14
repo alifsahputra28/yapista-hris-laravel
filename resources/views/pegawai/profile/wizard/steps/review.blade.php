@@ -12,7 +12,7 @@
     <div class="alert alert-warning">
         <i class="ti ti-clock me-1"></i>
         <strong>Profil sedang menunggu pemeriksaan HR/Admin.</strong>
-        @if ($employee->profile_submitted_at)<span class="d-block mt-1">Dikirim pada {{ $employee->profile_submitted_at->format('d M Y H:i') }}.</span>@endif
+        @if ($employee->profile_submitted_at)<span class="d-block mt-1">Dikirim pada {{ $employee->profile_submitted_at->locale('id')->translatedFormat('d M Y H:i') }}.</span>@endif
     </div>
 @else
     <div class="alert alert-light-primary"><i class="ti ti-info-circle me-1"></i> Lengkapi data dan dokumen berikut sebelum mengirim profil untuk diperiksa.</div>
@@ -104,7 +104,7 @@
     @if ($employee->isProfileSubmitted())
         <p class="text-muted mb-0">Profil telah dikirim dan seluruh perubahan dikunci sampai proses pemeriksaan selesai.</p>
     @elseif ($editable && $submissionChecklist['can_submit'])
-        <form method="POST" action="{{ route('pegawai.profile.submit') }}" data-wizard-form onsubmit="return confirm('Setelah dikirim, profil tidak dapat diubah sampai diperiksa oleh HR/Admin. Lanjutkan?')">
+        <form method="POST" action="{{ route('pegawai.profile.submit') }}" data-wizard-form data-confirm-title="Kirim Profil?" data-confirm-message="Setelah dikirim, profil tidak dapat diubah sampai diperiksa oleh HR/Admin. Lanjutkan?">
             @csrf
             <div class="form-check mb-3"><input id="declaration" name="declaration" value="1" type="checkbox" class="form-check-input @error('declaration') is-invalid @enderror" required><label for="declaration" class="form-check-label">Saya memastikan data dan dokumen yang diberikan benar serta sesuai dengan dokumen resmi.</label>@error('declaration')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
             <button type="submit" class="btn btn-success"><i class="ti ti-send"></i> Kirim untuk Verifikasi</button>

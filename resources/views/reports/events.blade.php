@@ -16,7 +16,7 @@
 @endphp
 
 <x-page-header title="Laporan Kegiatan" subtitle="Filter dan ekspor rekap kegiatan yayasan." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Laporan Kegiatan']]">
-    <x-slot:actions><a href="{{ route('reports.events.export', request()->query()) }}" class="btn btn-primary"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
+    <x-slot:actions><a href="{{ route('reports.events.export', request()->query()) }}" class="btn btn-primary"><i class="ti ti-file-export" aria-hidden="true"></i> Export Excel</a></x-slot:actions>
 </x-page-header>
 
 <div class="metric-strip" aria-label="Ringkasan laporan kegiatan">
@@ -99,7 +99,7 @@
                                     <div class="data-meta">{{ $event->description ? \Illuminate\Support\Str::limit($event->description, 80) : 'Tidak ada deskripsi' }}</div>
                                 </td>
                                 <td>
-                                    <div>{{ $event->event_date?->format('d M Y') ?: '-' }}</div>
+                                    <div>{{ $event->event_date?->locale('id')->translatedFormat('d M Y') ?: '-' }}</div>
                                     <div class="data-meta">
                                         {{ $event->start_time?->format('H:i') ?: '-' }}
                                         @if ($event->end_time)

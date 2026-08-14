@@ -39,7 +39,7 @@
             <div class="card employee-e-card-unavailable mb-0">
                 <div class="card-body text-center py-4">
                     <div class="avtar avtar-l bg-light-warning text-warning mx-auto mb-3">
-                        <i class="ti ti-id-off f-28" aria-hidden="true"></i>
+                        <i class="ti ti-id f-28" aria-hidden="true"></i>
                     </div>
                     <h2 class="h5 mb-1">ID Card belum tersedia.</h2>
                     <p class="text-muted mb-0">ID Card akan tersedia setelah pegawai mendapatkan NUP dan proses verifikasi selesai.</p>
