@@ -1,14 +1,14 @@
 # YAPISTA HRIS Production Environment
 
-Dokumen ini mendefinisikan prasyarat minimum untuk men-deploy source baseline `4064778` setelah seluruh blocker pada laporan Tahap 8 ditutup. Nilai rahasia tidak boleh disimpan di repository, ticket, log, atau command history.
+Dokumen ini mendefinisikan prasyarat minimum untuk men-deploy candidate UAT `4ba68a0` beserta lockfile hasil remediasi Tahap 9.5. Commit/tag release final tetap harus ditetapkan setelah human UAT dan sign-off. Nilai rahasia tidak boleh disimpan di repository, ticket, log, atau command history.
 
 ## Runtime
 
 | Komponen | Baseline teruji | Kebutuhan produksi |
 |---|---:|---|
 | PHP | 8.3.16 | PHP 8.3+ 64-bit |
-| Laravel | 13.7.0 | Versi lockfile yang telah lulus security audit |
-| Composer | 2.8.5 | Composer 2.x, hanya diperlukan saat build/release |
+| Laravel | 13.25.0 | Gunakan versi pada `composer.lock` |
+| Composer | 2.10.2 | Composer 2.10.2 atau lebih baru, hanya saat build/release |
 | Node.js | 22.13.1 | Node 22 LTS, hanya diperlukan saat build asset |
 | npm | 10.9.2 | Gunakan `npm ci` berdasarkan `package-lock.json` |
 | Database | MySQL 8.4.3 | MySQL 8.x, InnoDB, `utf8mb4` |
@@ -98,7 +98,7 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-`composer audit --locked --no-dev` dan `npm audit --omit=dev` wajib bernilai lulus sesuai risk policy sebelum artifact dipromosikan. Baseline Tahap 8 belum memenuhi syarat ini.
+`composer audit --locked --no-dev` dan `npm audit --omit=dev` wajib bernilai lulus sesuai risk policy sebelum artifact dipromosikan. Lockfile hasil Tahap 9.5 lulus kedua audit; CI/release harus mengulang pemeriksaan pada build yang bersih.
 
 ## Production Decisions Still Required
 

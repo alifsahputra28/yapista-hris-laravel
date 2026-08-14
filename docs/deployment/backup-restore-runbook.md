@@ -137,8 +137,10 @@ Catat tanpa data sensitif:
 - Smoke-test result.
 - Cleanup confirmation untuk database/directory sementara.
 
-## Stage 8 Drill Result
+## Stage 9.5 Drill Result
 
-- Client `mysqldump` dan `mysql` tidak tersedia pada host audit, sehingga full database backup/restore drill belum dijalankan.
-- Restore archive storage sintetis: **PASS**; 2 file diperiksa, 0 checksum mismatch, archive memiliki hash SHA-256 64 karakter, dan seluruh artifact sementara dihapus.
-- Drill database dengan tool dan target infrastruktur produksi tetap menjadi blocker sebelum go-live.
+- MySQL 8.4.3 tooling ditemukan dan full database dump/isolated restore drill dijalankan pada 14 Agustus 2026.
+- Dump `mysqldump --single-transaction` berukuran 61,165 bytes dan memiliki SHA-256 `49687b5ee8d304c463af3c24fabb8f437c268b0b2487f2234bc2196a5463cd9c`.
+- Restore ke database disposable berhasil; 9 aggregate table cocok, migration 26 Ran/0 Pending, NIK decrypt/HMAC lookup PASS, dan QR resolution PASS.
+- Temporary restore database dan SQL dump dihapus setelah evidence dicatat.
+- Database drill blocker ditutup. Production tetap memerlukan backup off-host terenkripsi dan backup `storage/app/private` sebagai stream terpisah.
