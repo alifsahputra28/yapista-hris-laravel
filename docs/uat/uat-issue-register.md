@@ -19,9 +19,9 @@ Severity:
 
 Belum ada issue UAT aktual karena human execution belum dimulai. Gunakan ID berurutan `UAT-001`, `UAT-002`, dan seterusnya.
 
-| ID | Tester | Role | Scenario | Severity | Issue | Expected | Evidence | Status |
-|---|---|---|---|---|---|---|---|---|
-| _Belum ada_ |  |  |  |  |  |  |  |  |
+| ID | Build | Role | Scenario | Severity | Issue | Expected | Actual | Fix | Retest | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| _Belum ada_ |  |  |  |  |  |  |  |  |  |  |
 
 ## Release Gates Dari Tahap 8 Dan 9.5
 

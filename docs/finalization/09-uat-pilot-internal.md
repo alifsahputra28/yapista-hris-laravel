@@ -32,10 +32,27 @@ Status: **INFRA ACTION REQUIRED** untuk smoke pada staging HTTPS dengan APP_DEBU
 
 ## 3. Release Commit
 
-- Candidate UAT source commit: akan ditetapkan oleh commit `chore: finalize UAT candidate and resolve release blockers`.
+- UAT Build 1 / Candidate UAT source commit: `064a117` (`chore: finalize UAT candidate and resolve release blockers`).
 - Final UAT commit: **pending human execution dan setiap retest/fix yang mungkin diperlukan**.
-- Tidak ada source fix pada saat paket dibuat.
-- Dokumentasi Tahap 9 belum menjadi commit saat laporan ini dibuat.
+- Candidate commit bersifat immutable; perubahan source setelah ini harus berasal dari reproduced UAT issue dan menghasilkan UAT Build berikutnya.
+- Tidak ada push atau deployment production pada tahap ini.
+
+### Technical Preflight After Candidate Commit
+
+| Check | Actual Result |
+|---|---|
+| Full suite run 1 | 297 passed, 2470 assertions, 0 failed, 0 skipped |
+| Full suite run 2 | 297 passed, 2470 assertions, 0 failed, 0 skipped |
+| Frontend build | PASS, Vite 8.0.16, 57 modules; CSS 28.47 kB, JS 89.97 kB |
+| Composer production audit | 0 advisory |
+| npm full / production audit | 0 / 0 vulnerability |
+| Migration | 26 Ran, 0 Pending |
+| Config cache | PASS |
+| Route cache | PASS |
+| View cache | PASS |
+| Final local cache clear | PASS |
+
+Read-only integrity preflight menghasilkan 0 duplicate attendance group, 0 duplicate participant group, 0 employee dengan multiple active QR, 0 inactive employee dengan active QR, dan 0 eligible verified employee yang kehilangan active QR.
 
 ## 4. UAT Roles
 
@@ -48,6 +65,20 @@ Status: **INFRA ACTION REQUIRED** untuk smoke pada staging HTTPS dengan APP_DEBU
 | UAT-PAN-01 | Panitia | Event context, QR/manual attendance | Not provisioned in this session |
 
 Jumlah tester manusia aktual: **0**. Password dan data pribadi tidak dibuat atau dicatat.
+
+## 4A. Infrastructure Action Register
+
+| Item | Status | Evidence / Required Action |
+|---|---|---|
+| Local technical environment | READY | Automated preflight PASS; hanya untuk local/internal pilot |
+| SMTP credentials and delivery | PENDING EXTERNAL | Application mail flow teruji; external inbox delivery belum diuji |
+| Staging / hosting | PENDING EXTERNAL | Environment production-like belum disediakan |
+| Domain and DNS | PENDING EXTERNAL | Tidak ada domain UAT/production yang dapat diverifikasi |
+| TLS certificate / HTTPS | PENDING EXTERNAL | Local memakai HTTP; production wajib HTTPS dan secure cookie |
+| Monitoring / alerting | PENDING EXTERNAL | Checklist tersedia; server dan destination belum dipilih |
+| Physical QR scanner | PENDING EXTERNAL | USB/HID device dan human operator belum tersedia |
+
+`LOCAL HUMAN UAT` dapat dimulai menggunakan data dummy setelah account diprovision. `PRODUCTION-LIKE UAT` tetap membutuhkan staging HTTPS, secure cookie, SMTP bila mandatory, dan monitoring evidence.
 
 ## 5. Test Data
 

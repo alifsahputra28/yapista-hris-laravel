@@ -7,11 +7,11 @@ Dokumen ini adalah draft. Codex tidak memberi acceptance atas nama pengguna.
 | Item | Value |
 |---|---|
 | System | YAPISTA HRIS Core |
-| Candidate UAT Commit | Assigned after technical-candidate commit |
+| Candidate UAT Commit | `064a117` |
 | Final UAT Commit | Pending human execution/retest |
 | Environment | Local/internal pilot; staging production-like belum tersedia |
 | UAT Period | Belum dimulai |
-| Technical Baseline | 297 tests, 2470 assertions, build PASS, 26 Ran / 0 Pending |
+| Technical Baseline | Double full suite PASS: 297 tests/2470 assertions each; build PASS; 26 Ran / 0 Pending; dependency audit 0 |
 
 ## Roles Planned
 
@@ -53,6 +53,8 @@ Tester nyata dan account belum diprovision melalui sesi ini. Password tidak bole
 - [x] Production dependency blockers closed.
 - [x] Database restore drill passed.
 - [x] Public employee orphan exposure closed through private quarantine.
+- [x] Config, route, and view cache preflight passed; local cache cleared afterward.
+- [x] Double full automated suite passed without flakiness.
 
 ## User Gate
 
