@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeDocument;
 use App\Models\Institution;
 use App\Models\Position;
+use App\Services\EmployeeMetricsService;
 use App\Services\EmployeeQrTokenService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,10 @@ use Illuminate\View\View;
 
 class EmployeeVerificationController extends Controller
 {
-    public function __construct(private readonly EmployeeQrTokenService $qrTokenService) {}
+    public function __construct(
+        private readonly EmployeeQrTokenService $qrTokenService,
+        private readonly EmployeeMetricsService $employeeMetricsService,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -28,7 +32,8 @@ class EmployeeVerificationController extends Controller
         }
 
         $employees = Employee::query()
-            ->with(['user', 'institution', 'position', 'documents'])
+            ->with(['institution', 'position'])
+            ->withCount('documents')
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('full_name', 'like', "%{$search}%")
@@ -52,12 +57,13 @@ class EmployeeVerificationController extends Controller
             ->withQueryString();
 
         $institutions = Institution::query()->orderBy('name')->get();
-        $positions = Position::query()->with('institution')->orderBy('name')->get();
+        $positions = Position::query()->orderBy('name')->get();
 
-        $submittedEmployees = Employee::query()->where('verification_status', 'submitted')->count();
-        $verifiedEmployees = Employee::query()->where('verification_status', 'verified')->count();
-        $rejectedEmployees = Employee::query()->where('verification_status', 'rejected')->count();
-        $draftEmployees = Employee::query()->where('verification_status', 'draft')->count();
+        $metrics = $this->employeeMetricsService->counts();
+        $submittedEmployees = $metrics['submitted'];
+        $verifiedEmployees = $metrics['verified'];
+        $rejectedEmployees = $metrics['rejected'];
+        $draftEmployees = $metrics['draft'];
 
         return view('verifications.index', compact(
             'employees',
@@ -202,5 +208,4 @@ class EmployeeVerificationController extends Controller
             ->route('verifications.show', $document->employee)
             ->with('success', 'Status dokumen berhasil diperbarui.');
     }
-
 }

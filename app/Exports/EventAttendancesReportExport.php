@@ -3,23 +3,21 @@
 namespace App\Exports;
 
 use App\Models\Event;
-use App\Models\EventAttendance;
 use App\Models\EventParticipant;
+use App\Services\EventAttendanceSummaryService;
 use App\Support\Reports\SimpleXlsxWriter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EventAttendancesReportExport
 {
     /**
      * @param  Builder<EventParticipant>  $participantsQuery
-     * @param  Collection<int, EventAttendance>  $attendanceMap
      */
     public function __construct(
         private readonly Event $event,
         private readonly Builder $participantsQuery,
-        private readonly Collection $attendanceMap
+        private readonly EventAttendanceSummaryService $attendanceSummaryService,
     ) {}
 
     public function download(string $filename): StreamedResponse
@@ -27,10 +25,12 @@ class EventAttendancesReportExport
         $participants = (clone $this->participantsQuery)
             ->with(['employee.institution', 'employee.position'])
             ->get();
+        $attendanceMap = $this->attendanceSummaryService
+            ->attendanceMap($this->event, $participants->pluck('employee_id'));
 
-        $rows = $participants->values()->map(function (EventParticipant $participant, int $index): array {
+        $rows = $participants->values()->map(function (EventParticipant $participant, int $index) use ($attendanceMap): array {
             $employee = $participant->employee;
-            $attendance = $employee ? $this->attendanceMap->get($employee->id) : null;
+            $attendance = $employee ? $attendanceMap->get($employee->id) : null;
 
             return [
                 $index + 1,

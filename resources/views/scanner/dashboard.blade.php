@@ -3,16 +3,6 @@
 @section('title', 'Dashboard Panitia Scanner | YAPISTA HRIS')
 
 @section('content')
-    @php
-        $activeEvents = class_exists(\App\Models\Event::class)
-            ? \App\Models\Event::query()
-                ->where('status', 'active')
-                ->withCount(['participants', 'attendances'])
-                ->orderBy('event_date')
-                ->get()
-            : collect();
-    @endphp
-
     <x-page-header
         title="Dashboard Panitia"
         subtitle="Pilih kegiatan aktif untuk memindai QR Code atau memantau daftar hadir."

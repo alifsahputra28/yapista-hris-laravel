@@ -255,6 +255,26 @@ class Employee extends Model
             ->whereNotIn('employment_status', ['nonaktif', 'resign']);
     }
 
+    public function scopeWithValidEmployeeNumber(Builder $query, bool $valid = true): Builder
+    {
+        $invalidCharacterExpression = $query->getConnection()->getDriverName() === 'sqlite'
+            ? "employee_number GLOB '*[^0-9]*'"
+            : "employee_number NOT REGEXP '^[0-9]{10}$'";
+
+        if ($valid) {
+            return $query
+                ->whereNotNull('employee_number')
+                ->whereRaw('LENGTH(employee_number) = ?', [self::EMPLOYEE_NUMBER_LENGTH])
+                ->whereRaw('NOT ('.$invalidCharacterExpression.')');
+        }
+
+        return $query->where(function (Builder $query) use ($invalidCharacterExpression): void {
+            $query->whereNull('employee_number')
+                ->orWhereRaw('LENGTH(employee_number) != ?', [self::EMPLOYEE_NUMBER_LENGTH])
+                ->orWhereRaw($invalidCharacterExpression);
+        });
+    }
+
     public function isDraft(): bool
     {
         return $this->verification_status === 'draft';

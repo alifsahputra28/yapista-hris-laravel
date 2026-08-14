@@ -67,6 +67,11 @@
                         </a>
                     @endforeach
                 </div>
+                @if ($attendanceHistory->hasPages())
+                    <div class="mt-3">
+                        {{ $attendanceHistory->appends(['tab' => 'history'])->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
             @endif
         </div>
     </div>

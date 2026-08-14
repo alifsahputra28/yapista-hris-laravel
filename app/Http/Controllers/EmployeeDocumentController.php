@@ -30,7 +30,6 @@ class EmployeeDocumentController extends Controller
             return $this->missingEmployeeRedirect();
         }
 
-        $employee->load('documents');
         $documents = $employee->documents()->latest('uploaded_at')->get();
         $documentTypes = EmployeeDocumentType::generalEmployeeTypes();
 

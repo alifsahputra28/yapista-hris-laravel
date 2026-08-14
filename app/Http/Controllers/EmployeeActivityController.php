@@ -34,7 +34,8 @@ class EmployeeActivityController extends Controller
             ->where('employee_id', $employee->id)
             ->with('event')
             ->latest('scanned_at')
-            ->get();
+            ->paginate(20, ['*'], 'history_page')
+            ->withQueryString();
 
         return view('pegawai.activities.index', compact('employee', 'upcomingParticipants', 'attendanceHistory'));
     }

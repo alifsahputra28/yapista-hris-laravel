@@ -24,8 +24,7 @@ class DashboardController extends Controller
         Request $request,
         EmployeeQrTokenService $tokenService,
         QrCodeRenderer $qrCodeRenderer,
-    ): View
-    {
+    ): View {
         $employee = $request->user()->employee?->load(['institution', 'position', 'activeQrToken']);
         $nextEvent = null;
         $recentAttendances = collect();
@@ -63,5 +62,16 @@ class DashboardController extends Controller
         }
 
         return view('pegawai.dashboard', compact('employee', 'nextEvent', 'recentAttendances', 'qrCodeSvg'));
+    }
+
+    public function panitia(): View
+    {
+        $activeEvents = Event::query()
+            ->where('status', 'active')
+            ->withCount(['participants', 'attendances'])
+            ->orderBy('event_date')
+            ->get();
+
+        return view('scanner.dashboard', compact('activeEvents'));
     }
 }

@@ -7,6 +7,7 @@ use App\Models\EventAttendance;
 use App\Models\EventParticipant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class EventAttendanceSummaryService
 {
@@ -37,9 +38,9 @@ class EventAttendanceSummaryService
     /**
      * @return array{totalParticipants: int, attendedCount: int, absentCount: int, attendancePercentage: float|int}
      */
-    public function summarize(Event $event): array
+    public function summarize(Event $event, ?Collection $activeParticipantEmployeeIds = null): array
     {
-        $activeParticipantEmployeeIds = $this->activeParticipantEmployeeIds($event);
+        $activeParticipantEmployeeIds ??= $this->activeParticipantEmployeeIds($event);
 
         return $this->fromCounts(
             $activeParticipantEmployeeIds->count(),
@@ -77,14 +78,27 @@ class EventAttendanceSummaryService
     /**
      * @return Collection<int, EventAttendance>
      */
-    public function attendanceMap(Event $event): Collection
+    public function attendanceMap(Event $event, ?Collection $employeeIds = null): Collection
     {
+        $employeeIds ??= $this->activeParticipantEmployeeIds($event);
+
         return EventAttendance::query()
             ->where('event_id', $event->id)
-            ->whereIn('employee_id', $this->activeParticipantEmployeeIds($event))
-            ->with(['scanner', 'employee'])
+            ->whereIn('employee_id', $employeeIds)
+            ->with('scanner')
             ->get()
             ->keyBy('employee_id');
+    }
+
+    public function averageAttendance(Builder $query): float
+    {
+        $summaryQuery = $this->withActiveCounts((clone $query)->select('events.id'))->toBase();
+        $average = DB::query()
+            ->fromSub($summaryQuery, 'event_summaries')
+            ->selectRaw('AVG(CASE WHEN active_participants_count > 0 THEN (active_attendances_count * 100.0 / active_participants_count) ELSE 0 END) AS average_attendance')
+            ->value('average_attendance');
+
+        return round((float) ($average ?? 0), 1);
     }
 
     /**

@@ -1,6 +1,6 @@
 @php
     $headerUser = Auth::user();
-    $headerEmployee = $headerUser?->employee;
+    $headerEmployee = $headerUser?->isPegawai() ? $headerUser->employee : null;
     $headerAvatar = $headerEmployee?->photo
         ? route('employees.photo', $headerEmployee)
         : asset('assets/images/user/avatar-2.jpg');

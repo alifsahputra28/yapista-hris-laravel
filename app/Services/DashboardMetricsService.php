@@ -21,7 +21,11 @@ class DashboardMetricsService
         'teknisi' => 'Teknisi',
     ];
 
-    public function __construct(private readonly EventAttendanceSummaryService $attendanceSummaryService) {}
+    public function __construct(
+        private readonly EventAttendanceSummaryService $attendanceSummaryService,
+        private readonly EmployeeMetricsService $employeeMetricsService,
+        private readonly EventMetricsService $eventMetricsService,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -29,14 +33,14 @@ class DashboardMetricsService
     public function adminDashboard(): array
     {
         $attendanceTrend = $this->attendanceTrend();
+        $employeeMetrics = $this->employeeMetricsService->counts();
+        $eventMetrics = $this->eventMetricsService->counts();
 
         return [
             'kpis' => [
-                'totalEmployees' => Employee::query()->count(),
-                'activeEmployees' => Employee::query()->where('employment_status', 'aktif')->count(),
-                'eventsThisMonth' => Event::query()
-                    ->whereBetween('event_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])
-                    ->count(),
+                'totalEmployees' => $employeeMetrics['total'],
+                'activeEmployees' => $employeeMetrics['active'],
+                'eventsThisMonth' => $eventMetrics['this_month'],
                 'averageAttendance' => $attendanceTrend['percentages'] === []
                     ? 0
                     : round(collect($attendanceTrend['percentages'])->avg(), 1),
@@ -45,15 +49,10 @@ class DashboardMetricsService
             'employeeComposition' => $this->employeeComposition(),
             'attendanceTrend' => $attendanceTrend,
             'insights' => [
-                'submittedEmployees' => Employee::query()->where('verification_status', 'submitted')->count(),
+                'submittedEmployees' => $employeeMetrics['submitted'],
                 'rejectedDocuments' => EmployeeDocument::query()->where('status', 'rejected')->count(),
-                'rejectedProfiles' => Employee::query()
-                    ->where('profile_review_status', Employee::PROFILE_REVIEW_REJECTED)
-                    ->count(),
-                'activeEventsToday' => Event::query()
-                    ->where('status', 'active')
-                    ->whereDate('event_date', now()->toDateString())
-                    ->count(),
+                'rejectedProfiles' => $employeeMetrics['rejected_profiles'],
+                'activeEventsToday' => $eventMetrics['active_today'],
             ],
         ];
     }

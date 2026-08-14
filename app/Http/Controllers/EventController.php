@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Event;
 use App\Models\Institution;
 use App\Models\Position;
+use App\Services\EventMetricsService;
 use App\Services\EventParticipantService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +18,10 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
-    public function __construct(private readonly EventParticipantService $participantService) {}
+    public function __construct(
+        private readonly EventParticipantService $participantService,
+        private readonly EventMetricsService $eventMetricsService,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -49,10 +53,11 @@ class EventController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $totalEvents = Event::query()->count();
-        $draftEvents = Event::query()->where('status', 'draft')->count();
-        $activeEvents = Event::query()->where('status', 'active')->count();
-        $closedEvents = Event::query()->where('status', 'closed')->count();
+        $metrics = $this->eventMetricsService->counts();
+        $totalEvents = $metrics['total'];
+        $draftEvents = $metrics['draft'];
+        $activeEvents = $metrics['active'];
+        $closedEvents = $metrics['closed'];
 
         return view('events.index', compact(
             'events',
@@ -298,10 +303,10 @@ class EventController extends Controller
     {
         return Employee::query()
             ->eligibleForEvents()
+            ->withValidEmployeeNumber()
             ->with(['institution', 'position'])
             ->orderBy('full_name')
             ->get()
-            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
             ->values();
     }
 }

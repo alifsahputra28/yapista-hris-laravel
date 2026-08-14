@@ -17,7 +17,7 @@ class EmployeesReportExport
     public function download(string $filename): StreamedResponse
     {
         $employees = (clone $this->query)
-            ->with(['institution', 'position', 'user'])
+            ->with(['institution', 'position'])
             ->get();
 
         $rows = $employees->values()->map(function (Employee $employee, int $index): array {

@@ -29,10 +29,10 @@ class EventParticipantService
     {
         $eligibleIds = Employee::query()
             ->eligibleForEvents()
+            ->withValidEmployeeNumber()
             ->whereIn('id', $employeeIds)
-            ->get(['id', 'employee_number'])
-            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
-            ->map(fn (Employee $employee): int => $employee->id)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
             ->unique()
             ->values();
 
@@ -63,7 +63,9 @@ class EventParticipantService
      */
     private function employeeIdsForTarget(string $targetType, array $targetData): Collection
     {
-        $query = Employee::query()->eligibleForEvents();
+        $query = Employee::query()
+            ->eligibleForEvents()
+            ->withValidEmployeeNumber();
 
         if ($targetType === 'institution') {
             $query->whereIn('institution_id', $this->cleanIds($targetData['institution_ids'] ?? []));
@@ -78,9 +80,8 @@ class EventParticipantService
         }
 
         return $query
-            ->get(['id', 'employee_number'])
-            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
-            ->map(fn (Employee $employee): int => $employee->id)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
             ->unique()
             ->values();
     }

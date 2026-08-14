@@ -51,7 +51,7 @@ class EventParticipantController extends Controller
         $event->loadCount('participants');
         $eligibleEmployees = $this->employeeOptions();
         $institutions = Institution::query()->orderBy('name')->get();
-        $positions = Position::query()->with('institution')->orderBy('name')->get();
+        $positions = Position::query()->orderBy('name')->get();
 
         return view('events.participants', compact(
             'event',
@@ -144,10 +144,10 @@ class EventParticipantController extends Controller
     {
         return Employee::query()
             ->eligibleForEvents()
+            ->withValidEmployeeNumber()
             ->with(['institution', 'position'])
             ->orderBy('full_name')
             ->get()
-            ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
             ->values();
     }
 }

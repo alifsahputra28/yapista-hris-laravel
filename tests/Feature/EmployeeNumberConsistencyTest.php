@@ -362,7 +362,7 @@ class EmployeeNumberConsistencyTest extends TestCase
         $invalid = $this->employee([
             'full_name' => 'Laporan Invalid',
             'email' => 'report-invalid@yapista.test',
-            'employee_number' => 'ABC',
+            'employee_number' => 'ABCDEFGHIJ',
         ]);
 
         $this->actingAs($this->admin)

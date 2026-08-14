@@ -10,7 +10,9 @@ use App\Models\Event;
 use App\Models\EventParticipant;
 use App\Models\Institution;
 use App\Models\Position;
+use App\Services\EmployeeMetricsService;
 use App\Services\EventAttendanceSummaryService;
+use App\Services\EventMetricsService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -19,7 +21,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
-    public function __construct(private readonly EventAttendanceSummaryService $attendanceSummaryService) {}
+    public function __construct(
+        private readonly EventAttendanceSummaryService $attendanceSummaryService,
+        private readonly EmployeeMetricsService $employeeMetricsService,
+        private readonly EventMetricsService $eventMetricsService,
+    ) {}
 
     private const EMPLOYEE_TYPES = [
         'guru' => 'Guru',
@@ -56,11 +62,12 @@ class ReportController extends Controller
 
         $institutions = Institution::query()->orderBy('name')->get();
         $positions = Position::query()->with('institution')->orderBy('name')->get();
+        $metrics = $this->employeeMetricsService->counts();
         $summary = [
-            'totalEmployees' => Employee::query()->count(),
-            'activeEmployees' => Employee::query()->where('employment_status', 'aktif')->count(),
-            'registeredEmployees' => Employee::query()->whereNotNull('user_id')->count(),
-            'verifiedEmployees' => Employee::query()->where('verification_status', 'verified')->count(),
+            'totalEmployees' => $metrics['total'],
+            'activeEmployees' => $metrics['active'],
+            'registeredEmployees' => $metrics['registered'],
+            'verifiedEmployees' => $metrics['verified'],
         ];
 
         return view('reports.employees', [
@@ -85,23 +92,16 @@ class ReportController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $summaryEvents = $this->attendanceSummaryService
-            ->withActiveCounts(Event::query())
-            ->get();
-        $averageAttendance = $summaryEvents->count() > 0
-            ? round($summaryEvents->avg(function (Event $event): float {
-                return (float) $this->attendanceSummaryService
-                    ->summarizeLoaded($event)['attendancePercentage'];
-            }), 1)
-            : 0;
+        $averageAttendance = $this->attendanceSummaryService->averageAttendance(Event::query());
+        $metrics = $this->eventMetricsService->counts();
 
         return view('reports.events', [
             'events' => $events,
             'targetTypes' => Event::TARGET_TYPES,
             'eventStatuses' => Event::STATUSES,
-            'totalEvents' => Event::query()->count(),
-            'activeEvents' => Event::query()->where('status', 'active')->count(),
-            'closedEvents' => Event::query()->where('status', 'closed')->count(),
+            'totalEvents' => $metrics['total'],
+            'activeEvents' => $metrics['active'],
+            'closedEvents' => $metrics['closed'],
             'averageAttendance' => $averageAttendance,
         ]);
     }
@@ -120,10 +120,11 @@ class ReportController extends Controller
         $participants = $this->eventParticipantsQuery($request, $event)
             ->paginate(20)
             ->withQueryString();
-        $attendanceMap = $this->attendanceSummaryService->attendanceMap($event);
+        $activeParticipantEmployeeIds = $this->attendanceSummaryService->activeParticipantEmployeeIds($event);
+        $attendanceMap = $this->attendanceSummaryService->attendanceMap($event, $participants->pluck('employee_id'));
         $institutions = Institution::query()->orderBy('name')->get();
         $positions = Position::query()->with('institution')->orderBy('name')->get();
-        $summary = $this->attendanceSummaryService->summarize($event);
+        $summary = $this->attendanceSummaryService->summarize($event, $activeParticipantEmployeeIds);
 
         $event->load('creator');
 
@@ -143,7 +144,7 @@ class ReportController extends Controller
         return (new EventAttendancesReportExport(
             $event,
             $this->eventParticipantsQuery($request, $event),
-            $this->attendanceSummaryService->attendanceMap($event)
+            $this->attendanceSummaryService,
         ))->download($filename);
     }
 
@@ -158,17 +159,9 @@ class ReportController extends Controller
         $verificationStatus = $request->string('verification_status')->toString();
         $registrationStatus = $request->string('registration_status')->toString();
         $employeeNumberStatus = $request->string('employee_number_status')->toString();
-        $validEmployeeNumberIds = null;
-
-        if (in_array($employeeNumberStatus, ['filled', 'empty'], true)) {
-            $validEmployeeNumberIds = Employee::query()
-                ->get(['id', 'employee_number'])
-                ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
-                ->pluck('id');
-        }
 
         return Employee::query()
-            ->with(['institution', 'position', 'user'])
+            ->with(['institution', 'position'])
             ->when($search !== '', function (Builder $query) use ($search): void {
                 $query->where(function (Builder $query) use ($search): void {
                     $query->where('full_name', 'like', "%{$search}%")
@@ -198,11 +191,11 @@ class ReportController extends Controller
             ->when($registrationStatus === 'unregistered', function (Builder $query): void {
                 $query->whereNull('user_id');
             })
-            ->when($employeeNumberStatus === 'filled', function (Builder $query) use ($validEmployeeNumberIds): void {
-                $query->whereIn('id', $validEmployeeNumberIds ?? []);
+            ->when($employeeNumberStatus === 'filled', function (Builder $query): void {
+                $query->withValidEmployeeNumber();
             })
-            ->when($employeeNumberStatus === 'empty', function (Builder $query) use ($validEmployeeNumberIds): void {
-                $query->whereNotIn('id', $validEmployeeNumberIds ?? []);
+            ->when($employeeNumberStatus === 'empty', function (Builder $query): void {
+                $query->withValidEmployeeNumber(false);
             })
             ->orderBy('full_name');
     }
@@ -292,5 +285,4 @@ class ReportController extends Controller
     {
         return Str::slug($value) ?: 'kegiatan';
     }
-
 }

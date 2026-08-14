@@ -151,7 +151,7 @@
                                     <span class="badge {{ $status['class'] }}">{{ $status['label'] }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light-info text-info">{{ $employee->documents->count() }} dokumen</span>
+                                    <span class="badge bg-light-info text-info">{{ $employee->documents_count }} dokumen</span>
                                 </td>
                                 <td>{{ $employee->updated_at?->locale('id')->translatedFormat('d M Y H:i') ?? '-' }}</td>
                                 <td class="text-end pe-4">

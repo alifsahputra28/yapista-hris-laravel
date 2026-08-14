@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Rules\UniqueEmployeeNik;
+use App\Services\EmployeeMetricsService;
 use App\Services\EmployeeNikProtectionService;
 use App\Services\EmployeePhotoStorageService;
 use App\Services\EmployeeQrTokenService;
@@ -22,6 +23,7 @@ class EmployeeController extends Controller
 {
     public function __construct(
         private readonly EmployeeNikProtectionService $nikProtectionService,
+        private readonly EmployeeMetricsService $employeeMetricsService,
         private readonly EmployeeQrTokenService $qrTokenService,
         private readonly EmployeePhotoStorageService $photoStorageService,
     ) {}
@@ -60,11 +62,12 @@ class EmployeeController extends Controller
             ->withQueryString();
 
         $institutions = Institution::query()->orderBy('name')->get();
-        $positions = Position::query()->with('institution')->orderBy('name')->get();
-        $totalEmployees = Employee::query()->count();
-        $activeEmployees = Employee::query()->where('employment_status', 'aktif')->count();
-        $submittedEmployees = Employee::query()->where('verification_status', 'submitted')->count();
-        $registeredEmployees = Employee::query()->whereNotNull('user_id')->count();
+        $positions = Position::query()->orderBy('name')->get();
+        $metrics = $this->employeeMetricsService->counts();
+        $totalEmployees = $metrics['total'];
+        $activeEmployees = $metrics['active'];
+        $submittedEmployees = $metrics['submitted'];
+        $registeredEmployees = $metrics['registered'];
         $importRequiredColumns = EmployeeImportColumns::requiredLabels();
         $importOptionalColumns = EmployeeImportColumns::optionalLabels();
 

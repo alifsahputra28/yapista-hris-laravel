@@ -40,9 +40,9 @@ Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'role:super_admin,hr_admin'])
     ->name('dashboard');
 
-Route::get('/scanner/dashboard', function () {
-    return view('scanner.dashboard');
-})->middleware(['auth', 'role:panitia'])->name('scanner.dashboard');
+Route::get('/scanner/dashboard', [DashboardController::class, 'panitia'])
+    ->middleware(['auth', 'role:panitia'])
+    ->name('scanner.dashboard');
 
 Route::get('/pegawai/dashboard', [DashboardController::class, 'employee'])
     ->middleware(['auth', 'role:pegawai'])
