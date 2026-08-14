@@ -40,6 +40,9 @@
             'rejected' => 'bg-light-danger text-danger',
         ];
         $photoUrl = $employee->photo ? route('employees.photo', $employee) : asset('assets/images/user/avatar-2.jpg');
+        $displayVerificationStatus = $employee->isProfileSubmitted() && ! $employee->isVerified()
+            ? 'submitted'
+            : $employee->verification_status;
     @endphp
 
     <x-page-header
@@ -50,8 +53,8 @@
             ['label' => 'Verifikasi Pegawai', 'url' => route('verifications.index')],
             ['label' => 'Review'],
         ]"
-        :badge-label="$verificationStatuses[$employee->verification_status] ?? $employee->verification_status"
-        :badge-class="$verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary'"
+        :badge-label="$verificationStatuses[$displayVerificationStatus] ?? $displayVerificationStatus"
+        :badge-class="$verificationClasses[$displayVerificationStatus] ?? 'bg-light-secondary text-secondary'"
     >
         <x-slot:meta>
             <div class="d-flex align-items-center gap-3">
@@ -80,7 +83,7 @@
         <div class="alert alert-success">Pegawai sudah diverifikasi.</div>
     @elseif ($employee->isRejected())
         <div class="alert alert-danger">Data pegawai ditolak dan menunggu perbaikan.</div>
-    @elseif ($employee->isDraft())
+    @elseif ($employee->isDraft() && ! $employee->isProfileSubmitted())
         <div class="alert alert-secondary">Pegawai belum mengajukan verifikasi.</div>
     @endif
 
@@ -119,8 +122,8 @@
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">NUP / Nomor Pegawai</small>{{ $employee->formatted_employee_number }}</div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Status Verifikasi</small>
-                            <span class="badge {{ $verificationClasses[$employee->verification_status] ?? 'bg-light-secondary text-secondary' }}">
-                                {{ $verificationStatuses[$employee->verification_status] ?? $employee->verification_status }}
+                            <span class="badge {{ $verificationClasses[$displayVerificationStatus] ?? 'bg-light-secondary text-secondary' }}">
+                                {{ $verificationStatuses[$displayVerificationStatus] ?? $displayVerificationStatus }}
                             </span>
                         </div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Diverifikasi Oleh</small>{{ $employee->verifier?->name ?? '-' }}</div>
@@ -215,10 +218,15 @@
             <h2>Aksi Verifikasi</h2>
         </div>
         <div class="content-section-body">
-            @if ($employee->isSubmitted())
+            @if ($employee->isSubmitted() || $employee->isProfileSubmitted())
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <form method="POST" action="{{ route('verifications.approve', $employee) }}" data-confirm-title="Setujui Data Pegawai?" data-confirm-message="Data pegawai akan ditandai terverifikasi. Lanjutkan?">
                         @csrf
+                        <div class="mb-3">
+                            <label for="employee_number" class="form-label">NUP / Nomor Pegawai</label>
+                            <input id="employee_number" name="employee_number" type="text" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" value="{{ old('employee_number', $employee->employee_number) }}" class="form-control" required>
+                            <div class="form-text">Masukkan tepat 10 digit sebelum menyetujui pegawai.</div>
+                        </div>
                         <button type="submit" class="btn btn-success">
                             <i class="ti ti-check"></i>
                             Setujui

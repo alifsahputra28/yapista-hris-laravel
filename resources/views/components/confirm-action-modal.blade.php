@@ -24,7 +24,6 @@
             const titleElement = modalElement?.querySelector('.modal-title');
             const confirmButton = modalElement?.querySelector('[data-confirm-action-submit]');
             let pendingForm = null;
-            let pendingSubmitter = null;
 
             document.addEventListener('submit', (event) => {
                 const form = event.target;
@@ -35,7 +34,6 @@
 
                 event.preventDefault();
                 pendingForm = form;
-                pendingSubmitter = event.submitter;
                 messageElement.textContent = form.dataset.confirmMessage;
                 titleElement.textContent = form.dataset.confirmTitle || 'Konfirmasi Tindakan';
                 bootstrap.Modal.getOrCreateInstance(modalElement).show();
@@ -46,14 +44,14 @@
                     return;
                 }
 
-                pendingForm.dataset.confirmed = 'true';
+                const form = pendingForm;
+                form.dataset.confirmed = 'true';
+                form.submit();
                 bootstrap.Modal.getOrCreateInstance(modalElement).hide();
-                pendingForm.requestSubmit(pendingSubmitter || undefined);
             });
 
             modalElement?.addEventListener('hidden.bs.modal', () => {
                 pendingForm = null;
-                pendingSubmitter = null;
             });
         })();
     </script>

@@ -51,7 +51,14 @@ class EmployeeVerificationController extends Controller
             ->when($request->filled('employee_type'), function ($query) use ($request): void {
                 $query->where('employee_type', $request->string('employee_type')->toString());
             })
-            ->where('verification_status', $verificationStatus)
+            ->when(
+                $verificationStatus === 'submitted',
+                fn ($query) => $query->where(function ($query): void {
+                    $query->where('verification_status', 'submitted')
+                        ->orWhere('profile_review_status', Employee::PROFILE_REVIEW_SUBMITTED);
+                }),
+                fn ($query) => $query->where('verification_status', $verificationStatus)
+            )
             ->latest('updated_at')
             ->paginate(15)
             ->withQueryString();
@@ -85,9 +92,9 @@ class EmployeeVerificationController extends Controller
         return view('verifications.show', compact('employee'));
     }
 
-    public function approve(Employee $employee): RedirectResponse
+    public function approve(Request $request, Employee $employee): RedirectResponse
     {
-        if (! $employee->isSubmitted()) {
+        if (! $employee->isSubmitted() && ! $employee->isProfileSubmitted()) {
             return redirect()
                 ->route('verifications.show', $employee)
                 ->with('error', 'Hanya data dengan status submitted yang bisa diverifikasi.');
@@ -115,30 +122,44 @@ class EmployeeVerificationController extends Controller
                 ->with('error', 'Dokumen KTP harus berstatus valid sebelum pegawai diverifikasi.');
         }
 
-        $errorMessage = DB::transaction(function () use ($employee): ?string {
+        $requestedEmployeeNumber = trim($request->string('employee_number')->toString());
+
+        $errorMessage = DB::transaction(function () use ($employee, $requestedEmployeeNumber): ?string {
             $employee = Employee::query()
                 ->whereKey($employee->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if (blank($employee->employee_number)) {
+            $employeeNumber = $requestedEmployeeNumber !== ''
+                ? $requestedEmployeeNumber
+                : $employee->employee_number;
+
+            if (blank($employeeNumber)) {
                 return 'NUP / Nomor Pegawai belum diisi.';
             }
 
-            if (! $employee->hasValidEmployeeNumber()) {
+            if (strlen($employeeNumber) !== Employee::EMPLOYEE_NUMBER_LENGTH || ! ctype_digit($employeeNumber)) {
                 return 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.';
             }
 
-            if (Employee::where('employee_number', $employee->employee_number)
+            if (Employee::where('employee_number', $employeeNumber)
                 ->whereKeyNot($employee->id)
                 ->exists()) {
                 return 'NUP / Nomor Pegawai sudah digunakan.';
             }
 
+            $employee->employee_number = $employeeNumber;
             $employee->verification_status = 'verified';
             $employee->verification_note = null;
             $employee->verified_by = Auth::id();
             $employee->verified_at = now();
+            if ($employee->isProfileSubmitted()) {
+                $employee->profile_review_status = Employee::PROFILE_REVIEW_APPROVED;
+                $employee->profile_reviewed_by = Auth::id();
+                $employee->profile_reviewed_at = now();
+                $employee->profile_review_note = null;
+                $employee->profile_rejected_sections = null;
+            }
             $employee->save();
             $this->qrTokenService->generate($employee, Auth::user());
 
@@ -158,7 +179,7 @@ class EmployeeVerificationController extends Controller
 
     public function reject(Request $request, Employee $employee): RedirectResponse
     {
-        if (! $employee->isSubmitted()) {
+        if (! $employee->isSubmitted() && ! $employee->isProfileSubmitted()) {
             return redirect()
                 ->route('verifications.show', $employee)
                 ->with('error', 'Hanya data dengan status submitted yang bisa ditolak.');
@@ -168,12 +189,23 @@ class EmployeeVerificationController extends Controller
             'verification_note' => ['required', 'string', 'max:1000'],
         ]);
 
-        $employee->update([
+        $updates = [
             'verification_status' => 'rejected',
             'verification_note' => $validated['verification_note'],
             'verified_by' => Auth::id(),
             'verified_at' => null,
-        ]);
+        ];
+
+        if ($employee->isProfileSubmitted()) {
+            $updates = array_merge($updates, [
+                'profile_review_status' => Employee::PROFILE_REVIEW_REJECTED,
+                'profile_review_note' => $validated['verification_note'],
+                'profile_reviewed_by' => Auth::id(),
+                'profile_reviewed_at' => now(),
+            ]);
+        }
+
+        $employee->update($updates);
 
         return redirect()
             ->route('verifications.index')

@@ -44,9 +44,9 @@ class EmployeeDocumentController extends Controller
             return $this->missingEmployeeRedirect();
         }
 
-        if (! $employee->canEditProfileCompletion()) {
+        if (! $employee->canManageDocuments()) {
             return $this->redirectAfterAction($request)
-                ->with('error', 'Dokumen tidak bisa diubah saat data sudah diajukan/diverifikasi.');
+                ->with('error', 'Dokumen tidak bisa diubah saat data sedang diajukan.');
         }
 
         $validated = $request->validated();
@@ -114,9 +114,9 @@ class EmployeeDocumentController extends Controller
 
         abort_unless(EmployeeDocumentType::employeeMayUpload($document->document_type), 403);
 
-        if (! $employee->canEditProfileCompletion()) {
+        if (! $employee->canManageDocuments()) {
             return $this->redirectAfterAction($request)
-                ->with('error', 'Dokumen tidak bisa dihapus saat data sudah diajukan/diverifikasi.');
+                ->with('error', 'Dokumen tidak bisa dihapus saat data sedang diajukan.');
         }
 
         if ($document->isValid()) {

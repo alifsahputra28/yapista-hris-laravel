@@ -330,6 +330,12 @@ class Employee extends Model
             && in_array($this->profile_review_status, [self::PROFILE_REVIEW_DRAFT, self::PROFILE_REVIEW_REJECTED], true);
     }
 
+    public function canManageDocuments(): bool
+    {
+        return in_array($this->verification_status, ['draft', 'rejected', 'verified'], true)
+            && $this->profile_review_status !== self::PROFILE_REVIEW_SUBMITTED;
+    }
+
     public function isProfileSubmitted(): bool
     {
         return $this->hasProfileReviewStatus(self::PROFILE_REVIEW_SUBMITTED);

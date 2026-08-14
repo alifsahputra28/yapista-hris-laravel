@@ -136,6 +136,39 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->assertDatabaseCount('employee_documents', 0);
     }
 
+    public function test_verified_employee_can_upload_an_owned_document_without_reopening_profile_edits(): void
+    {
+        Storage::fake('private');
+
+        [$user, $employee] = $this->employeeUser([
+            'employee_number' => '7770923998',
+            'verification_status' => 'verified',
+            'profile_review_status' => Employee::PROFILE_REVIEW_APPROVED,
+            'verified_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('pegawai.documents.index'))
+            ->assertOk()
+            ->assertSee('Unggah Dokumen');
+
+        $this->actingAs($user)
+            ->post(route('pegawai.documents.store'), [
+                'document_type' => 'ktp',
+                'file' => UploadedFile::fake()->create('uat-ktp.pdf', 100, 'application/pdf'),
+            ])
+            ->assertRedirect(route('pegawai.documents.index', absolute: false));
+
+        $document = EmployeeDocument::query()
+            ->where('employee_id', $employee->id)
+            ->where('document_type', 'ktp')
+            ->firstOrFail();
+
+        $this->assertSame('pending', $document->status);
+        Storage::disk('private')->assertExists($document->file_path);
+        $this->assertFalse($employee->fresh()->canEditProfileCompletion());
+    }
+
     public function test_employee_can_not_delete_another_employee_document(): void
     {
         Storage::fake('public');

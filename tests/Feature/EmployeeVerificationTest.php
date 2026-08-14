@@ -64,6 +64,49 @@ class EmployeeVerificationTest extends TestCase
         $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
     }
 
+    public function test_hr_can_approve_profile_submission_and_assign_employee_number(): void
+    {
+        $admin = User::factory()->create(['role' => 'hr_admin', 'status' => 'active']);
+        $employee = $this->employee([
+            'employee_number' => null,
+            'verification_status' => 'draft',
+        ]);
+        $employee->forceFill([
+            'profile_review_status' => Employee::PROFILE_REVIEW_SUBMITTED,
+            'profile_submitted_at' => now(),
+        ])->save();
+        EmployeeDocument::create([
+            'employee_id' => $employee->id,
+            'document_type' => 'ktp',
+            'file_path' => 'employees/documents/profile-submitted-ktp.pdf',
+            'status' => 'valid',
+            'uploaded_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('verifications.index', absolute: false))
+            ->assertOk()
+            ->assertSee($employee->full_name)
+            ->assertSee('Menunggu Verifikasi');
+
+        $this->actingAs($admin)
+            ->post(route('verifications.approve', $employee, absolute: false), [
+                'employee_number' => '7770923897',
+            ])
+            ->assertSessionHas('success');
+
+        $employee->refresh();
+
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertSame(Employee::PROFILE_REVIEW_APPROVED, $employee->profile_review_status);
+        $this->assertSame('7770923897', $employee->employee_number);
+        $this->assertSame($admin->id, $employee->verified_by);
+        $this->assertSame($admin->id, $employee->profile_reviewed_by);
+        $this->assertNotNull($employee->verified_at);
+        $this->assertNotNull($employee->profile_reviewed_at);
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
+    }
+
     public function test_admin_can_not_approve_old_employee_number_format_when_submitted(): void
     {
         $admin = User::factory()->create([

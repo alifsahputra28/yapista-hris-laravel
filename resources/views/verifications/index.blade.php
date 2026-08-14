@@ -131,7 +131,11 @@
                     <tbody>
                         @forelse ($employees as $employee)
                             @php
-                                $status = $verificationStatuses[$employee->verification_status] ?? ['label' => $employee->verification_status, 'class' => 'bg-light-secondary text-secondary'];
+                                $displayStatus = $employee->verification_status === 'draft'
+                                    && $employee->profile_review_status === 'submitted'
+                                        ? 'submitted'
+                                        : $employee->verification_status;
+                                $status = $verificationStatuses[$displayStatus] ?? ['label' => $displayStatus, 'class' => 'bg-light-secondary text-secondary'];
                             @endphp
                             <tr>
                                 <td class="ps-4">{{ $employees->firstItem() + $loop->index }}</td>
