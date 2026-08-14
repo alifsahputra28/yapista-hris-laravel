@@ -122,7 +122,23 @@ class InstitutionController extends Controller
         }
 
         return $request->validate([
-            'name' => ['required', 'string', 'max:255', $nameRule],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                function (string $attribute, mixed $value, \Closure $fail) use ($institution): void {
+                    $normalized = mb_strtolower(trim((string) $value));
+                    $duplicate = Institution::query()
+                        ->whereRaw('LOWER(TRIM(name)) = ?', [$normalized])
+                        ->when($institution, fn ($query) => $query->whereKeyNot($institution->id))
+                        ->exists();
+
+                    if ($duplicate) {
+                        $fail('Nama unit kerja sudah digunakan.');
+                    }
+                },
+                $nameRule,
+            ],
             'level' => ['nullable', 'string', 'max:100'],
             'address' => ['nullable', 'string'],
             'status' => ['required', 'in:active,inactive'],

@@ -150,6 +150,70 @@ class FunctionalBugRegressionTest extends TestCase
         $this->assertSame('Asia/Jakarta', now()->getTimezone()->getName());
     }
 
+    public function test_inactive_and_reactivated_employee_keeps_exactly_one_active_qr(): void
+    {
+        [$institution, $position] = $this->masterData('Unit Lifecycle');
+        $employee = Employee::create($this->employeePayload($institution, $position, [
+            'employee_number' => '7770981090',
+            'email' => 'lifecycle@yapista.test',
+            'verification_status' => 'verified',
+            'verified_by' => $this->admin->id,
+            'verified_at' => now(),
+        ]));
+        app(\App\Services\EmployeeQrTokenService::class)->generate($employee, $this->admin);
+
+        $this->actingAs($this->admin)
+            ->put(route('employees.update', $employee, absolute: false), $this->employeePayload($institution, $position, [
+                'employee_number' => $employee->employee_number,
+                'email' => $employee->email,
+                'employment_status' => 'nonaktif',
+            ]))
+            ->assertRedirect(route('employees.index', absolute: false));
+
+        $this->assertSame(0, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
+
+        $this->actingAs($this->admin)
+            ->put(route('employees.update', $employee, absolute: false), $this->employeePayload($institution, $position, [
+                'employee_number' => $employee->employee_number,
+                'email' => $employee->email,
+                'employment_status' => 'aktif',
+            ]))
+            ->assertRedirect(route('employees.index', absolute: false));
+
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
+        $this->assertSame(2, $employee->qrTokens()->count());
+    }
+
+    public function test_master_names_are_trimmed_and_cannot_bypass_uniqueness_by_case(): void
+    {
+        [$institution, $position] = $this->masterData('Unit Normalisasi');
+
+        $this->actingAs($this->admin)
+            ->post(route('institutions.store', absolute: false), [
+                'name' => '  '.$institution->name.'  ',
+                'status' => 'active',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->actingAs($this->admin)
+            ->post(route('institutions.store', absolute: false), [
+                'name' => mb_strtolower($institution->name),
+                'status' => 'active',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->actingAs($this->admin)
+            ->post(route('positions.store', absolute: false), [
+                'institution_id' => $institution->id,
+                'name' => mb_strtolower($position->name),
+                'status' => 'active',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->assertDatabaseCount('institutions', 1);
+        $this->assertDatabaseCount('positions', 1);
+    }
+
     /** @return array{Institution, Position} */
     private function masterData(string $institutionName): array
     {

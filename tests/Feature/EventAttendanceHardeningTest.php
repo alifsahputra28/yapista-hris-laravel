@@ -145,7 +145,12 @@ class EventAttendanceHardeningTest extends TestCase
             ['', 'QR Code wajib dipindai.'],
             ['777093001', 'QR Code tidak valid atau sudah tidak aktif.'],
             ['7770930002', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['3201010101010001', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['YAPISTA', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['YAPISTA:EMPLOYEE:', 'QR Code tidak valid atau sudah tidak aktif.'],
             ['YAPISTA:EMPLOYEE:unknown', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['YAPISTA:EMPLOYEE:'.str_repeat('A', 4_096), 'QR Code tidak valid atau sudah tidak aktif.'],
+            ["YAPISTA:EMPLOYEE:abc\ndef", 'QR Code tidak valid atau sudah tidak aktif.'],
         ];
 
         foreach ($cases as [$input, $message]) {

@@ -223,6 +223,89 @@ class EmployeeImportTest extends TestCase
         $this->assertSame(0, EmployeeInvitation::count());
     }
 
+    public function test_header_only_duplicate_header_and_privilege_columns_are_rejected_safely(): void
+    {
+        $this->actingAs($this->admin)
+            ->from(route('employees.index', absolute: false))
+            ->post(route('employees.import.store', absolute: false), [
+                'file' => $this->spreadsheetUpload('xlsx', []),
+            ])
+            ->assertRedirect(route('employees.index', absolute: false))
+            ->assertSessionHasErrors(['file' => 'File tidak berisi data pegawai untuk diimport.']);
+
+        $duplicateHeaders = EmployeeImportColumns::headers();
+        $duplicateHeaders[1] = $duplicateHeaders[0];
+
+        $this->actingAs($this->admin)
+            ->post(route('employees.import.store', absolute: false), [
+                'file' => $this->spreadsheetUpload('xlsx', [$this->validRow()], $duplicateHeaders),
+            ])
+            ->assertSessionHasErrors('file');
+
+        foreach (['Role', 'Verification Status', 'QR Token', 'Password', 'NIK Lookup'] as $privilegeHeader) {
+            $headers = [...EmployeeImportColumns::headers(), $privilegeHeader];
+            $row = [...$this->validRow(), 'super_admin'];
+
+            $this->actingAs($this->admin)
+                ->post(route('employees.import.store', absolute: false), [
+                    'file' => $this->spreadsheetUpload('xlsx', [$row], $headers),
+                ])
+                ->assertSessionHasErrors(['file' => 'Struktur kolom Excel tidak sesuai template. Download dan gunakan template terbaru.']);
+        }
+
+        $this->assertDatabaseCount('employees', 0);
+        $this->assertDatabaseCount('users', 1);
+    }
+
+    public function test_blank_rows_are_ignored_and_duplicate_rows_do_not_create_orphan_accounts(): void
+    {
+        $first = $this->validRow();
+        $duplicate = $this->validRow();
+        $duplicate[1] = 'Duplikat Dalam File';
+        $duplicate[2] = 'duplikat-file@yapista.test';
+        $duplicate[3] = 'duplikat-pribadi@yapista.test';
+
+        $this->actingAs($this->admin)
+            ->post(route('employees.import.store', absolute: false), [
+                'file' => $this->spreadsheetUpload('xlsx', [array_fill(0, 9, ''), $first, $duplicate]),
+            ])
+            ->assertSessionHas('import_summary', fn (array $summary): bool => $summary['processed'] === 2
+                && $summary['created'] === 1
+                && $summary['skipped'] === 1);
+
+        $this->assertSame(1, Employee::where('employee_number', '7770923991')->count());
+        $this->assertDatabaseMissing('employees', ['full_name' => 'Duplikat Dalam File']);
+        $this->assertDatabaseMissing('employee_invitations', ['email' => 'duplikat-file@yapista.test']);
+    }
+
+    public function test_import_handles_one_hundred_valid_rows_without_duplicate_state(): void
+    {
+        $rows = [];
+
+        for ($index = 1; $index <= 100; $index++) {
+            $row = $this->validRow();
+            $row[0] = (string) (7_770_970_000 + $index);
+            $row[1] = "Pegawai Smoke {$index}";
+            $row[2] = "pegawai.smoke.{$index}@yapista.test";
+            $row[3] = "pribadi.smoke.{$index}@yapista.test";
+            $rows[] = $row;
+        }
+
+        $this->actingAs($this->admin)
+            ->post(route('employees.import.store', absolute: false), [
+                'file' => $this->spreadsheetUpload('xlsx', $rows),
+            ])
+            ->assertSessionHas('import_summary', fn (array $summary): bool => $summary['processed'] === 100
+                && $summary['created'] === 100
+                && $summary['failed'] === 0
+                && $summary['skipped'] === 0
+                && $summary['qr_tokens_created'] === 100);
+
+        $this->assertDatabaseCount('employees', 100);
+        $this->assertDatabaseCount('employee_invitations', 100);
+        $this->assertSame(100, Employee::query()->whereHas('activeQrToken')->count());
+    }
+
     /** @return list<string> */
     private function validRow(): array
     {

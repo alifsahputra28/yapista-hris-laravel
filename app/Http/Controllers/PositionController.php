@@ -130,7 +130,24 @@ class PositionController extends Controller
 
         return $request->validate([
             'institution_id' => ['required', 'exists:institutions,id'],
-            'name' => ['required', 'string', 'max:255', $nameRule],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request, $position): void {
+                    $normalized = mb_strtolower(trim((string) $value));
+                    $duplicate = Position::query()
+                        ->where('institution_id', $request->integer('institution_id'))
+                        ->whereRaw('LOWER(TRIM(name)) = ?', [$normalized])
+                        ->when($position, fn ($query) => $query->whereKeyNot($position->id))
+                        ->exists();
+
+                    if ($duplicate) {
+                        $fail('Nama jabatan sudah digunakan pada unit kerja tersebut.');
+                    }
+                },
+                $nameRule,
+            ],
             'type' => ['nullable', Rule::in(['struktural', 'fungsional', 'administratif', 'teknis'])],
             'status' => ['required', 'in:active,inactive'],
         ]);

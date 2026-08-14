@@ -221,6 +221,35 @@ class EmployeeVerificationTest extends TestCase
         $this->assertTrue($employee->canEditProfile());
     }
 
+    public function test_double_approve_is_safe_and_does_not_create_duplicate_qr(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin', 'status' => 'active']);
+        $employee = $this->employee([
+            'employee_number' => '7770923898',
+            'verification_status' => 'submitted',
+        ]);
+        EmployeeDocument::create([
+            'employee_id' => $employee->id,
+            'document_type' => 'ktp',
+            'file_path' => 'employees/documents/double-approve.pdf',
+            'status' => 'valid',
+            'uploaded_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('verifications.approve', $employee, absolute: false))
+            ->assertSessionHas('success');
+
+        $this->actingAs($admin)
+            ->post(route('verifications.approve', $employee, absolute: false))
+            ->assertRedirect(route('verifications.show', $employee, absolute: false))
+            ->assertSessionHas('error', 'Hanya data dengan status submitted yang bisa diverifikasi.');
+
+        $this->assertSame('verified', $employee->refresh()->verification_status);
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
+        $this->assertSame(1, $employee->qrTokens()->count());
+    }
+
     public function test_document_rejection_requires_note_and_returns_employee_for_revision(): void
     {
         $admin = User::factory()->create([

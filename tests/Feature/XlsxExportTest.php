@@ -141,6 +141,29 @@ class XlsxExportTest extends TestCase
         $this->assertSame('', $absentRow[8]);
     }
 
+    public function test_empty_exports_remain_valid_and_do_not_expose_sensitive_columns(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('reports.employees.export', [
+            'search' => 'Tidak Akan Ditemukan',
+            'institution_id' => 999_999,
+        ], absolute: false));
+
+        $response->assertOk()->assertDownload();
+        $rows = $this->worksheetRows($response->streamedContent());
+
+        $this->assertCount(1, $rows);
+        $this->assertContains('NUP / Nomor Pegawai', $rows[0]);
+        foreach (['NIK', 'Nomor KK', 'Rekening', 'BPJS', 'QR Token', 'Password', 'nik_lookup'] as $sensitiveHeader) {
+            $this->assertNotContains($sensitiveHeader, $rows[0]);
+        }
+
+        $eventResponse = $this->actingAs($this->admin)->get(route('reports.events.export', [
+            'search' => 'Tidak Akan Ditemukan',
+        ], absolute: false));
+        $eventResponse->assertOk()->assertDownload();
+        $this->assertCount(1, $this->worksheetRows($eventResponse->streamedContent()));
+    }
+
     private function employee(string $name, string $employeeNumber): Employee
     {
         return Employee::create([
