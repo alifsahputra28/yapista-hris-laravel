@@ -2,7 +2,7 @@
 
 Release candidate source: `ae40647d9dbcc6a43f5e3460813b786bef5032ac`
 
-Status: **MODE A COMPLETE; PRODUCTION EXECUTION NOT AUTHORIZED**
+Status: **PRE-GO-LIVE VERIFIED; INFRASTRUCTURE ACTION REQUIRED; PRODUCTION EXECUTION NOT AUTHORIZED**
 
 Never record credentials, private paths, employee PII, or raw QR tokens in this checklist.
 
@@ -12,6 +12,7 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 
 - [x] Stage 9 operator acceptance recorded.
 - [x] Release Candidate SHA confirmed.
+- [x] Local annotated tag `v1.0.0` targets the exact RC SHA; tag is not pushed.
 - [x] Application source working tree clean at validation.
 - [x] Full automated suite PASS twice: 299 tests / 2.489 assertions each.
 - [x] Frontend build PASS with Vite 8.0.16.

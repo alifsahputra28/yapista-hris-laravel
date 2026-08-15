@@ -2,7 +2,7 @@
 
 Audit date: 16 Agustus 2026 (Asia/Jakarta)
 
-Mode: **A - RELEASE PREPARATION ONLY**. Production host, database, DNS, TLS, SMTP, or real employee data were not changed.
+Mode: **B - PRE-GO-LIVE INFRASTRUCTURE VERIFICATION ONLY**. Production host, database, DNS, TLS, SMTP, or real employee data were not changed. Production-changing execution is not authorized.
 
 ## 1. Stage 9 Gate
 
@@ -115,9 +115,36 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Scheduler | NOT APPLICABLE | No active scheduled business task found |
 | Physical QR scanner | PENDING PRE-GO-LIVE | Required before day-one scanner attendance; application HID flow PASS |
 
+### Pre-Go-Live Matrix
+
+| Area | Status | Evidence / missing input |
+|---|---|---|
+| Release SHA | READY | Exact RC exists and application tree is unchanged after RC |
+| Tag | READY | Local annotated `v1.0.0` points to exact RC; not pushed |
+| Server | ACTION REQUIRED | Production host/service account not provided |
+| App Path | ACTION REQUIRED | Production application path/document root not provided |
+| PHP | ACTION REQUIRED | Candidate PHP 8.3.16/platform PASS; production runtime not reachable |
+| MySQL | ACTION REQUIRED | Candidate MySQL 8.4.3 PASS; production server not provided |
+| Production DB | ACTION REQUIRED | Database name/account/charset/collation not provided |
+| `APP_KEY` | ACTION REQUIRED | Local key configured/ignored; production secret and escrow unverified |
+| NIK Lookup Key | ACTION REQUIRED | Local key configured/ignored; separate production secret and escrow unverified |
+| HTTPS/TLS | BLOCKER | Domain, certificate, HTTPS redirect, and secure-cookie evidence unavailable |
+| Backup Destination | BLOCKER | Encrypted off-host production destination not provided |
+| Private Storage | ACTION REQUIRED | Source design PASS; production path/permission/direct-URL denial unverified |
+| SMTP | ACTION REQUIRED | Day-one requirement not declared; external delivery untested |
+| Monitoring | ACTION REQUIRED | Availability/log/disk/DB monitor destination not provided |
+| Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
+| Tests | READY | Pre-Go-Live run: 299 tests, 2.489 assertions, 0 failed/skipped |
+| Build | READY | Vite 8.0.16, 57 modules, PASS |
+| Security Audit | READY | Composer 0; npm full/production 0 |
+| Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
+| Rollback | READY PLAN | Runbook/drill PASS; production backup must precede mutation |
+
+Because mandatory production infrastructure cannot be verified, the hard Pre-Go-Live gate is not satisfied.
+
 ## 9. Release Tag
 
-No Git tag was created. Recommended annotated tag `v1.0.0` may be created only after operator accepts the final RC and Go-Live target is confirmed. No tag will be pushed without explicit request.
+A local annotated tag `v1.0.0` was created and verified to resolve to `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. The tag was not pushed and must not be overwritten silently.
 
 ## 10. Deployment Plan
 
@@ -169,9 +196,9 @@ After Go-Live: rotate/disable UAT credentials, retain quarantine privately pendi
 
 Release Candidate technical gate: **PASS**.
 
-Deployment mode: **MODE A - RELEASE PREPARATION ONLY**.
+Deployment mode: **MODE B - PRE-GO-LIVE INFRASTRUCTURE VERIFICATION ONLY**.
 
-Production deployment authorization: **NOT PROVIDED**. Infrastructure target details are also pending. No production-changing action is permitted.
+Production deployment authorization: **NOT PROVIDED**. Mandatory infrastructure target details are pending, including production server/path/database, TLS, secrets, off-host backup, and monitoring. No production-changing action is permitted.
 
 ## 19. Post-Go-Live Observation
 
@@ -179,6 +206,6 @@ NOT STARTED. Planned checks: login success, HTTP/Laravel errors, DB connectivity
 
 ## 20. Final Status
 
-`v1.0.0` application source is technically validated and reproducible at `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. Release documentation and runbook are ready. Production remains untouched and cannot proceed until explicit approval plus mandatory infrastructure readiness.
+`v1.0.0` application source is technically validated and reproducible at `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. The local annotated tag resolves to that source. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
 
-**READY FOR GO-LIVE EXECUTION - OPERATOR APPROVAL REQUIRED**
+**GO-LIVE BLOCKED - INFRASTRUCTURE ACTION REQUIRED**
