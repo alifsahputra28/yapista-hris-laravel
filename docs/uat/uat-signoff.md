@@ -40,7 +40,6 @@ Kelima account telah diprovision pada environment local/internal pilot. Tidak ad
 
 - Four Stage 8 technical blockers are closed by Stage 9.5: dependency audits 0, isolated restore PASS, and public employee exposure 0.
 - SMTP/TLS/production-like session checks remain infrastructure actions.
-- PDF E-Card remains post-v1 unless product scope changes explicitly.
 - PDF E-Card remains post-v1 and is explicitly accepted as non-blocking.
 
 ## Technical Gate

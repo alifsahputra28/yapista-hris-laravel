@@ -1,6 +1,6 @@
 # YAPISTA HRIS Production Environment
 
-Dokumen ini mendefinisikan prasyarat minimum untuk men-deploy candidate UAT `4ba68a0` beserta lockfile hasil remediasi Tahap 9.5. Commit/tag release final tetap harus ditetapkan setelah human UAT dan sign-off. Nilai rahasia tidak boleh disimpan di repository, ticket, log, atau command history.
+Dokumen ini mendefinisikan prasyarat minimum untuk men-deploy release candidate source `ae40647d9dbcc6a43f5e3460813b786bef5032ac` beserta lockfile yang telah lulus remediasi dan gate final. Git tag belum dibuat dan production deployment tetap memerlukan approval operator terpisah. Nilai rahasia tidak boleh disimpan di repository, ticket, log, atau command history.
 
 ## Runtime
 
