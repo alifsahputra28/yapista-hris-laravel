@@ -123,24 +123,38 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Tag | READY | Local annotated `v1.0.0` points to exact RC; not pushed |
 | Server | ACTION REQUIRED | Production host/service account not provided |
 | App Path | ACTION REQUIRED | Production application path/document root not provided |
+| Document Root | ACTION REQUIRED | Must resolve to `<application>/public`; web denial unverified |
 | PHP | ACTION REQUIRED | Candidate PHP 8.3.16/platform PASS; production runtime not reachable |
+| PHP Extensions | ACTION REQUIRED | Candidate requirements PASS; production `php -m` unavailable |
+| Composer | ACTION REQUIRED | Production Composer 2.10.2+ or clean build artifact unavailable |
 | MySQL | ACTION REQUIRED | Candidate MySQL 8.4.3 PASS; production server not provided |
 | Production DB | ACTION REQUIRED | Database name/account/charset/collation not provided |
+| DB User | ACTION REQUIRED | Least-privilege non-root application account unverified |
 | `APP_KEY` | ACTION REQUIRED | Local key configured/ignored; production secret and escrow unverified |
 | NIK Lookup Key | ACTION REQUIRED | Local key configured/ignored; separate production secret and escrow unverified |
+| Secret Escrow | ACTION REQUIRED | Operator-controlled recovery storage not identified |
+| Domain | ACTION REQUIRED | Final production hostname not provided |
+| DNS | ACTION REQUIRED | Provider/record/status not provided |
 | HTTPS/TLS | BLOCKER | Domain, certificate, HTTPS redirect, and secure-cookie evidence unavailable |
 | Backup Destination | BLOCKER | Encrypted off-host production destination not provided |
 | Private Storage | ACTION REQUIRED | Source design PASS; production path/permission/direct-URL denial unverified |
+| Permissions | ACTION REQUIRED | Production service account and least-privilege write check unavailable |
 | SMTP | ACTION REQUIRED | Day-one requirement not declared; external delivery untested |
 | Monitoring | ACTION REQUIRED | Availability/log/disk/DB monitor destination not provided |
+| Logging | ACTION REQUIRED | Production log path, level, rotation, and sensitive-log review unavailable |
+| Disk Monitoring | ACTION REQUIRED | Thresholds/alerts for logs, uploads, DB, temp, and backup staging unavailable |
 | Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
+| Queue | NOT APPLICABLE | No active runtime queued job found |
+| Scheduler | NOT APPLICABLE | No scheduled business task found |
 | Tests | READY | Pre-Go-Live run: 299 tests, 2.489 assertions, 0 failed/skipped |
 | Build | READY | Vite 8.0.16, 57 modules, PASS |
 | Security Audit | READY | Composer 0; npm full/production 0 |
 | Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
-| Rollback | READY PLAN | Runbook/drill PASS; production backup must precede mutation |
+| Rollback | ACTION REQUIRED | Runbook/drill PASS; production target, owner, previous release, and backup are unverified |
 
 Because mandatory production infrastructure cannot be verified, the hard Pre-Go-Live gate is not satisfied.
+
+Overall matrix: READY 6, ACTION REQUIRED 21, BLOCKER 2, PENDING PRE-GO-LIVE 1, NOT APPLICABLE 2. Mandatory infrastructure gate: READY 0 of 13, ACTION REQUIRED 11, BLOCKER 2.
 
 ## 9. Release Tag
 

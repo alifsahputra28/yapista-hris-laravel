@@ -1,6 +1,6 @@
 # YAPISTA HRIS Production Environment
 
-Dokumen ini mendefinisikan prasyarat minimum untuk men-deploy release candidate source `ae40647d9dbcc6a43f5e3460813b786bef5032ac` beserta lockfile yang telah lulus remediasi dan gate final. Git tag belum dibuat dan production deployment tetap memerlukan approval operator terpisah. Nilai rahasia tidak boleh disimpan di repository, ticket, log, atau command history.
+Dokumen ini mendefinisikan prasyarat minimum untuk men-deploy release candidate source `ae40647d9dbcc6a43f5e3460813b786bef5032ac` beserta lockfile yang telah lulus remediasi dan gate final. Local annotated tag `v1.0.0` menunjuk tepat ke RC dan belum di-push. Production deployment tetap memerlukan approval operator terpisah. Nilai rahasia tidak boleh disimpan di repository, ticket, log, atau command history.
 
 ## Runtime
 
@@ -108,3 +108,24 @@ php artisan view:cache
 - RPO/RTO yang disetujui pemilik bisnis.
 - Monitoring uptime, error, kapasitas disk, serta database.
 - Kebijakan retensi log dan backup sesuai regulasi yayasan.
+
+## Pre-Go-Live Operator Inputs
+
+Tidak ada target production atau credential yang diberikan pada verifikasi 16 Agustus 2026. Status berikut tidak boleh dinaikkan menjadi READY hanya dari baseline lokal.
+
+| Component | Required operator evidence | Status |
+|---|---|---|
+| Server/application path | Provider, OS, web server, access method, service account, release/shared path | OPERATOR INPUT REQUIRED |
+| Runtime | Production `php -v`, `php -m`, Composer version, and platform requirement result | OPERATOR INPUT REQUIRED |
+| Database | MySQL version, database name, utf8mb4 charset/collation, non-root app user, connectivity | OPERATOR INPUT REQUIRED |
+| Environment | Non-secret status for required variables and session/cache/filesystem settings | OPERATOR INPUT REQUIRED |
+| Secret escrow | Recovery location/owner for APP key, NIK lookup key, DB and optional SMTP credentials | OPERATOR INPUT REQUIRED |
+| Domain/TLS | Domain, DNS provider/status, certificate validity/hostname, HTTPS redirect | OPERATOR INPUT REQUIRED |
+| Private storage | Non-public path, service ownership, least-privilege writes, direct-URL denial | OPERATOR INPUT REQUIRED |
+| Backup | Encrypted off-host destination, write/restore access, retention, owner | OPERATOR INPUT REQUIRED |
+| SMTP | Explicit day-one decision; provider/status and controlled mailbox test when required | OPERATOR INPUT REQUIRED |
+| Monitoring | HTTP, Laravel error, DB connectivity, disk checks, thresholds and owner | OPERATOR INPUT REQUIRED |
+| Scanner | Day-one requirement and physical HID test result | OPERATOR INPUT REQUIRED |
+| Rollback | Previous production state/release, decision owner, maintenance window, verified backup | OPERATOR INPUT REQUIRED |
+
+Recovery-critical secrets checklist: each secret must be configured, absent from Git, stored in operator-controlled secret storage, and have a tested recovery copy. APP key and NIK lookup key must be distinct and must not be generated or rotated during deployment.

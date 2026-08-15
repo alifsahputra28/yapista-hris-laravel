@@ -45,6 +45,20 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 - [ ] Physical QR scanner PASS, or explicitly recorded as not required on day one.
 - [ ] UAT/temporary credentials scheduled for rotation or deactivation.
 
+### Operator Input Package
+
+- [ ] Hosting/provider, OS, web server, SSH/panel access method, and service account supplied.
+- [ ] Production application path, deployment method, and document root supplied.
+- [ ] Production PHP/Composer/MySQL command evidence supplied.
+- [ ] Production database name, charset/collation, and least-privilege account confirmed without exposing password.
+- [ ] Domain, DNS provider/status, certificate, and HTTP-to-HTTPS strategy supplied.
+- [ ] Production `APP_KEY`, NIK lookup key, DB credential, and optional SMTP credential marked configured in secure escrow.
+- [ ] Private-storage path, ownership, write permission, and direct-public-denial evidence supplied.
+- [ ] Encrypted off-host backup destination, access, retention, and restore owner supplied.
+- [ ] Day-one SMTP and physical-scanner requirement explicitly decided.
+- [ ] Monitoring/log rotation/disk threshold method and responsible operator supplied.
+- [ ] Production rollback owner, previous release state, and maintenance window supplied.
+
 ### Backup Immediately Before Mutation
 
 - [ ] Maintenance window/operator recorded.
