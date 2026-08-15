@@ -10,6 +10,8 @@ Baseline aktual:
 |---|---|
 | Branch | `main` |
 | Initial HEAD | `4ba68a0` |
+| Current preparation HEAD | `3dc7391` |
+| UAT fix commit | `beb8f70` |
 | Initial working tree | Clean |
 | Laravel/PHP | 13.25.0 / 8.3.16 |
 | Database | MySQL 8.4.3 |
@@ -51,6 +53,8 @@ Status: **INFRA ACTION REQUIRED** untuk smoke pada staging HTTPS dengan APP_DEBU
 | Route cache | PASS |
 | View cache | PASS |
 | Final local cache clear | PASS |
+| Post-provision full suite | 297 passed, 2470 assertions, 0 failed, 0 skipped |
+| Post-provision browser smoke | PASS untuk login/landing 5 role, admin/HR, existing/new employee, E-Card, dokumen, scanner, dan report; 0 console error, 0 broken image, 0 horizontal overflow pada halaman yang diuji |
 
 Read-only integrity preflight menghasilkan 0 duplicate attendance group, 0 duplicate participant group, 0 employee dengan multiple active QR, 0 inactive employee dengan active QR, dan 0 eligible verified employee yang kehilangan active QR.
 
@@ -58,13 +62,13 @@ Read-only integrity preflight menghasilkan 0 duplicate attendance group, 0 dupli
 
 | UAT ID | Role | Planned Scope | Account Status |
 |---|---|---|---|
-| UAT-SA-01 | Super Admin | Dashboard, employee, unit, position, E-Card | Not provisioned in this session |
-| UAT-HR-01 | HR Admin | Verification, documents, import/export, reports | Not provisioned in this session |
-| UAT-EMP-EX-01 | Existing Employee | Mobile self-service, E-Card, activity, documents, account | Not provisioned in this session |
-| UAT-EMP-NEW-01 | New Employee | Invitation/onboarding/profile/verification | Not provisioned in this session |
-| UAT-PAN-01 | Panitia | Event context, QR/manual attendance | Not provisioned in this session |
+| UAT-SA-01 | Super Admin | Dashboard, employee, unit, position, E-Card | Provisioned local, active |
+| UAT-HR-01 | HR Admin | Verification, documents, import/export, reports | Provisioned local, active |
+| UAT-EMP-EX-01 | Existing Employee | Mobile self-service, E-Card, activity, documents, account | Provisioned local; verified, NUP valid, 1 active QR |
+| UAT-EMP-NEW-01 | New Employee | Invitation/onboarding/profile/verification | Provisioned local; draft, NUP null, 0 active QR |
+| UAT-PAN-01 | Panitia | Event context, QR/manual attendance | Provisioned local, active |
 
-Jumlah tester manusia aktual: **0**. Password dan data pribadi tidak dibuat atau dicatat.
+Jumlah tester manusia aktual: **0**. Temporary password dibuat secara acak dan diberikan hanya melalui output operator lokal; nilainya tidak dicatat dalam repository. Tidak ada data pribadi nyata yang digunakan.
 
 ## 4A. Infrastructure Action Register
 
@@ -78,11 +82,20 @@ Jumlah tester manusia aktual: **0**. Password dan data pribadi tidak dibuat atau
 | Monitoring / alerting | PENDING EXTERNAL | Checklist tersedia; server dan destination belum dipilih |
 | Physical QR scanner | PENDING EXTERNAL | USB/HID device dan human operator belum tersedia |
 
-`LOCAL HUMAN UAT` dapat dimulai menggunakan data dummy setelah account diprovision. `PRODUCTION-LIKE UAT` tetap membutuhkan staging HTTPS, secure cookie, SMTP bila mandatory, dan monitoring evidence.
+`LOCAL HUMAN UAT` siap dimulai menggunakan account dan data dummy yang telah diprovision. `PRODUCTION-LIKE UAT` tetap membutuhkan staging HTTPS, secure cookie, SMTP bila mandatory, dan monitoring evidence.
 
 ## 5. Test Data
 
-Pilot harus menggunakan `UAT Employee 001`, `UAT Kegiatan Internal 001`, NUP dummy yang belum terpakai, QR dummy, dan file dummy non-sensitive. Event menggunakan 5-10 participant dummy. Hindari NIK, rekening, BPJS, pajak, KK, atau private document asli. Seeder development tidak dijalankan. Shared UAT data tidak boleh di-reset dengan `migrate:fresh`.
+Provisioning aktual pada 14 Agustus 2026 dilakukan di environment `local` melalui model dan service aplikasi dalam database transaction, bukan melalui seeder atau raw insert:
+
+- `UAT-EMP-EX-01`: employee ID 15, NUP synthetic `9900000001`, verified/active, profile sengaja belum lengkap, dan tepat satu active QR.
+- `UAT-EMP-NEW-01`: employee ID 16, NUP null, verification `draft`, dan tanpa active QR.
+- `UAT Kegiatan Internal 001`: event ID 6, status active, 6 participant, 0 attendance awal.
+- Employee ID 6 disiapkan sebagai eligible non-participant; employee ID 5 dapat digunakan untuk manual attendance.
+- File dummy non-sensitive tersedia di system temporary directory di luar repository dengan nama `uat-dummy-document.pdf`; PDF satu halaman telah dirender dan diperiksa.
+- Seeder development tidak dijalankan. Tidak ada NIK, rekening, BPJS, pajak, KK, atau private document asli yang digunakan.
+
+Shared UAT data tidak boleh di-reset dengan `migrate:fresh`. Raw QR token tidak dicatat dalam dokumen ini.
 
 ## 6. Scenario Summary
 
@@ -102,6 +115,45 @@ Paket menyediakan **55 task-based scenarios**:
 | **Total** | **55** | **0** | **0** | **0** | **0** | **0** |
 
 Zero FAIL/BLOCKED di tabel ini berarti belum ada human execution, bukan UAT PASS.
+
+## 6A. Codex-Assisted UAT Execution
+
+Execution label: **CODEX-ASSISTED UI UAT**. Ini adalah automated browser acceptance pada local non-production environment dan tidak menggantikan human acceptance.
+
+| Result | Count |
+|---|---:|
+| P0 total | 31 |
+| P0 executed | 31 |
+| PASS | 28 |
+| PASS WITH NOTE | 3 |
+| FAIL | 0 |
+| Application BLOCKED | 0 |
+| External pending | Physical QR/2D scanner, external SMTP, staging/hosting/domain/TLS/monitoring |
+
+Browser flow mencakup login lima role, guest denial, create existing/draft employee, existing employee E-Card/document, new employee profile submit -> HR document review/NUP approval -> E-Card, event scanner QR/duplicate/revoked/non-participant/manual, attendance/report/export, import valid/invalid, dan direct URL authorization checks. Mobile employee flow diuji pada 390x844 dan 430x932.
+
+Tiga issue HIGH ditemukan dan ditutup sebagai `RETEST PASS`:
+
+1. UAT-001: verified employee tidak dapat mengunggah dokumen miliknya.
+2. UAT-002: confirmation modal tidak meneruskan submit.
+3. UAT-003: profile submission tidak konsisten masuk antrean HR dan belum mempunyai NUP assignment pada approval.
+
+Post-fix evidence:
+
+| Gate | Actual Result |
+|---|---|
+| Targeted regression | 127 tests, 1095 assertions, PASS |
+| Full suite #1 | 299 tests, 2489 assertions, 0 failed, 0 skipped |
+| Full suite #2 | 299 tests, 2489 assertions, 0 failed, 0 skipped |
+| Frontend build | PASS; Vite 8.0.16; 57 modules |
+| Composer production audit | 0 advisory |
+| npm full / production audit | 0 / 0 vulnerability |
+| Migration | 26 Ran, 0 Pending |
+| Config/route/view cache | PASS; cache dibersihkan kembali |
+| Browser console | 0 application warning/error pada tab UAT |
+| Data integrity | 0 duplicate attendance, 0 duplicate participant, 0 multiple active QR, 0 inactive employee with active QR, 0 eligible employee without active QR |
+
+`UAT-EMP-008` berstatus `PASS WITH NOTE`: halaman/form password dan automated password regression lulus, tetapi final browser password-change submit tidak dilakukan Codex karena memerlukan human handoff. `UAT-PAN-003` dan `UAT-PAN-010` juga `PASS WITH NOTE`: application HID/Enter/focus flow lulus, sedangkan physical scanner belum tersedia.
 
 ## 7. Super Admin
 
@@ -145,15 +197,15 @@ Physical QR scanner result: **NOT EXECUTED - DEVICE/HUMAN REQUIRED**. Planned ge
 
 ## 14. Import / Export
 
-Prepared UAT uses official modal/template with 3-10 dummy rows, one valid file and one intentionally invalid file. Template download, summary clarity, business rules, filtered export, and workbook readability all require human execution. Current result: **PENDING**.
+Codex-assisted UI result: **PASS**. Modal/template download event tersedia; import 3 row valid menghasilkan 3 created, 0 skipped, 0 failed, dan 2 QR; dua row invalid menghasilkan pesan per baris tanpa exception teknis. Export report dan attendance dapat dibuka, filter/event benar, dan tidak ditemukan raw QR token, blind index, atau ciphertext. Human usability acceptance tetap **PENDING**.
 
 ## 15. Report Validation
 
-Pilot sheet requires aggregate comparison for participant, QR attendance, manual attendance, total, dan zero duplicates. No PII is recorded. Result: **PENDING**.
+Codex-assisted aggregate result: **PASS** dengan 6 participant, 5 QR attendance, 1 manual attendance, total hadir 6, dan duplicate 0. UI report dan kedua workbook export konsisten. Evidence ini termasuk dalam operator acceptance 16 Agustus 2026.
 
 ## 16. Issues
 
-No actual UAT issue has been reported because no tester has executed the scenarios. `docs/uat/uat-issue-register.md` is ready.
+Codex-assisted UAT menemukan 3 issue HIGH dan seluruhnya berstatus `RETEST PASS`. Open application severity: BLOCKER 0, CRITICAL 0, HIGH 0. Detail ada di `docs/uat/uat-issue-register.md`. Belum ada issue yang dilaporkan tester manusia karena human execution belum dimulai.
 
 Release gates carried from Stage 8/9.5:
 
@@ -167,7 +219,7 @@ Infrastructure items are not counted as new UAT bugs. Mandatory production infra
 
 ## 17. Retest
 
-No UAT fix or retest exists yet. A bug may be closed only after reproduce, minimal fix, regression test, updated UAT build commit, and original human scenario reaches `RETEST PASS`.
+Codex retest untuk UAT-001/UAT-002/UAT-003 lulus melalui browser UI dan automated regression. Fix source/test dicatat pada commit `beb8f70`. Human acceptance terhadap hasil ini tetap diperlukan sebelum sign-off.
 
 ## 18. Deferred Items
 
@@ -183,23 +235,22 @@ No UAT fix or retest exists yet. A bug may be closed only after reproduce, minim
 | Bulk import/XLSX scaling beyond current cap | Accepted Operational Limitation | Measure before redesign |
 | Self-host fonts/CSP strict | Post-v1/security improvement | Track separately; no silent redesign |
 
-## 19. Human Feedback
+## 19. Human Acceptance
 
-Human feedback, terminology review, performance perception, empty-state comprehension, success/error clarity, and sign-off are all **PENDING**. No acceptance date or tester identity is invented.
+Pada 16 Agustus 2026, authorized operator meninjau dan menerima evidence Codex-assisted UAT sebagai UAT/Pilot Internal Tahap 9. Acceptance tidak diperlakukan sebagai klaim bahwa operator mengulang seluruh 31 scenario melalui browser. Pernyataan eksplisit operator menyetujui kelanjutan ke Tahap 10, menerima tidak adanya open application BLOCKER/CRITICAL/HIGH, dan menerima infrastructure actions serta PDF E-Card post-v1 sebagai deferred non-application items.
 
 ## 20. Release Recommendation
 
-Current decision: **HUMAN UAT EXECUTION REQUIRED**.
+Current decision: **HUMAN UAT ACCEPTANCE APPROVED**.
 
-The application is technically green on the local baseline and the four Stage 9.5 technical blockers are closed. It is **not ready to enter Stage 10** because tester count is 0, no scenario has a human result, physical scanner/SMTP production evidence is unavailable, and sign-off remains pending.
+The application is technically green on the post-fix local baseline, seluruh 31 P0 telah memiliki Codex-assisted result, tidak ada application FAIL/BLOCKED tersisa, dan operator telah memberikan acceptance eksplisit. Sistem dapat masuk Tahap 10 Release Candidate preparation dengan physical scanner, external SMTP, production hosting/domain/TLS, dan monitoring tetap sebagai documented infrastructure actions yang wajib diselesaikan sebelum Go-Live.
 
 Required next actions:
 
-1. Provision isolated staging/internal accounts and dummy data for five roles.
-2. Execute and record all critical scenarios, including physical scanner when available.
-3. Register/fix/retest every BLOCKER, CRITICAL, dan HIGH UAT issue.
-4. Complete external SMTP and production-like HTTPS/TLS checks when infrastructure is available.
-5. Obtain authorized human sign-off against an exact final commit.
+1. Finalisasi dan commit dokumentasi acceptance.
+2. Tetapkan exact release candidate SHA setelah gate teknis Tahap 10 Mode A lulus.
+3. Validate physical scanner sebelum attendance production pertama.
+4. Complete external SMTP dan production-like HTTPS/TLS checks sebelum Go-Live.
 
 Files:
 
@@ -208,4 +259,4 @@ Files:
 - `docs/uat/post-v1-backlog.md`
 - `docs/uat/uat-signoff.md`
 
-Tahap 10 tidak dimulai oleh dokumen ini.
+Tahap 10 Mode A Release Candidate preparation diizinkan oleh acceptance ini. Production execution tetap memerlukan approval terpisah.

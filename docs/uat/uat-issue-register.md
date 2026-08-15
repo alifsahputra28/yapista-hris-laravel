@@ -17,11 +17,17 @@ Severity:
 
 ## Issue UAT
 
-Belum ada issue UAT aktual karena human execution belum dimulai. Gunakan ID berurutan `UAT-001`, `UAT-002`, dan seterusnya.
+Issue berikut ditemukan selama `CODEX-ASSISTED UI UAT` pada 14 Agustus 2026. Ini bukan hasil atau acceptance UAT manusia.
 
 | ID | Build | Role | Scenario | Severity | Issue | Expected | Actual | Fix | Retest | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| _Belum ada_ |  |  |  |  |  |  |  |  |  |  |
+| UAT-001 | Pre-fix `3dc7391` | Pegawai Existing | UAT-EMP-006 | HIGH | Pegawai verified tidak dapat mengunggah dokumen miliknya | Pegawai existing tetap dapat mengelola dokumen pribadi selama profil tidak sedang submitted | UI menyembunyikan upload dan backend menolak karena memakai rule edit profile completion | Pisahkan rule `canManageDocuments()` dari edit profile | UI upload/list/view berhasil; document ownership tetap 403 untuk akun lain; 18 document tests PASS | RETEST PASS |
+| UAT-002 | Pre-fix `3dc7391` | Pegawai/HR/Admin | UAT-NEW-004, UAT-NEW-005, UAT-PAN-006 | HIGH | Modal konfirmasi tidak meneruskan submit form | Setelah konfirmasi, action asli diproses satu kali | Modal tertutup tetapi request tidak dikirim | Submit form yang sudah dikonfirmasi secara langsung dan tetap cegah double submit | Submit profil, approval HR, dan regenerate QR berhasil melalui UI | RETEST PASS |
+| UAT-003 | Pre-fix `3dc7391` | HR Admin | UAT-HR-002, UAT-NEW-005 | HIGH | Profile submission tidak muncul konsisten di antrean verifikasi dan approval tidak menyediakan assignment NUP | Submission profil dapat direview, diberi NUP, diverifikasi, dan mendapat tepat satu QR aktif | State profile submitted tetap terlihat draft pada alur official verification | Satukan query/display/action state, validasi NUP 10 digit, simpan metadata official/profile, lalu generate QR | UI end-to-end employee baru -> HR approve -> employee E-Card PASS; 11 verification tests PASS | RETEST PASS |
+
+Open severity setelah Codex retest dan operator acceptance 16 Agustus 2026: `BLOCKER 0`, `CRITICAL 0`, `HIGH 0`.
+
+Operator menerima hasil Codex-assisted UAT sebagai UAT/Pilot Internal Tahap 9. Infrastructure actions berstatus `PENDING EXTERNAL` tidak direklasifikasi sebagai application issue dan tetap wajib diselesaikan sebelum Go-Live.
 
 ## Release Gates Dari Tahap 8 Dan 9.5
 
