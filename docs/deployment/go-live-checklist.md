@@ -1,6 +1,6 @@
 # YAPISTA HRIS v1.0.0 Go-Live Checklist
 
-Release candidate source: `ae40647d9dbcc6a43f5e3460813b786bef5032ac`
+Release candidate source: `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8`
 
 Status: **PRE-GO-LIVE VERIFIED; INFRASTRUCTURE ACTION REQUIRED; PRODUCTION EXECUTION NOT AUTHORIZED**
 
@@ -12,16 +12,18 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 
 - [x] Stage 9 operator acceptance recorded.
 - [x] Release Candidate SHA confirmed.
-- [x] Local annotated tag `v1.0.0` targets the exact RC SHA; tag is not pushed.
+- [ ] Local annotated tag `v1.0.0` retargeted to the exact new RC SHA after explicit operator approval; current unpushed tag still targets superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`.
 - [x] Application source working tree clean at validation.
-- [x] Full automated suite PASS twice: 299 tests / 2.489 assertions each.
+- [x] Full automated suite PASS twice: 306 tests / 2.534 assertions each.
 - [x] Frontend build PASS with Vite 8.0.16.
 - [x] Composer production audit clean.
 - [x] npm full and production audits clean.
 - [x] Migration reviewed: 26 Ran / 0 Pending on candidate environment.
 - [x] Read-only integrity audit reports 0 unexpected anomaly.
 - [x] Backup/isolated restore drill evidence PASS.
-- [x] Rollback source identified: previous known-good `3dc7391`; UAT fix `beb8f70` retained in RC.
+- [x] Rollback source identified: superseded validated RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`; prior UAT fixes remain in history.
+- [x] Legacy QR compatibility is scanner-only, exact 10 digits, feature-flagged, and covered by cross-format duplicate tests.
+- [ ] Production `ATTENDANCE_ALLOW_LEGACY_NUP_QR` transition decision recorded; secure-token QR remains the standard for new cards.
 - [ ] Exact production target and application path confirmed by operator.
 - [ ] Operator states `GO-LIVE APPROVED`.
 
@@ -97,7 +99,9 @@ Do not run migration until every required pre-deploy and backup item is checked.
 - [ ] Controlled Pegawai login/home/activity/E-Card/document/account smoke PASS.
 - [ ] Controlled Panitia login/scanner/attendance list smoke PASS.
 - [ ] Synthetic QR scan PASS only on an approved test event.
+- [ ] Secure-token QR and approved legacy 10-digit NUP QR both PASS on the same scanner flow when compatibility is enabled.
 - [ ] Duplicate synthetic QR is rejected without a second attendance row.
+- [ ] Cross-format duplicate (secure then legacy, and legacy then secure) is rejected without a second attendance row.
 - [ ] Controlled SMTP delivery PASS if mail is enabled.
 - [ ] Optional dummy private upload/access/denial/cleanup PASS.
 - [ ] Laravel and web-server logs show no unexpected ERROR/CRITICAL/SQLSTATE/permission failure.

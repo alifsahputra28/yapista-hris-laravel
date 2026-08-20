@@ -19,22 +19,32 @@ Stage 9 gate: **PASS**.
 | Item | Actual |
 |---|---|
 | Branch | `main` |
-| Pre-release/application source HEAD | `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
-| Release Candidate SHA | `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
+| Pre-release/application source HEAD | `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` |
+| Release Candidate SHA | `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` |
+| Superseded application RC | `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
 | Version | `v1.0.0` |
 | Working tree before release docs | CLEAN |
 | Feature/dependency freeze | ACTIVE |
 
-The documentation commit created after validation is not an application source change. Production source of truth remains the exact RC SHA above.
+The controlled legacy QR compatibility change invalidated the previous deployment RC. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+
+### Controlled Legacy QR Compatibility
+
+- Secure QR remains the primary standard: `YAPISTA:EMPLOYEE:<random-token>` with active/revoked token validation unchanged.
+- Attendance scanner additionally accepts an exact 10-digit `employees.employee_number` for old physical cards only.
+- Both formats enter the same attendance service and retain active employee, participant, authorization, and event+employee duplicate protections.
+- Compatibility is controlled through cached config `attendance.allow_legacy_nup_qr`, backed by `ATTENDANCE_ALLOW_LEGACY_NUP_QR=true` for the transition.
+- No login, document, profile, generic employee lookup, E-Card payload, migration, or dependency behavior was changed.
+- Legacy NUP QR is predictable and transitional; new cards remain secure-token-only and the fallback should be retired after old cards are replaced.
 
 ## 3. Final Test Results
 
 | Gate | Result |
 |---|---|
-| Full suite #1 | PASS; 299 tests; 2.489 assertions; 0 failed; 0 skipped; 78.629 ms |
-| Full suite #2 | PASS; 299 tests; 2.489 assertions; 0 failed; 0 skipped; 18.688 ms |
+| Full suite #1 | PASS; 306 tests; 2.534 assertions; 0 failed; 0 skipped; 62.396 s |
+| Full suite #2 | PASS; 306 tests; 2.534 assertions; 0 failed; 0 skipped; 21.782 s |
 | Frontend build | PASS; Vite 8.0.16; 57 modules; 14,38 detik |
-| CSS | 28,47 kB; gzip 5,58 kB |
+| CSS | 41,08 kB; gzip 7,53 kB |
 | JS | 89,97 kB; gzip 32,66 kB |
 | Build warning | Plugin timing informational: Laravel 69%, CSS 30%; no asset/build error |
 | Composer platform requirements | PASS, non-dev |
@@ -120,7 +130,7 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Area | Status | Evidence / missing input |
 |---|---|---|
 | Release SHA | READY | Exact RC exists and application tree is unchanged after RC |
-| Tag | READY | Local annotated `v1.0.0` points to exact RC; not pushed |
+| Tag | ACTION REQUIRED | Local annotated `v1.0.0` still points to superseded RC; not pushed; explicit operator approval required before retarget |
 | Server | ACTION REQUIRED | Production host/service account not provided |
 | App Path | ACTION REQUIRED | Production application path/document root not provided |
 | Document Root | ACTION REQUIRED | Must resolve to `<application>/public`; web denial unverified |
@@ -146,7 +156,7 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
 | Queue | NOT APPLICABLE | No active runtime queued job found |
 | Scheduler | NOT APPLICABLE | No scheduled business task found |
-| Tests | READY | Pre-Go-Live run: 299 tests, 2.489 assertions, 0 failed/skipped |
+| Tests | READY | Post-change run twice: 306 tests, 2.534 assertions, 0 failed/skipped |
 | Build | READY | Vite 8.0.16, 57 modules, PASS |
 | Security Audit | READY | Composer 0; npm full/production 0 |
 | Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
@@ -154,11 +164,11 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 
 Because mandatory production infrastructure cannot be verified, the hard Pre-Go-Live gate is not satisfied.
 
-Overall matrix: READY 6, ACTION REQUIRED 21, BLOCKER 2, PENDING PRE-GO-LIVE 1, NOT APPLICABLE 2. Mandatory infrastructure gate: READY 0 of 13, ACTION REQUIRED 11, BLOCKER 2.
+Overall matrix: READY 5, ACTION REQUIRED 22, BLOCKER 2, PENDING PRE-GO-LIVE 1, NOT APPLICABLE 2. Mandatory infrastructure gate: READY 0 of 13, ACTION REQUIRED 11, BLOCKER 2.
 
 ## 9. Release Tag
 
-A local annotated tag `v1.0.0` was created and verified to resolve to `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. The tag was not pushed and must not be overwritten silently.
+The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` requires explicit operator approval and must not happen silently.
 
 ## 10. Deployment Plan
 
@@ -178,6 +188,7 @@ The plan is fully captured in `docs/deployment/go-live-checklist.md`: verify tar
 
 - New local public smoke: login page PASS at 1280 px and 390x844; CSRF/form/logo present; 0 broken image, horizontal overflow, or console warning/error.
 - Stage 9 accepted browser evidence covers Admin/HR, Pegawai, Panitia, E-Card, document, scanner, report, and mobile 390/430.
+- Targeted change-impact browser UAT: Panitia scanner page, legacy NUP success, duplicate, nonparticipant, invalid payload, manual attendance, and attendance-list consistency PASS. Secure-token resolution is PASS WITH NOTE through unchanged resolver plus targeted automated tests; fresh browser secure-token entry was blocked by isolated clipboard, not by the application.
 - Production public/admin/employee/panitia/QR/SMTP/upload smoke: NOT EXECUTED.
 
 ## 14. Monitoring
@@ -220,6 +231,6 @@ NOT STARTED. Planned checks: login success, HTTP/Laravel errors, DB connectivity
 
 ## 20. Final Status
 
-`v1.0.0` application source is technically validated and reproducible at `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. The local annotated tag resolves to that source. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
+The new `v1.0.0` application candidate is technically validated and reproducible at `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8`; old RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` is superseded for deployment. The unpushed local tag still resolves to the old RC pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
 
 **GO-LIVE BLOCKED - INFRASTRUCTURE ACTION REQUIRED**
