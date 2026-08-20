@@ -136,17 +136,17 @@ class EventAttendanceHardeningTest extends TestCase
         $this->assertSame('present', $attendance->attendance_status);
     }
 
-    public function test_scanner_rejects_empty_nup_and_invalid_qr_payloads(): void
+    public function test_scanner_rejects_empty_unknown_and_invalid_qr_payloads(): void
     {
         $scanner = $this->user('panitia');
         $event = $this->event();
 
         $cases = [
             ['', 'QR Code wajib dipindai.'],
-            ['777093001', 'QR Code tidak valid atau sudah tidak aktif.'],
-            ['7770930002', 'QR Code tidak valid atau sudah tidak aktif.'],
-            ['3201010101010001', 'QR Code tidak valid atau sudah tidak aktif.'],
-            ['YAPISTA', 'QR Code tidak valid atau sudah tidak aktif.'],
+            ['777093001', 'QR Code tidak dikenali.'],
+            ['7770930002', 'Pegawai tidak ditemukan.'],
+            ['3201010101010001', 'QR Code tidak dikenali.'],
+            ['YAPISTA', 'QR Code tidak dikenali.'],
             ['YAPISTA:EMPLOYEE:', 'QR Code tidak valid atau sudah tidak aktif.'],
             ['YAPISTA:EMPLOYEE:unknown', 'QR Code tidak valid atau sudah tidak aktif.'],
             ['YAPISTA:EMPLOYEE:'.str_repeat('A', 4_096), 'QR Code tidak valid atau sudah tidak aktif.'],
@@ -159,6 +159,183 @@ class EventAttendanceHardeningTest extends TestCase
                 ->assertUnprocessable()
                 ->assertJsonPath('message', $message);
         }
+
+        $this->assertDatabaseCount('event_attendances', 0);
+    }
+
+    public function test_legacy_nup_qr_resolves_exact_employee_number_and_preserves_leading_zero(): void
+    {
+        config()->set('attendance.allow_legacy_nup_qr', true);
+
+        $scanner = $this->user('panitia');
+        $event = $this->event();
+        $employee = $this->employee([
+            'full_name' => 'Pegawai Legacy NUP',
+            'employee_number' => '0123456789',
+        ]);
+        $this->participant($event, $employee);
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), [
+                'qr_payload' => "  0123456789\r\n",
+            ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('employee.full_name', 'Pegawai Legacy NUP')
+            ->assertJsonPath('employee.employee_number', '0123456789');
+
+        $attendance = EventAttendance::query()->firstOrFail();
+        $this->assertSame($employee->id, $attendance->employee_id);
+        $this->assertSame('qr', $attendance->scan_method);
+        $this->assertNull($attendance->qr_token_id);
+    }
+
+    public function test_legacy_nup_qr_requires_exactly_ten_digits_and_known_employee(): void
+    {
+        $scanner = $this->user('panitia');
+        $event = $this->event();
+
+        foreach (['123456789', '12345678901', '12345A7890', '12345 7890'] as $payload) {
+            $this->actingAs($scanner)
+                ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $payload])
+                ->assertUnprocessable()
+                ->assertJsonPath('message', 'QR Code tidak dikenali.');
+        }
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '9999999999'])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Pegawai tidak ditemukan.');
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => 1234567890])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'QR Code tidak dikenali.');
+
+        $this->assertDatabaseCount('event_attendances', 0);
+    }
+
+    public function test_legacy_nup_qr_uses_shared_employee_and_participant_validation(): void
+    {
+        $scanner = $this->user('panitia');
+        $event = $this->event();
+        $inactive = $this->employee([
+            'employee_number' => '7770930021',
+            'employment_status' => 'nonaktif',
+        ]);
+        $nonParticipant = $this->employee(['employee_number' => '7770930022']);
+        $this->participant($event, $inactive);
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930021'])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Status kepegawaian tidak memenuhi syarat untuk melakukan absensi.');
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930022'])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Pegawai tidak terdaftar sebagai peserta kegiatan.');
+
+        $this->assertDatabaseCount('event_attendances', 0);
+    }
+
+    public function test_legacy_and_secure_qr_scans_share_duplicate_protection(): void
+    {
+        $scanner = $this->user('panitia');
+        $event = $this->event();
+        $legacyTwice = $this->employee(['employee_number' => '7770930023']);
+        $secureFirst = $this->employee(['employee_number' => '7770930024']);
+        $legacyFirst = $this->employee(['employee_number' => '7770930025']);
+
+        foreach ([$legacyTwice, $secureFirst, $legacyFirst] as $employee) {
+            $this->participant($event, $employee);
+        }
+
+        $secureFirstPayload = $this->qrPayload($secureFirst, $scanner);
+        $legacyFirstPayload = $this->qrPayload($legacyFirst, $scanner);
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930023'])
+            ->assertOk();
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930023'])
+            ->assertStatus(409)
+            ->assertJsonPath('status', 'already_attended');
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $secureFirstPayload])
+            ->assertOk();
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930024'])
+            ->assertStatus(409)
+            ->assertJsonPath('status', 'already_attended');
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930025'])
+            ->assertOk();
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $legacyFirstPayload])
+            ->assertStatus(409)
+            ->assertJsonPath('status', 'already_attended');
+
+        $this->assertDatabaseCount('event_attendances', 3);
+    }
+
+    public function test_legacy_nup_feature_flag_does_not_affect_secure_qr(): void
+    {
+        config()->set('attendance.allow_legacy_nup_qr', false);
+
+        $scanner = $this->user('panitia');
+        $event = $this->event();
+        $employee = $this->employee(['employee_number' => '7770930026']);
+        $this->participant($event, $employee);
+        $securePayload = $this->qrPayload($employee, $scanner);
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930026'])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'QR Code tidak dikenali.');
+
+        $this->actingAs($scanner)
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $securePayload])
+            ->assertOk();
+
+        $this->assertDatabaseCount('event_attendances', 1);
+    }
+
+    public function test_legacy_nup_and_manual_attendance_reject_each_other_as_duplicates(): void
+    {
+        $scanner = $this->user('panitia');
+        $event = $this->event();
+        $legacyFirst = $this->employee(['employee_number' => '7770930027']);
+        $manualFirst = $this->employee(['employee_number' => '7770930028']);
+        $this->participant($event, $legacyFirst);
+        $this->participant($event, $manualFirst);
+
+        $this->actingAs($scanner)
+            ->post(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930027'])
+            ->assertSessionHas('success');
+        $this->actingAs($scanner)
+            ->post(route('events.attendances.manual', $event, absolute: false), ['employee_id' => $legacyFirst->id])
+            ->assertSessionHas('warning');
+
+        $this->actingAs($scanner)
+            ->post(route('events.attendances.manual', $event, absolute: false), ['employee_id' => $manualFirst->id])
+            ->assertSessionHas('success');
+        $this->actingAs($scanner)
+            ->post(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930028'])
+            ->assertSessionHas('warning');
+
+        $this->assertDatabaseCount('event_attendances', 2);
+    }
+
+    public function test_employee_role_cannot_submit_legacy_nup_attendance(): void
+    {
+        $event = $this->event();
+
+        $this->actingAs($this->user('pegawai'))
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930029'])
+            ->assertForbidden();
 
         $this->assertDatabaseCount('event_attendances', 0);
     }

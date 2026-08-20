@@ -318,12 +318,12 @@ class EmployeeNumberConsistencyTest extends TestCase
 
         $this->actingAs($panitia)
             ->post(route('events.scan', $event, absolute: false), ['qr_payload' => 'Call 777 0923'])
-            ->assertSessionHas('error', 'QR Code tidak valid atau sudah tidak aktif.');
+            ->assertSessionHas('error', 'QR Code tidak dikenali.');
 
         $this->assertDatabaseCount('event_attendances', 0);
     }
 
-    public function test_scanner_uses_qr_token_and_never_employee_number_or_legacy_nup(): void
+    public function test_scanner_uses_employee_number_but_never_legacy_nup_column(): void
     {
         $panitia = User::factory()->create(['role' => 'panitia']);
         $employee = $this->employee([
@@ -340,16 +340,20 @@ class EmployeeNumberConsistencyTest extends TestCase
 
         $this->actingAs($panitia)
             ->post(route('events.scan', $event, absolute: false), ['qr_payload' => '7770924999'])
-            ->assertSessionHas('error', 'QR Code tidak valid atau sudah tidak aktif.');
+            ->assertSessionHas('error', 'Pegawai tidak ditemukan.');
+
+        $this->actingAs($panitia)
+            ->post(route('events.scan', $event, absolute: false), ['qr_payload' => '7770924013'])
+            ->assertSessionHas('success', 'Absensi berhasil dicatat.');
 
         $this->actingAs($panitia)
             ->post(route('events.scan', $event, absolute: false), ['qr_payload' => $tokenService->payloadFor($token)])
-            ->assertSessionHas('success', 'Absensi berhasil dicatat.');
+            ->assertSessionHas('warning');
 
         $attendance = EventAttendance::query()->firstOrFail();
         $this->assertSame($employee->id, $attendance->employee_id);
         $this->assertSame('qr', $attendance->scan_method);
-        $this->assertSame($token->id, $attendance->qr_token_id);
+        $this->assertNull($attendance->qr_token_id);
     }
 
     public function test_report_has_nup_filter_means_valid_employee_number_not_merely_non_null(): void

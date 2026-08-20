@@ -8,7 +8,7 @@ use App\Models\EventAttendance;
 use App\Models\EventParticipant;
 use App\Models\Institution;
 use App\Models\Position;
-use App\Services\EmployeeQrTokenService;
+use App\Services\AttendanceScannerPayloadResolver;
 use App\Services\EventAttendanceService;
 use App\Services\EventAttendanceSummaryService;
 use App\Support\Attendances\AttendanceResult;
@@ -21,7 +21,7 @@ class EventAttendanceController extends Controller
 {
     public function __construct(
         private readonly EventAttendanceService $attendanceService,
-        private readonly EmployeeQrTokenService $qrTokenService,
+        private readonly AttendanceScannerPayloadResolver $scannerPayloadResolver,
         private readonly EventAttendanceSummaryService $attendanceSummaryService,
     ) {}
 
@@ -124,23 +124,26 @@ class EventAttendanceController extends Controller
             return $this->scanResponse($request, false, 'QR Code wajib dipindai.');
         }
 
+        if (! is_string($scanInput)) {
+            return $this->scanResponse($request, false, 'QR Code tidak dikenali.');
+        }
+
         if ($message = $this->attendanceService->inactiveEventMessage($event)) {
             return $this->scanResponse($request, false, $message);
         }
 
-        $qrToken = $this->qrTokenService->resolvePayload((string) $scanInput);
+        $resolution = $this->scannerPayloadResolver->resolve($scanInput);
 
-        if (! $qrToken?->employee) {
-            return $this->scanResponse($request, false, 'QR Code tidak valid atau sudah tidak aktif.');
+        if (! $resolution->isResolved()) {
+            return $this->scanResponse($request, false, $resolution->errorMessage ?? 'QR Code tidak dikenali.');
         }
 
-        $employee = $qrToken->employee->loadMissing(['institution', 'position']);
+        $employee = $resolution->employee->loadMissing(['institution', 'position']);
 
-        $result = $this->attendanceService->recordQrAttendance(
+        $result = $this->attendanceService->recordScannerAttendance(
             $event,
-            $employee,
             $request->user(),
-            $qrToken,
+            $resolution,
         );
 
         return $this->attendanceResultResponse($request, $result, $employee);

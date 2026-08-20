@@ -9,10 +9,29 @@ use App\Models\EventAttendance;
 use App\Models\EventParticipant;
 use App\Models\User;
 use App\Support\Attendances\AttendanceResult;
+use App\Support\Attendances\ScannerPayloadResolution;
 use Illuminate\Database\UniqueConstraintViolationException;
 
 class EventAttendanceService
 {
+    public function recordScannerAttendance(
+        Event $event,
+        User $scanner,
+        ScannerPayloadResolution $resolution,
+    ): AttendanceResult {
+        $employee = $resolution->employee;
+
+        if (! $employee) {
+            return AttendanceResult::rejected($resolution->errorMessage ?? 'QR Code tidak dikenali.');
+        }
+
+        if ($resolution->qrToken) {
+            return $this->recordQrAttendance($event, $employee, $scanner, $resolution->qrToken);
+        }
+
+        return $this->record($event, $employee, $scanner, 'qr', null, null);
+    }
+
     public function recordQrAttendance(
         Event $event,
         Employee $employee,

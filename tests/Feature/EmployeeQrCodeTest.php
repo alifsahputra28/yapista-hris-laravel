@@ -245,7 +245,7 @@ class EmployeeQrCodeTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_scanner_accepts_only_active_qr_and_records_qr_method(): void
+    public function test_scanner_accepts_active_secure_qr_without_accepting_raw_token(): void
     {
         $scanner = User::factory()->create(['role' => 'panitia']);
         $employee = $this->employee('7770940010');
@@ -253,11 +253,11 @@ class EmployeeQrCodeTest extends TestCase
         $token = $this->tokens->generate($employee, $this->admin);
         $payload = $this->tokens->payloadFor($token);
 
-        foreach ([$employee->employee_number, $token->token_encrypted, 'teks acak'] as $invalidPayload) {
+        foreach ([$token->token_encrypted, 'teks acak'] as $invalidPayload) {
             $this->actingAs($scanner)
                 ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $invalidPayload])
                 ->assertUnprocessable()
-                ->assertJsonPath('message', 'QR Code tidak valid atau sudah tidak aktif.');
+                ->assertJsonPath('message', 'QR Code tidak dikenali.');
         }
 
         $this->actingAs($scanner)
@@ -270,7 +270,7 @@ class EmployeeQrCodeTest extends TestCase
         $this->assertSame($token->id, $attendance->qr_token_id);
 
         $this->actingAs($scanner)
-            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $payload])
+            ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $employee->employee_number])
             ->assertConflict()
             ->assertJsonPath('status', 'already_attended');
         $this->assertDatabaseCount('event_attendances', 1);

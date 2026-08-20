@@ -67,7 +67,7 @@
                                 autofocus
                                 required
                             >
-                            <small class="text-muted d-block mt-2">Scanner QR/2D akan mengetik payload lalu menekan Enter secara otomatis. Kamera browser tidak digunakan.</small>
+                            <small class="text-muted d-block mt-2">Pindai QR kartu digital atau kartu fisik lama. Scanner QR/2D akan mengetik payload lalu menekan Enter secara otomatis.</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary" data-scan-submit>
