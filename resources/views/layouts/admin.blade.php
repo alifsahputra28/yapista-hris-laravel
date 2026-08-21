@@ -26,7 +26,15 @@
     @stack('styles')
 </head>
 
-<body class="{{ Auth::user()?->isPegawai() ? 'employee-app' : '' }}" data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
+@php
+    $layoutMode = trim($__env->yieldContent('layout-mode'));
+    $isScannerFocusMode = $layoutMode === 'scanner';
+    $bodyClass = $isScannerFocusMode
+        ? 'scanner-focus-page'
+        : (Auth::user()?->isPegawai() ? 'employee-app' : '');
+@endphp
+
+<body class="{{ $bodyClass }}" data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
 
     <div class="loader-bg">
         <div class="loader-track">
@@ -34,23 +42,31 @@
         </div>
     </div>
 
-    @include('partials.sidebar')
-    @include('partials.header')
-
-    <div class="pc-container">
-        <div class="pc-content">
-            <div class="app-content-shell">
+    @if ($isScannerFocusMode)
+        <main class="scanner-focus-main">
+            <div class="scanner-focus-shell">
                 @yield('content')
             </div>
+        </main>
+    @else
+        @include('partials.sidebar')
+        @include('partials.header')
+
+        <div class="pc-container">
+            <div class="pc-content">
+                <div class="app-content-shell">
+                    @yield('content')
+                </div>
+            </div>
         </div>
-    </div>
 
-    @include('partials.footer')
+        @include('partials.footer')
 
-    <x-confirm-action-modal />
+        <x-confirm-action-modal />
 
-    @if (Auth::user()?->isPegawai())
-        @include('partials.employee-bottom-nav')
+        @if (Auth::user()?->isPegawai())
+            @include('partials.employee-bottom-nav')
+        @endif
     @endif
 
     @stack('page-scripts')
@@ -59,14 +75,16 @@
     <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/js/fonts/custom-font.js') }}"></script>
-    <script src="{{ asset('assets/js/pcoded.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
 
-    <script>layout_change('light');</script>
-    <script>change_box_container('false');</script>
-    <script>layout_rtl_change('false');</script>
-    <script>preset_change("preset-1");</script>
-    <script>font_change("Public-Sans");</script>
+    @unless ($isScannerFocusMode)
+        <script src="{{ asset('assets/js/pcoded.js') }}"></script>
+        <script>layout_change('light');</script>
+        <script>change_box_container('false');</script>
+        <script>layout_rtl_change('false');</script>
+        <script>preset_change("preset-1");</script>
+        <script>font_change("Public-Sans");</script>
+    @endunless
     <script>document.documentElement.lang = 'id';</script>
 
     @stack('scripts')

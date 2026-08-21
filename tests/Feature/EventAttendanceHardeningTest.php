@@ -74,6 +74,38 @@ class EventAttendanceHardeningTest extends TestCase
             ->assertRedirect(route('login', absolute: false));
     }
 
+    public function test_scanner_uses_focus_layout_while_admin_pages_keep_normal_navigation(): void
+    {
+        $event = $this->event();
+        $admin = $this->user('super_admin');
+
+        $this->actingAs($admin)
+            ->get(route('events.scanner', $event, absolute: false))
+            ->assertOk()
+            ->assertSee('scanner-focus-page', false)
+            ->assertSee('scanner-focus-header', false)
+            ->assertSee('id="qr_payload"', false)
+            ->assertSee('autofocus', false)
+            ->assertSee('data-scanner-state', false)
+            ->assertSee('data-last-scan', false)
+            ->assertSee('Keluar Scanner')
+            ->assertSee(route('events.attendances.index', $event, absolute: false), false)
+            ->assertDontSee('class="pc-sidebar"', false)
+            ->assertDontSee('class="pc-header', false)
+            ->assertDontSee('id="sidebar-hide"', false)
+            ->assertDontSee('id="mobile-collapse"', false)
+            ->assertDontSee('aria-label="Breadcrumb"', false)
+            ->assertDontSee('class="pc-footer"', false);
+
+        foreach ([route('dashboard', absolute: false), route('employees.index', absolute: false), route('events.index', absolute: false)] as $route) {
+            $this->actingAs($admin)
+                ->get($route)
+                ->assertOk()
+                ->assertSee('class="pc-sidebar"', false)
+                ->assertSee('class="pc-header', false);
+        }
+    }
+
     public function test_only_admin_and_hr_can_delete_attendance_and_closed_event_is_protected(): void
     {
         $event = $this->event();

@@ -906,6 +906,366 @@
     min-width: 700px;
 }
 
+/* Attendance scanner focus mode: intentionally scoped away from the admin shell. */
+.scanner-focus-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: #f4f7f6;
+}
+
+.scanner-focus-main {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.scanner-focus-shell {
+    width: 100%;
+    max-width: 1920px;
+    margin-inline: auto;
+    padding: 1rem 1.25rem 1.5rem;
+}
+
+.scanner-focus-header {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #dfe7e4;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(27, 46, 94, 0.04);
+}
+
+.scanner-focus-brand,
+.scanner-focus-actions,
+.scanner-event-meta,
+.scanner-state,
+.scanner-result,
+.scanner-recent-item {
+    display: flex;
+    align-items: center;
+}
+
+.scanner-focus-brand {
+    min-width: 0;
+    gap: 1rem;
+}
+
+.scanner-focus-logo {
+    width: 154px;
+    height: 38px;
+    flex: 0 0 154px;
+    justify-content: flex-start;
+}
+
+.scanner-focus-heading {
+    min-width: 0;
+}
+
+.scanner-focus-heading h1 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.25rem;
+    font-weight: 650;
+    letter-spacing: 0;
+}
+
+.scanner-focus-heading > strong {
+    display: block;
+    overflow: hidden;
+    margin-top: 0.15rem;
+    color: #344054;
+    font-size: 0.9rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.scanner-event-meta {
+    flex-wrap: wrap;
+    gap: 0.25rem 0.8rem;
+    margin-top: 0.25rem;
+    color: #667382;
+    font-size: 0.78rem;
+}
+
+.scanner-event-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.scanner-focus-actions {
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.scanner-focus-actions .btn,
+.scanner-input-form .btn,
+.scanner-manual-panel .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.scanner-flash-stack .alert {
+    margin-bottom: 1rem;
+}
+
+.scanner-metric-strip {
+    overflow: hidden;
+    border: 1px solid #dfe7e4;
+    border-radius: 8px;
+}
+
+.scanner-workspace .card {
+    border-color: #dfe7e4;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(27, 46, 94, 0.04);
+}
+
+.scanner-workspace .card-header {
+    padding: 0.9rem 1rem;
+    border-bottom-color: #e8edf2;
+    background: #fff;
+}
+
+.scanner-workspace .card-body {
+    padding: 1rem;
+}
+
+.scanner-primary-panel,
+.scanner-result-panel {
+    min-height: 355px;
+}
+
+.scanner-state {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #d7e4df;
+    border-radius: 8px;
+    color: #315c50;
+    background: #eef8f4;
+}
+
+.scanner-state.is-processing {
+    color: #285ea8;
+    border-color: #cdddf3;
+    background: #eff5fd;
+}
+
+.scanner-state.is-success {
+    color: #146c43;
+    border-color: #badbcc;
+    background: #eaf7f0;
+}
+
+.scanner-state.is-warning {
+    color: #8a5a00;
+    border-color: #f2d49b;
+    background: #fff8e8;
+}
+
+.scanner-state.is-error {
+    color: #a72d3b;
+    border-color: #efc2c8;
+    background: #fff0f2;
+}
+
+.scanner-state-icon {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.75);
+    font-size: 1.35rem;
+}
+
+.scanner-state strong,
+.scanner-state small {
+    display: block;
+}
+
+.scanner-state small {
+    margin-top: 0.1rem;
+}
+
+.scanner-input-form {
+    margin-top: auto;
+}
+
+.scanner-input-form .form-control {
+    min-height: 64px;
+    border-color: #a9cfc4;
+    font-size: 1.05rem;
+}
+
+.scanner-input-form .form-control:focus {
+    border-color: #02936f;
+    box-shadow: 0 0 0 0.2rem rgba(2, 147, 111, 0.14);
+}
+
+.scanner-result-empty {
+    display: flex;
+    min-height: 250px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.6rem;
+    color: #667382;
+    text-align: center;
+}
+
+.scanner-result-empty i {
+    font-size: 2rem;
+}
+
+.scanner-result {
+    min-height: 250px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.scanner-result-avatar {
+    display: inline-flex;
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: #02936f;
+    background: #e8f5f1;
+    font-size: 1.8rem;
+}
+
+.scanner-result-identity {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 180px;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.scanner-result-identity strong {
+    color: #1f2937;
+    font-size: 1.1rem;
+}
+
+.scanner-result-identity span,
+.scanner-result-status small {
+    color: #667382;
+    font-size: 0.82rem;
+}
+
+.scanner-result-status,
+.scanner-recent-item > div:last-child {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.scanner-recent-item {
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
+}
+
+.scanner-recent-item strong,
+.scanner-recent-item small {
+    display: block;
+}
+
+.scanner-recent-item small {
+    margin-top: 0.15rem;
+    color: #667382;
+}
+
+.scanner-manual-toggle-wrap .btn {
+    width: 100%;
+    justify-content: space-between;
+    color: #344054;
+    font-weight: 600;
+}
+
+.scanner-spin {
+    animation: scanner-spin 0.9s linear infinite;
+}
+
+@keyframes scanner-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 991.98px) {
+    .scanner-focus-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .scanner-focus-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .scanner-focus-shell {
+        padding: 0.75rem;
+    }
+
+    .scanner-focus-brand {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .scanner-focus-logo {
+        width: 142px;
+        height: 32px;
+        flex-basis: 32px;
+    }
+
+    .scanner-focus-heading > strong {
+        white-space: normal;
+    }
+
+    .scanner-focus-actions,
+    .scanner-focus-actions .btn {
+        width: 100%;
+    }
+
+    .scanner-primary-panel,
+    .scanner-result-panel {
+        min-height: 0;
+    }
+
+    .scanner-result-empty,
+    .scanner-result {
+        min-height: 180px;
+    }
+
+    .scanner-recent-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .scanner-recent-item > div:last-child {
+        align-items: flex-start;
+    }
+}
+
 /* Login shell: isolated from dashboard, guest, and employee application layouts. */
 .auth-login-page {
     min-height: 100vh;

@@ -109,10 +109,17 @@ class EventAttendanceController extends Controller
 
         $summary = $this->attendanceSummaryService->summarize($event);
         $manualEmployees = $this->manualEmployeeOptions($event);
+        $recentAttendances = EventAttendance::query()
+            ->where('event_id', $event->id)
+            ->with(['employee.institution', 'employee.position'])
+            ->latest('scanned_at')
+            ->limit(5)
+            ->get();
 
         return view('event-attendances.scanner', array_merge(compact(
             'event',
-            'manualEmployees'
+            'manualEmployees',
+            'recentAttendances'
         ), $summary));
     }
 
