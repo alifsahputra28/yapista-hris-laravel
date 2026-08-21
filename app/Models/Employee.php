@@ -136,6 +136,18 @@ class Employee extends Model
         );
     }
 
+    protected function maskedFamilyCardNumber(): Attribute
+    {
+        return Attribute::get(function (): ?string {
+            if (blank($this->family_card_number)) {
+                return null;
+            }
+
+            return str_repeat('*', max(strlen($this->family_card_number) - 4, 0))
+                .substr($this->family_card_number, -4);
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

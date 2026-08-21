@@ -9,6 +9,7 @@ use App\Rules\UniqueEmployeeNik;
 use App\Services\EmployeeMetricsService;
 use App\Services\EmployeeNikProtectionService;
 use App\Services\EmployeePhotoStorageService;
+use App\Services\EmployeeProfileProgressService;
 use App\Services\EmployeeQrTokenService;
 use App\Support\Imports\EmployeeImportColumns;
 use Illuminate\Http\RedirectResponse;
@@ -132,11 +133,24 @@ class EmployeeController extends Controller
             ->with('success', 'Data pegawai berhasil ditambahkan.');
     }
 
-    public function show(Employee $employee): View
+    public function show(Employee $employee, EmployeeProfileProgressService $progressService): View
     {
-        $employee->load(['user', 'institution', 'position', 'verifier', 'documents']);
+        $employee->load([
+            'user',
+            'institution',
+            'position',
+            'verifier',
+            'profileReviewer',
+            'documents',
+            'familyMembers',
+            'educations',
+            'certifications',
+            'administrativeDetail',
+        ]);
 
-        return view('employees.show', compact('employee'));
+        $profileProgress = $progressService->calculate($employee);
+
+        return view('employees.show', compact('employee', 'profileProgress'));
     }
 
     public function findByNik(Request $request): RedirectResponse
