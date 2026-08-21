@@ -61,7 +61,7 @@
                 <div class="col-md-6 col-lg-3 collapse d-lg-block verification-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select id="institution_id" name="institution_id" class="form-select">
-                        <option value="">Semua unit</option>
+                        <option value="">Semua Unit</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected((string) request('institution_id') === (string) $institution->id)>
                                 {{ $institution->name }}
@@ -87,12 +87,12 @@
 
             <div class="filter-secondary-row collapse d-lg-flex verification-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                 <button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#verification-advanced-filter" aria-expanded="{{ $advancedFilterCount ? 'true' : 'false' }}" aria-controls="verification-advanced-filter"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif<i class="ti ti-chevron-down" aria-hidden="true"></i></button>
-                @if ($hasActiveFilters)<a href="{{ route('verifications.index') }}" class="btn btn-sm btn-link text-muted">Reset semua</a>@endif
+                @if ($hasActiveFilters)<a href="{{ route('verifications.index') }}" class="btn btn-sm btn-link text-muted">Reset Filter</a>@endif
             </div>
             <div id="verification-advanced-filter" class="collapse {{ $advancedFilterCount ? 'show' : '' }}">
                 <div class="filter-advanced-panel"><div class="row g-3">
-                    <div class="col-md-6"><label for="position_id" class="form-label">Jabatan</label><select id="position_id" name="position_id" class="form-select" form="verification-filter-form"><option value="">Semua jabatan</option>@foreach ($positions as $position)<option value="{{ $position->id }}" @selected((string) request('position_id') === (string) $position->id)>{{ $position->name }}</option>@endforeach</select></div>
-                    <div class="col-md-6"><label for="employee_type" class="form-label">Jenis Pegawai</label><select id="employee_type" name="employee_type" class="form-select" form="verification-filter-form"><option value="">Semua jenis</option>@foreach ($employeeTypes as $value => $label)<option value="{{ $value }}" @selected(request('employee_type') === $value)>{{ $label }}</option>@endforeach</select></div>
+                    <div class="col-md-6"><label for="position_id" class="form-label">Jabatan</label><select id="position_id" name="position_id" class="form-select" form="verification-filter-form"><option value="">Semua Jabatan</option>@foreach ($positions as $position)<option value="{{ $position->id }}" @selected((string) request('position_id') === (string) $position->id)>{{ $position->name }}</option>@endforeach</select></div>
+                    <div class="col-md-6"><label for="employee_type" class="form-label">Jenis Pegawai</label><select id="employee_type" name="employee_type" class="form-select" form="verification-filter-form"><option value="">Semua Jenis Pegawai</option>@foreach ($employeeTypes as $value => $label)<option value="{{ $value }}" @selected(request('employee_type') === $value)>{{ $label }}</option>@endforeach</select></div>
                 </div></div>
             </div>
             @if ($hasActiveFilters)
@@ -141,7 +141,7 @@
                                 <td class="ps-4">{{ $employees->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee->full_name }}</div>
-                                    <div class="data-meta">NUP / Nomor Pegawai: {{ $employee->employee_number ?? 'Belum dibuat' }}</div>
+                                    <div class="data-meta">NUP: {{ $employee->employee_number ?? 'Belum tersedia' }}</div>
                                 </td>
                                 <td>
                                     <div>{{ $employee->institution?->name ?? '-' }}</div>

@@ -26,7 +26,7 @@
         </section>
         <section class="auth-form-panel">
             <div class="auth-login-form">
-                <p class="text-primary fw-semibold mb-2">Error @yield('code')</p>
+                <p class="text-primary fw-semibold mb-2">Kode @yield('code')</p>
                 <h1 class="auth-login-title">@yield('heading')</h1>
                 <p class="text-muted mb-4">@yield('message')</p>
                 <a href="{{ url('/') }}" class="btn btn-primary">Kembali ke Beranda</a>

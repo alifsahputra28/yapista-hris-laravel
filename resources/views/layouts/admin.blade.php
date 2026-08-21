@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="YAPISTA HRIS">
-    <meta name="keywords" content="YAPISTA, HRIS, Pegawai, Absensi, ID Card">
+    <meta name="keywords" content="YAPISTA, HRIS, Pegawai, Kehadiran, ID Card">
     <meta name="author" content="YAPISTA">
 
     <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon">

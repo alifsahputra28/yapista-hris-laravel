@@ -7,7 +7,7 @@
 
     <x-page-header
         title="Profil Saya"
-        subtitle="Kelola informasi login dan keamanan akun Anda."
+        subtitle="Kelola informasi dan keamanan akun Anda."
         :breadcrumbs="[
             ['label' => 'Dashboard', 'url' => route($dashboardRoute)],
             ['label' => 'Profil Saya'],
@@ -19,7 +19,7 @@
             <section class="card h-100" aria-labelledby="profile-information-heading">
                 <div class="card-header">
                     <div>
-                        <h2 id="profile-information-heading" class="h5 mb-1">Informasi Login</h2>
+                        <h2 id="profile-information-heading" class="h5 mb-1">Informasi Akun</h2>
                         <p class="text-muted mb-0">Nama akun dan email yang digunakan untuk masuk.</p>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Login</label>
+                            <label for="email" class="form-label">Email Akun</label>
                             <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" class="form-control @error('email') is-invalid @enderror" required autocomplete="username">
                             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>

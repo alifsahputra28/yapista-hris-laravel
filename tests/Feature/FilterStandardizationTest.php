@@ -161,7 +161,7 @@ class FilterStandardizationTest extends TestCase
             ->assertOk()
             ->assertSee('Filter Lanjutan')
             ->assertSee('Filter aktif:')
-            ->assertSee('Reset semua')
+            ->assertSee('Reset Filter')
             ->assertSee('Pegawai Laporan Filter');
     }
 

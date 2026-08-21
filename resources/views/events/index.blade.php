@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kegiatan Yayasan | YAPISTA HRIS')
+@section('title', 'Data Kegiatan | YAPISTA HRIS')
 
 @section('content')
     @php
@@ -18,8 +18,8 @@
     @endphp
 
     <x-page-header
-        title="Kegiatan Yayasan"
-        subtitle="Kelola jadwal, target peserta, dan kesiapan absensi QR Code."
+        title="Data Kegiatan"
+        subtitle="Kelola jadwal, peserta, dan pencatatan kehadiran kegiatan."
         :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Kegiatan']]"
     >
         <x-slot:actions>
@@ -58,7 +58,7 @@
                 <div class="col-md-6 col-lg-2 collapse d-lg-block event-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="status" class="form-label">Status</label>
                     <select id="status" name="status" class="form-select">
-                        <option value="">Semua status</option>
+                        <option value="">Semua Status</option>
                         @foreach ($statuses as $value => $label)
                             <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
                         @endforeach
@@ -79,9 +79,9 @@
             </form>
             <div class="filter-secondary-row collapse d-lg-flex event-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                 <button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#event-advanced-filter" aria-expanded="{{ $advancedFilterCount ? 'true' : 'false' }}" aria-controls="event-advanced-filter"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif<i class="ti ti-chevron-down" aria-hidden="true"></i></button>
-                @if ($hasActiveFilters)<a href="{{ route('events.index') }}" class="btn btn-sm btn-link text-muted">Reset semua</a>@endif
+                @if ($hasActiveFilters)<a href="{{ route('events.index') }}" class="btn btn-sm btn-link text-muted">Reset Filter</a>@endif
             </div>
-            <div id="event-advanced-filter" class="collapse {{ $advancedFilterCount ? 'show' : '' }}"><div class="filter-advanced-panel"><div class="row g-3"><div class="col-md-6 col-lg-4"><label for="target_type" class="form-label">Target Peserta</label><select id="target_type" name="target_type" class="form-select" form="event-filter-form"><option value="">Semua target</option>@foreach ($targetTypes as $value => $label)<option value="{{ $value }}" @selected(request('target_type') === $value)>{{ $label }}</option>@endforeach</select></div></div></div></div>
+            <div id="event-advanced-filter" class="collapse {{ $advancedFilterCount ? 'show' : '' }}"><div class="filter-advanced-panel"><div class="row g-3"><div class="col-md-6 col-lg-4"><label for="target_type" class="form-label">Target Peserta</label><select id="target_type" name="target_type" class="form-select" form="event-filter-form"><option value="">Semua Target</option>@foreach ($targetTypes as $value => $label)<option value="{{ $value }}" @selected(request('target_type') === $value)>{{ $label }}</option>@endforeach</select></div></div></div></div>
             @if ($hasActiveFilters)
                 <div class="active-filter-summary" aria-label="Filter aktif"><span class="active-filter-label">Filter aktif:</span>
                     @if (request('status'))<x-active-filter-chip label="Status" :value="$statuses[request('status')] ?? request('status')" :url="route('events.index', request()->except('status', 'page'))" />@endif
@@ -157,13 +157,13 @@
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a href="{{ route('events.attendances.index', $event) }}" class="dropdown-item">
                                                     <i class="ti ti-list-check"></i>
-                                                    Daftar Hadir
+                                                    Daftar Kehadiran
                                                 </a>
 
                                                 @if ($event->canScanAttendance())
                                                     <a href="{{ route('events.scanner', $event) }}" class="dropdown-item">
                                                         <i class="ti ti-qrcode"></i>
-                                                        Scan QR Code
+                                                        Scan Kehadiran
                                                     </a>
                                                 @endif
 

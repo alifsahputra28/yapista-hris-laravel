@@ -48,13 +48,13 @@ class EventAttendancesReportExport
         return SimpleXlsxWriter::download($filename, [
             'No',
             'Nama Pegawai',
-            'NUP / Nomor Pegawai',
+            'NUP',
             'Unit Kerja',
             'Jabatan',
-            'Status Hadir',
-            'Waktu Scan',
-            'Metode Scan',
-            'Petugas Scan',
+            'Status Kehadiran',
+            'Waktu Kehadiran',
+            'Metode Kehadiran',
+            'Petugas',
         ], $rows, $this->event->name);
     }
 }

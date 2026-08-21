@@ -123,7 +123,7 @@
             <div class="col-md-6">
                 <label for="email" class="form-label">Email Pribadi</label>
                 <input id="email" type="email" name="email" value="{{ old('email', $employee->email) }}" maxlength="255" class="form-control @error('email') is-invalid @enderror">
-                <div class="form-text">Email ini tidak mengubah email login akun Anda.</div>
+                <div class="form-text">Email ini tidak mengubah email akun Anda.</div>
                 @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
         </div>

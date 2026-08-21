@@ -46,7 +46,7 @@ class EmployeeDocumentController extends Controller
 
         if (! $employee->canManageDocuments()) {
             return $this->redirectAfterAction($request)
-                ->with('error', 'Dokumen tidak bisa diubah saat data sedang diajukan.');
+                ->with('error', 'Dokumen tidak dapat diubah saat profil sedang diajukan.');
         }
 
         $validated = $request->validated();
@@ -91,7 +91,7 @@ class EmployeeDocumentController extends Controller
             report($exception);
 
             return $this->redirectAfterAction($request)
-                ->with('error', 'Dokumen gagal disimpan. Silakan coba kembali.');
+                ->with('error', 'Dokumen tidak dapat diunggah. Periksa kembali file dan coba lagi.');
         }
 
         if ($oldPath && $oldPath !== $path) {
@@ -99,7 +99,7 @@ class EmployeeDocumentController extends Controller
         }
 
         return $this->redirectAfterAction($request)
-            ->with('success', 'Dokumen berhasil diupload.');
+            ->with('success', 'Dokumen berhasil diunggah.');
     }
 
     public function destroy(Request $request, EmployeeDocument $document): RedirectResponse
@@ -116,12 +116,12 @@ class EmployeeDocumentController extends Controller
 
         if (! $employee->canManageDocuments()) {
             return $this->redirectAfterAction($request)
-                ->with('error', 'Dokumen tidak bisa dihapus saat data sedang diajukan.');
+                ->with('error', 'Dokumen tidak dapat dihapus saat profil sedang diajukan.');
         }
 
         if ($document->isValid()) {
             return $this->redirectAfterAction($request)
-                ->with('error', 'Dokumen valid tidak bisa dihapus.');
+                ->with('error', 'Dokumen yang telah disetujui tidak dapat dihapus.');
         }
 
         $path = $document->file_path;

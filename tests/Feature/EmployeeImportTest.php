@@ -52,8 +52,8 @@ class EmployeeImportTest extends TestCase
             ->get(route('employees.index', absolute: false))
             ->assertOk()
             ->assertSee('Import Excel')
-            ->assertSee('Import Excel Data Pegawai')
-            ->assertSee('Download Template Excel')
+            ->assertSee('Import Data Pegawai')
+            ->assertSee('Unduh Template')
             ->assertSee('name="file"', false)
             ->assertSee('accept=".xlsx,.xls,.csv"', false)
             ->assertSee('ti-file-import', false);
@@ -182,7 +182,7 @@ class EmployeeImportTest extends TestCase
                 'file' => $this->spreadsheetUpload('xlsx', [$this->validRow()], $headers),
             ])
             ->assertRedirect(route('employees.index', absolute: false))
-            ->assertSessionHasErrors(['file' => 'Struktur kolom Excel tidak sesuai template. Download dan gunakan template terbaru.']);
+            ->assertSessionHasErrors(['file' => 'Struktur kolom Excel tidak sesuai template. Unduh dan gunakan template terbaru.']);
     }
 
     public function test_duplicate_nup_is_skipped_without_changing_existing_qr(): void
@@ -250,7 +250,7 @@ class EmployeeImportTest extends TestCase
                 ->post(route('employees.import.store', absolute: false), [
                     'file' => $this->spreadsheetUpload('xlsx', [$row], $headers),
                 ])
-                ->assertSessionHasErrors(['file' => 'Struktur kolom Excel tidak sesuai template. Download dan gunakan template terbaru.']);
+                ->assertSessionHasErrors(['file' => 'Struktur kolom Excel tidak sesuai template. Unduh dan gunakan template terbaru.']);
         }
 
         $this->assertDatabaseCount('employees', 0);

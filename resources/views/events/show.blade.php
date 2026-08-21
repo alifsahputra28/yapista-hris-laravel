@@ -25,7 +25,7 @@
 
     <x-page-header
         title="{{ $event->name }}"
-        subtitle="Detail jadwal, target, peserta, dan kesiapan absensi kegiatan."
+        subtitle="Tinjau jadwal, peserta, dan status kehadiran kegiatan."
         :breadcrumbs="[
             ['label' => 'Dashboard', 'url' => route('dashboard')],
             ['label' => 'Kegiatan', 'url' => route('events.index')],
@@ -41,9 +41,9 @@
         </x-slot:meta>
         <x-slot:actions>
             <a href="{{ route('events.index') }}" class="btn btn-light-secondary">Kembali</a>
-            <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary"><i class="ti ti-list-check"></i> Daftar Hadir</a>
+            <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary"><i class="ti ti-list-check"></i> Daftar Kehadiran</a>
             @if ($event->canScanAttendance())
-                <a href="{{ route('events.scanner', $event) }}" class="btn btn-success"><i class="ti ti-qrcode"></i> Scan QR</a>
+                <a href="{{ route('events.scanner', $event) }}" class="btn btn-success"><i class="ti ti-qrcode"></i> Scan Kehadiran</a>
             @endif
         </x-slot:actions>
     </x-page-header>
@@ -129,7 +129,7 @@
                         <strong>{{ $participantCounts->get('confirmed', 0) }}</strong>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>Cancelled</span>
+                        <span>Dibatalkan</span>
                         <strong>{{ $participantCounts->get('cancelled', 0) }}</strong>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                         @endif
 
                         @if ($event->isDraft() && $event->participants->count() > 0)
-                            <form method="POST" action="{{ route('events.activate', $event) }}" data-confirm-title="Aktifkan Kegiatan?" data-confirm-message="Kegiatan akan mulai menerima absensi peserta. Lanjutkan?">
+                            <form method="POST" action="{{ route('events.activate', $event) }}" data-confirm-title="Aktifkan Kegiatan?" data-confirm-message="Kegiatan akan mulai menerima pencatatan kehadiran peserta.">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
                                     <i class="ti ti-player-play"></i>
@@ -159,7 +159,7 @@
                         @endif
 
                         @if ($event->isActive())
-                            <form method="POST" action="{{ route('events.close', $event) }}" data-confirm-title="Tutup Kegiatan?" data-confirm-message="Kegiatan yang ditutup tidak lagi menerima absensi baru. Lanjutkan?">
+                            <form method="POST" action="{{ route('events.close', $event) }}" data-confirm-title="Tutup Kegiatan?" data-confirm-message="Kegiatan yang ditutup tidak lagi menerima pencatatan kehadiran baru.">
                                 @csrf
                                 <button type="submit" class="btn btn-primary">
                                     <i class="ti ti-lock"></i>
@@ -188,10 +188,10 @@
             <div class="col-lg-7">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Generate Ulang Peserta</h5>
+                        <h5 class="mb-0">Buat Ulang Peserta</h5>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('events.participants.generate', $event) }}" class="js-target-form" data-confirm-title="Generate Ulang Peserta?" data-confirm-message="Daftar peserta lama akan dihapus dan dibuat ulang sesuai target saat ini. Lanjutkan?">
+                        <form method="POST" action="{{ route('events.participants.generate', $event) }}" class="js-target-form" data-confirm-title="Buat Ulang Peserta?" data-confirm-message="Daftar peserta lama akan dihapus dan dibuat ulang sesuai target saat ini. Lanjutkan?">
                             @csrf
                         <div class="row g-3">
                                 <div class="col-md-6 mb-3">
@@ -239,7 +239,7 @@
 
                             <button type="submit" class="btn btn-primary">
                                 <i class="ti ti-refresh"></i>
-                                Generate Ulang Peserta
+                                Buat Ulang Peserta
                             </button>
                         </form>
                     </div>
@@ -340,7 +340,7 @@
                                             <i class="ti ti-users f-28"></i>
                                         </div>
                                         <h5 class="mb-1">Belum ada peserta kegiatan.</h5>
-                                        <p class="text-muted mb-0">Generate peserta atau tambahkan peserta manual saat kegiatan masih draft.</p>
+                                        <p class="text-muted mb-0">Buat daftar peserta atau tambahkan peserta secara manual saat kegiatan masih berstatus draft.</p>
                                     </div>
                                 </td>
                             </tr>

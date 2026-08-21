@@ -122,7 +122,7 @@ class EventController extends Controller
         if (! $event->canBeEdited()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Kegiatan hanya bisa diedit saat status draft.');
+                ->with('error', 'Kegiatan hanya dapat diedit saat berstatus Draft.');
         }
 
         [$institutions, $positions, $employees] = $this->formOptions();
@@ -135,7 +135,7 @@ class EventController extends Controller
         if (! $event->canBeEdited()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Kegiatan hanya bisa diperbarui saat status draft.');
+                ->with('error', 'Kegiatan hanya dapat diperbarui saat berstatus Draft.');
         }
 
         $data = $this->validatedData($request, $event);
@@ -161,7 +161,7 @@ class EventController extends Controller
         if (! $event->isDraft() && ! $event->isCancelled()) {
             return redirect()
                 ->route('events.index')
-                ->with('error', 'Kegiatan aktif atau tertutup tidak bisa dihapus.');
+                ->with('error', 'Kegiatan aktif atau yang telah ditutup tidak dapat dihapus.');
         }
 
         if ($event->attendances()->exists()) {
@@ -188,7 +188,7 @@ class EventController extends Controller
         if (! $event->isDraft()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Hanya kegiatan draft yang bisa diaktifkan.');
+                ->with('error', 'Hanya kegiatan berstatus Draft yang dapat diaktifkan.');
         }
 
         if ($event->participants()->count() === 0) {
@@ -209,7 +209,7 @@ class EventController extends Controller
         if (! $event->isActive()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Hanya kegiatan aktif yang bisa ditutup.');
+                ->with('error', 'Hanya kegiatan aktif yang dapat ditutup.');
         }
 
         $event->update(['status' => 'closed']);
@@ -224,13 +224,13 @@ class EventController extends Controller
         if ($event->isClosed()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Kegiatan yang sudah ditutup tidak bisa dibatalkan.');
+                ->with('error', 'Kegiatan yang sudah ditutup tidak dapat dibatalkan.');
         }
 
         if (! $event->isDraft() && ! $event->isActive()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Hanya kegiatan draft atau aktif yang bisa dibatalkan.');
+                ->with('error', 'Hanya kegiatan berstatus Draft atau Aktif yang dapat dibatalkan.');
         }
 
         $event->update(['status' => 'cancelled']);

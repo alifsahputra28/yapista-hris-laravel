@@ -121,6 +121,6 @@ class EmployeeCertificationController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data sertifikasi tidak dapat diubah saat profil sudah diajukan/diverifikasi.');
+            ->with('error', 'Data sertifikasi tidak dapat diubah setelah profil diajukan atau diverifikasi.');
     }
 }

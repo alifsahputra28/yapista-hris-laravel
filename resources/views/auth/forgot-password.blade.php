@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-4">
         <h1 class="auth-login-title">Lupa Password</h1>
-        <p class="text-muted mb-0">Masukkan email akun Anda. Kami akan mengirim tautan untuk membuat password baru.</p>
+        <p class="text-muted mb-0">Masukkan email yang terdaftar untuk menerima tautan pengaturan ulang password.</p>
     </div>
 
     @if (session('status'))
@@ -16,8 +16,8 @@
             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
         <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">Kirim Tautan Reset Password</button>
-            <a href="{{ route('login') }}" class="btn btn-light-secondary">Kembali ke Login</a>
+            <button type="submit" class="btn btn-primary">Kirim Tautan Reset</button>
+            <a href="{{ route('login') }}" class="btn btn-light-secondary">Kembali ke Halaman Masuk</a>
         </div>
     </form>
 </x-guest-layout>

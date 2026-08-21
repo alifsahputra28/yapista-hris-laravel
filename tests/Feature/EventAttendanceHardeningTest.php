@@ -134,7 +134,7 @@ class EventAttendanceHardeningTest extends TestCase
 
         $this->actingAs($this->user('super_admin'))
             ->delete(route('event-attendances.destroy', $closedAttendance, absolute: false))
-            ->assertSessionHas('error', 'Absensi tidak dapat dihapus karena kegiatan sudah ditutup.');
+            ->assertSessionHas('error', 'Kehadiran tidak dapat dihapus karena kegiatan sudah ditutup.');
         $this->assertDatabaseHas('event_attendances', ['id' => $closedAttendance->id]);
     }
 
@@ -261,7 +261,7 @@ class EventAttendanceHardeningTest extends TestCase
         $this->actingAs($scanner)
             ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930021'])
             ->assertUnprocessable()
-            ->assertJsonPath('message', 'Status kepegawaian tidak memenuhi syarat untuk melakukan absensi.');
+            ->assertJsonPath('message', 'Pegawai tidak aktif sehingga kehadiran tidak dapat dicatat.');
 
         $this->actingAs($scanner)
             ->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '7770930022'])
@@ -448,7 +448,7 @@ class EventAttendanceHardeningTest extends TestCase
             [$unverified, 'Pegawai belum terverifikasi.'],
             [$nonParticipant, 'Pegawai tidak terdaftar sebagai peserta kegiatan.'],
             [$cancelled, 'Keikutsertaan pegawai pada kegiatan ini telah dibatalkan.'],
-            [$inactive, 'Status kepegawaian tidak memenuhi syarat untuk melakukan absensi.'],
+            [$inactive, 'Pegawai tidak aktif sehingga kehadiran tidak dapat dicatat.'],
         ];
 
         foreach ($cases as [$employee, $message]) {
@@ -474,7 +474,7 @@ class EventAttendanceHardeningTest extends TestCase
             ->recordQrAttendance($event, $employee, $this->user('panitia'), $token);
 
         $this->assertSame('rejected', $result->status);
-        $this->assertSame('Pegawai belum memiliki NUP / Nomor Pegawai yang valid.', $result->message);
+        $this->assertSame('Pegawai belum memiliki NUP yang valid.', $result->message);
         $this->assertDatabaseCount('event_attendances', 0);
     }
 
@@ -508,7 +508,7 @@ class EventAttendanceHardeningTest extends TestCase
                 ->etc());
 
         $this->assertStringContainsString(
-            'Siti Duplikat sudah melakukan absensi pada',
+            'Kehadiran Siti Duplikat sudah tercatat pada',
             $response->json('message')
         );
         $this->assertDatabaseCount('event_attendances', 1);
@@ -625,7 +625,7 @@ class EventAttendanceHardeningTest extends TestCase
 
         $this->assertSame('already_attended', $result->status);
         $this->assertSame($existing->id, $result->attendance?->id);
-        $this->assertStringContainsString('Pegawai Race sudah melakukan absensi pada', $result->message);
+        $this->assertStringContainsString('Kehadiran Pegawai Race sudah tercatat pada', $result->message);
         $this->assertDatabaseCount('event_attendances', 1);
     }
 

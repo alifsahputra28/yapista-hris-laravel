@@ -68,7 +68,7 @@ class EventParticipantController extends Controller
         if (! $event->canGenerateParticipants()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Peserta hanya bisa digenerate saat kegiatan masih draft.');
+                ->with('error', 'Peserta hanya dapat dibuat saat kegiatan masih berstatus Draft.');
         }
 
         $data = $this->validatedTargetData($request);
@@ -81,7 +81,7 @@ class EventParticipantController extends Controller
 
         return redirect()
             ->route('events.show', $event)
-            ->with('success', 'Peserta kegiatan berhasil digenerate ulang. '.$participantCount.' peserta dibuat.');
+            ->with('success', 'Daftar peserta berhasil dibuat ulang. '.$participantCount.' peserta tersedia.');
     }
 
     public function storeManual(Request $request, Event $event): RedirectResponse
@@ -89,7 +89,7 @@ class EventParticipantController extends Controller
         if (! $event->isDraft()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Peserta manual hanya bisa ditambahkan saat kegiatan masih draft.');
+                ->with('error', 'Peserta manual hanya dapat ditambahkan saat kegiatan masih berstatus Draft.');
         }
 
         $validated = $request->validate([
@@ -101,7 +101,7 @@ class EventParticipantController extends Controller
 
         return redirect()
             ->route('events.show', $event)
-            ->with('success', $added.' peserta manual berhasil ditambahkan.');
+            ->with('success', $added.' peserta berhasil ditambahkan secara manual.');
     }
 
     public function destroy(EventParticipant $participant): RedirectResponse
@@ -112,7 +112,7 @@ class EventParticipantController extends Controller
         if (! $event?->isDraft()) {
             return redirect()
                 ->route('events.show', $event)
-                ->with('error', 'Peserta hanya bisa dihapus saat kegiatan masih draft.');
+                ->with('error', 'Peserta hanya dapat dihapus saat kegiatan masih berstatus Draft.');
         }
 
         $participant->delete();

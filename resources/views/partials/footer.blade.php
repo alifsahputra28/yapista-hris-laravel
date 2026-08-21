@@ -11,7 +11,7 @@
         <div class="row">
             <div class="col-sm my-1">
                 <p class="m-0">
-                    YAPISTA HRIS &copy; {{ date('Y') }} - Sistem Pendataan Pegawai dan Absensi Kegiatan
+                    YAPISTA HRIS &copy; {{ date('Y') }} - Sistem Informasi Kepegawaian dan Kehadiran
                 </p>
             </div>
 

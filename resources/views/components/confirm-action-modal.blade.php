@@ -10,7 +10,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-danger" data-confirm-action-submit>Ya, lanjutkan</button>
+                <button type="button" class="btn btn-danger" data-confirm-action-submit>Lanjutkan</button>
             </div>
         </div>
     </div>

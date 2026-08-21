@@ -34,7 +34,7 @@
     <div class="metric-item"><div class="metric-label">Total Peserta</div><div class="metric-value">{{ number_format($totalParticipants) }}</div></div>
     <div class="metric-item"><div class="metric-label">Hadir</div><div class="metric-value">{{ number_format($attendedCount) }}</div></div>
     <div class="metric-item"><div class="metric-label">Belum Hadir</div><div class="metric-value">{{ number_format($absentCount) }}</div></div>
-    <div class="metric-item"><div class="metric-label">Persentase</div><div class="metric-value">{{ $attendancePercentage }}%</div></div>
+    <div class="metric-item"><div class="metric-label">Tingkat Kehadiran</div><div class="metric-value">{{ $attendancePercentage }}%</div></div>
 </div>
 
 <div class="card filter-card mb-4">
@@ -49,7 +49,7 @@
                 <div class="col-md-6 col-lg-3 collapse d-lg-block attendance-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select name="institution_id" id="institution_id" class="form-select">
-                        <option value="">Semua unit</option>
+                        <option value="">Semua Unit</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected((string) request('institution_id') === (string) $institution->id)>
                                 {{ $institution->name }}
@@ -58,7 +58,7 @@
                     </select>
                 </div>
                 <div class="col-md-6 col-lg-3 collapse d-lg-block attendance-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
-                    <label for="attendance_status" class="form-label">Status Hadir</label>
+                    <label for="attendance_status" class="form-label">Status Kehadiran</label>
                     <select name="attendance_status" id="attendance_status" class="form-select">
                         <option value="">Semua</option>
                         <option value="present" @selected(request('attendance_status') === 'present')>Hadir</option>
@@ -68,10 +68,10 @@
                 <div class="col-lg-1 filter-primary-actions collapse d-lg-block attendance-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}"><button type="submit" class="btn btn-primary w-100" title="Terapkan Filter"><i class="ti ti-filter" aria-hidden="true"></i><span class="d-lg-none">Terapkan Filter</span></button></div>
             </div>
         </form>
-        <div class="filter-secondary-row collapse d-lg-flex attendance-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}"><button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#attendance-report-advanced-filter" aria-expanded="{{ $advancedFilterCount ? 'true' : 'false' }}" aria-controls="attendance-report-advanced-filter"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif<i class="ti ti-chevron-down" aria-hidden="true"></i></button>@if ($hasActiveFilters)<a href="{{ route('reports.events.attendances', $event) }}" class="btn btn-sm btn-link text-muted">Reset semua</a>@endif</div>
+        <div class="filter-secondary-row collapse d-lg-flex attendance-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}"><button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#attendance-report-advanced-filter" aria-expanded="{{ $advancedFilterCount ? 'true' : 'false' }}" aria-controls="attendance-report-advanced-filter"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif<i class="ti ti-chevron-down" aria-hidden="true"></i></button>@if ($hasActiveFilters)<a href="{{ route('reports.events.attendances', $event) }}" class="btn btn-sm btn-link text-muted">Reset Filter</a>@endif</div>
         <div id="attendance-report-advanced-filter" class="collapse {{ $advancedFilterCount ? 'show' : '' }}"><div class="filter-advanced-panel"><div class="row g-3">
-            <div class="col-md-6"><label for="position_id" class="form-label">Jabatan</label><select name="position_id" id="position_id" class="form-select" form="attendance-report-filter-form"><option value="">Semua jabatan</option>@foreach ($positions as $position)<option value="{{ $position->id }}" @selected((string) request('position_id') === (string) $position->id)>{{ $position->name }}@if ($position->institution) - {{ $position->institution->name }}@endif</option>@endforeach</select></div>
-            <div class="col-md-6"><label for="scan_method" class="form-label">Metode Kehadiran</label><select name="scan_method" id="scan_method" class="form-select" form="attendance-report-filter-form"><option value="">Semua metode</option>@foreach ($scanMethods as $value => $label)<option value="{{ $value }}" @selected(request('scan_method') === $value)>{{ $label }}</option>@endforeach</select></div>
+            <div class="col-md-6"><label for="position_id" class="form-label">Jabatan</label><select name="position_id" id="position_id" class="form-select" form="attendance-report-filter-form"><option value="">Semua Jabatan</option>@foreach ($positions as $position)<option value="{{ $position->id }}" @selected((string) request('position_id') === (string) $position->id)>{{ $position->name }}@if ($position->institution) - {{ $position->institution->name }}@endif</option>@endforeach</select></div>
+            <div class="col-md-6"><label for="scan_method" class="form-label">Metode Kehadiran</label><select name="scan_method" id="scan_method" class="form-select" form="attendance-report-filter-form"><option value="">Semua Metode</option>@foreach ($scanMethods as $value => $label)<option value="{{ $value }}" @selected(request('scan_method') === $value)>{{ $label }}</option>@endforeach</select></div>
         </div></div></div>
         @if ($hasActiveFilters)<div class="active-filter-summary" aria-label="Filter aktif"><span class="active-filter-label">Filter aktif:</span>
             @if ($activeInstitution)<x-active-filter-chip label="Unit" :value="$activeInstitution" :url="route('reports.events.attendances', array_merge(['event' => $event->id], request()->except('institution_id', 'page')))" />@endif
@@ -92,10 +92,10 @@
                             <th style="width: 70px;">No</th>
                             <th>Pegawai</th>
                             <th>Unit & Jabatan</th>
-                            <th>Status Hadir</th>
-                            <th>Waktu Scan</th>
+                            <th>Status Kehadiran</th>
+                            <th>Waktu Kehadiran</th>
                             <th>Metode</th>
-                            <th>Petugas Scan</th>
+                            <th>Petugas</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -108,7 +108,7 @@
                                 <td>{{ $participants->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee?->full_name ?: '-' }}</div>
-                                    <div class="data-meta">NUP / Nomor Pegawai: {{ $employee?->employee_number ?: 'Belum dibuat' }}</div>
+                                    <div class="data-meta">NUP: {{ $employee?->employee_number ?: 'Belum tersedia' }}</div>
                                 </td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee?->institution?->name ?: '-' }}</div>
@@ -140,7 +140,7 @@
         @else
             <div class="empty-state">
                 <div class="avtar bg-light-secondary text-secondary"><i class="ti ti-clipboard-x"></i></div>
-                <h6 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada peserta yang sesuai dengan filter.' : 'Belum ada data peserta' }}</h6>
+                <h6 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada peserta yang sesuai dengan filter.' : 'Belum ada data peserta.' }}</h6>
                 <p class="text-muted {{ $hasActiveFilters ? 'mb-3' : 'mb-0' }}">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat peserta lainnya.' : 'Pastikan peserta kegiatan sudah dibuat.' }}</p>
                 @if ($hasActiveFilters)<a href="{{ route('reports.events.attendances', $event) }}" class="btn btn-light-primary"><i class="ti ti-filter-off"></i> Reset Filter</a>@endif
             </div>

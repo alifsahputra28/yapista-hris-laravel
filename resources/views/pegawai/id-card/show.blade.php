@@ -6,7 +6,7 @@
     <div class="d-none d-lg-block">
         <x-page-header
             title="ID Card Saya"
-            subtitle="Kartu pegawai digital dan QR Code absensi kegiatan."
+            subtitle="ID Card digital dengan QR Code untuk mencatat kehadiran."
             :breadcrumbs="[['label' => 'Beranda', 'url' => route('pegawai.dashboard')], ['label' => 'ID Card']]"
         />
     </div>
@@ -32,7 +32,7 @@
                 </button>
                 <a href="{{ route('pegawai.id-card.download') }}" class="btn btn-light-secondary">
                     <i class="ti ti-download" aria-hidden="true"></i>
-                    Download
+                    Unduh
                 </a>
             </div>
         @else
@@ -57,7 +57,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                     </div>
                     <div class="modal-body text-center p-4">
-                        <div class="employee-e-card-qr-modal mx-auto" role="img" aria-label="QR Code absensi pegawai">{!! $qrCodeSvg !!}</div>
+                        <div class="employee-e-card-qr-modal mx-auto" role="img" aria-label="QR Code kehadiran pegawai">{!! $qrCodeSvg !!}</div>
                         <p class="fw-semibold mt-3 mb-1">NUP {{ $employee->employee_number }}</p>
                         <p class="text-muted small mb-0">Arahkan QR Code ini ke scanner kegiatan.</p>
                     </div>

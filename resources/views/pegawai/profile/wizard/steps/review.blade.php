@@ -49,7 +49,7 @@
                 @include('pegawai.profile.wizard.partials.document-row', ['item' => $educationDocument['transkrip'], 'documentType' => 'transkrip', 'educationId' => $educationDocument['education_id']])
             </tbody></table></div>
         @empty
-            <div class="empty-state"><i class="ti ti-school fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada riwayat pendidikan</h6><p class="text-muted mb-0">Tambahkan pendidikan sebelum mengunggah ijazah.</p></div>
+            <div class="empty-state"><i class="ti ti-school fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada data pendidikan.</h6><p class="text-muted mb-0">Tambahkan pendidikan sebelum mengunggah ijazah.</p></div>
         @endforelse
     </div>
 </div>
@@ -63,17 +63,17 @@
                 @include('pegawai.profile.wizard.partials.document-row', ['item' => $certificationDocument['document'], 'documentType' => 'sertifikat', 'certificationId' => $certificationDocument['certification_id']])
             </tbody></table></div>
         @empty
-            <div class="empty-state"><i class="ti ti-certificate fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada sertifikasi</h6><p class="text-muted mb-0">Sertifikasi tidak diwajibkan untuk pengajuan profil.</p></div>
+            <div class="empty-state"><i class="ti ti-certificate fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada data sertifikasi.</h6><p class="text-muted mb-0">Sertifikasi tidak diwajibkan untuk pengajuan profil.</p></div>
         @endforelse
     </div>
 </div>
 
 @foreach ($submissionChecklist['warnings'] as $warning)<div class="alert alert-warning"><i class="ti ti-alert-triangle me-1"></i>{{ $warning }}</div>@endforeach
 
-<div class="card"><div class="card-header"><h5 class="mb-0">Review Data</h5></div><div class="card-body">
+<div class="card"><div class="card-header"><h5 class="mb-0">Periksa Data</h5></div><div class="card-body">
     <div class="row g-3">
         <div class="col-md-6"><small class="text-muted d-block">Nama Lengkap</small>{{ $employee->full_name }}</div>
-        <div class="col-md-6"><small class="text-muted d-block">NUP / Nomor Pegawai</small>{{ $employee->formatted_employee_number }}</div>
+        <div class="col-md-6"><small class="text-muted d-block">NUP</small>{{ $employee->formatted_employee_number }}</div>
         <div class="col-md-6"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? 'Belum diisi' }}</div>
         <div class="col-md-6"><small class="text-muted d-block">Nomor Kartu Keluarga</small>{{ $mask($employee->family_card_number) }}</div>
         <div class="col-md-6"><small class="text-muted d-block">Unit & Jabatan</small>{{ $employee->institution?->name ?? 'Belum diisi' }} / {{ $employee->position?->name ?? 'Belum diisi' }}</div>

@@ -48,7 +48,7 @@
                 <div class="col-md-6 col-lg-2 collapse d-lg-block employee-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select name="institution_id" id="institution_id" class="form-select">
-                        <option value="">Semua unit</option>
+                        <option value="">Semua Unit</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected((string) request('institution_id') === (string) $institution->id)>
                                 {{ $institution->name }}
@@ -59,7 +59,7 @@
                 <div class="col-md-6 col-lg-2 collapse d-lg-block employee-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="position_id" class="form-label">Jabatan</label>
                     <select name="position_id" id="position_id" class="form-select">
-                        <option value="">Semua jabatan</option>
+                        <option value="">Semua Jabatan</option>
                         @foreach ($positions as $position)
                             <option value="{{ $position->id }}" @selected((string) request('position_id') === (string) $position->id)>
                                 {{ $position->name }}
@@ -82,10 +82,10 @@
                 <div class="col-lg-1 filter-primary-actions collapse d-lg-block employee-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}"><button type="submit" class="btn btn-primary w-100" title="Terapkan Filter"><i class="ti ti-filter" aria-hidden="true"></i><span class="d-lg-none">Terapkan Filter</span></button></div>
             </div>
         </form>
-        <div class="filter-secondary-row collapse d-lg-flex employee-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}"><button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#employee-report-advanced-filter" aria-expanded="{{ $advancedFilterCount ? 'true' : 'false' }}" aria-controls="employee-report-advanced-filter"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif<i class="ti ti-chevron-down" aria-hidden="true"></i></button>@if ($hasActiveFilters)<a href="{{ route('reports.employees') }}" class="btn btn-sm btn-link text-muted">Reset semua</a>@endif</div>
+        <div class="filter-secondary-row collapse d-lg-flex employee-report-mobile-filter {{ $activeFilterCount ? 'show' : '' }}"><button class="btn btn-link filter-advanced-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#employee-report-advanced-filter" aria-expanded="{{ $advancedFilterCount ? 'true' : 'false' }}" aria-controls="employee-report-advanced-filter"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>Filter Lanjutan @if ($advancedFilterCount)<span class="badge bg-light-primary text-primary">{{ $advancedFilterCount }}</span>@endif<i class="ti ti-chevron-down" aria-hidden="true"></i></button>@if ($hasActiveFilters)<a href="{{ route('reports.employees') }}" class="btn btn-sm btn-link text-muted">Reset Filter</a>@endif</div>
         <div id="employee-report-advanced-filter" class="collapse {{ $advancedFilterCount ? 'show' : '' }}"><div class="filter-advanced-panel"><div class="row g-3">
-            <div class="col-md-6 col-xl-3"><label for="employee_type" class="form-label">Jenis Pegawai</label><select name="employee_type" id="employee_type" class="form-select" form="employee-report-filter-form"><option value="">Semua jenis</option>@foreach ($employeeTypes as $value => $label)<option value="{{ $value }}" @selected(request('employee_type') === $value)>{{ $label }}</option>@endforeach</select></div>
-            <div class="col-md-6 col-xl-3"><label for="verification_status" class="form-label">Status Verifikasi</label><select name="verification_status" id="verification_status" class="form-select" form="employee-report-filter-form"><option value="">Semua status</option>@foreach ($verificationStatuses as $value => $label)<option value="{{ $value }}" @selected(request('verification_status') === $value)>{{ $label }}</option>@endforeach</select></div>
+            <div class="col-md-6 col-xl-3"><label for="employee_type" class="form-label">Jenis Pegawai</label><select name="employee_type" id="employee_type" class="form-select" form="employee-report-filter-form"><option value="">Semua Jenis Pegawai</option>@foreach ($employeeTypes as $value => $label)<option value="{{ $value }}" @selected(request('employee_type') === $value)>{{ $label }}</option>@endforeach</select></div>
+            <div class="col-md-6 col-xl-3"><label for="verification_status" class="form-label">Status Verifikasi</label><select name="verification_status" id="verification_status" class="form-select" form="employee-report-filter-form"><option value="">Semua Status</option>@foreach ($verificationStatuses as $value => $label)<option value="{{ $value }}" @selected(request('verification_status') === $value)>{{ $label }}</option>@endforeach</select></div>
             <div class="col-md-6 col-xl-3"><label for="registration_status" class="form-label">Registrasi Akun</label><select name="registration_status" id="registration_status" class="form-select" form="employee-report-filter-form"><option value="">Semua</option><option value="registered" @selected(request('registration_status') === 'registered')>Sudah Registrasi</option><option value="unregistered" @selected(request('registration_status') === 'unregistered')>Belum Registrasi</option></select></div>
             <div class="col-md-6 col-xl-3"><label for="employee_number_status" class="form-label">Ketersediaan NUP</label><select name="employee_number_status" id="employee_number_status" class="form-select" form="employee-report-filter-form"><option value="">Semua</option><option value="filled" @selected(request('employee_number_status') === 'filled')>Sudah Ada</option><option value="empty" @selected(request('employee_number_status') === 'empty')>Belum Ada</option></select></div>
         </div></div></div>
@@ -126,7 +126,7 @@
                                 <td>{{ $employees->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee->full_name }}</div>
-                                    <div class="data-meta">NUP / Nomor Pegawai: {{ $employee->formatted_employee_number }}</div>
+                                    <div class="data-meta">NUP: {{ $employee->formatted_employee_number }}</div>
                                 </td>
                                 <td>
                                     <div class="fw-semibold">{{ $employee->institution?->name ?: '-' }}</div>
@@ -158,7 +158,7 @@
         @else
             <div class="empty-state">
                 <div class="avtar bg-light-secondary text-secondary"><i class="ti ti-database-off"></i></div>
-                <h6 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada pegawai yang sesuai dengan filter.' : 'Belum ada data pegawai' }}</h6>
+                <h6 class="mb-1">{{ $hasActiveFilters ? 'Tidak ada pegawai yang sesuai dengan filter.' : 'Belum ada data pegawai.' }}</h6>
                 <p class="text-muted {{ $hasActiveFilters ? 'mb-3' : 'mb-0' }}">{{ $hasActiveFilters ? 'Ubah atau reset filter untuk melihat data lainnya.' : 'Data pegawai akan muncul setelah tersedia.' }}</p>
                 @if ($hasActiveFilters)<a href="{{ route('reports.employees') }}" class="btn btn-light-primary"><i class="ti ti-filter-off"></i> Reset Filter</a>@endif
             </div>

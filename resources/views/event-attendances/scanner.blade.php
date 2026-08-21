@@ -28,7 +28,7 @@
         </div>
         <div class="scanner-focus-actions">
             <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary">
-                <i class="ti ti-list" aria-hidden="true"></i> Daftar Hadir
+                <i class="ti ti-list" aria-hidden="true"></i> Daftar Kehadiran
             </a>
             <a href="{{ $exitRoute }}" class="btn btn-light-secondary">
                 <i class="ti ti-logout" aria-hidden="true"></i> Keluar Scanner
@@ -44,10 +44,10 @@
     </div>
 
     <div class="metric-strip scanner-metric-strip" aria-label="Ringkasan kehadiran">
-        <div class="metric-item"><div class="metric-label">Peserta Aktif</div><div class="metric-value" data-metric="participants">{{ $totalParticipants }}</div></div>
+        <div class="metric-item"><div class="metric-label">Total Peserta</div><div class="metric-value" data-metric="participants">{{ $totalParticipants }}</div></div>
         <div class="metric-item"><div class="metric-label">Sudah Hadir</div><div class="metric-value" data-metric="attended">{{ $attendedCount }}</div></div>
         <div class="metric-item"><div class="metric-label">Belum Hadir</div><div class="metric-value" data-metric="absent">{{ $absentCount }}</div></div>
-        <div class="metric-item"><div class="metric-label">Kehadiran</div><div class="metric-value" data-metric="percentage">{{ $attendancePercentage }}%</div></div>
+        <div class="metric-item"><div class="metric-label">Tingkat Kehadiran</div><div class="metric-value" data-metric="percentage">{{ $attendancePercentage }}%</div></div>
     </div>
 
     <div class="row g-3 scanner-workspace">
@@ -55,8 +55,8 @@
             <section class="card scanner-primary-panel h-100 mb-0" aria-labelledby="scanner-input-heading">
                 <div class="card-header">
                     <div>
-                        <h2 id="scanner-input-heading" class="h5 mb-1">Scanner QR/2D</h2>
-                        <p class="text-muted small mb-0">Arahkan scanner ke kartu pegawai. Input diproses otomatis saat Enter diterima.</p>
+                        <h2 id="scanner-input-heading" class="h5 mb-1">Scan ID Card Pegawai</h2>
+                        <p class="text-muted small mb-0">Arahkan scanner ke QR Code pada ID Card pegawai.</p>
                     </div>
                 </div>
                 <div class="card-body d-flex flex-column">
@@ -64,13 +64,13 @@
                         <span class="scanner-state-icon"><i class="ti ti-scan" data-state-icon aria-hidden="true"></i></span>
                         <span>
                             <strong data-state-title>Siap menerima scanner</strong>
-                            <small data-state-message>Pindai QR secure atau kartu lama dengan NUP 10 digit.</small>
+                            <small data-state-message>Arahkan scanner ke QR Code pada ID Card pegawai.</small>
                         </span>
                     </div>
 
                     <form id="qr-scan-form" class="scanner-input-form" method="POST" action="{{ route('events.scan', $event) }}">
                         @csrf
-                        <label for="qr_payload" class="form-label">Input scanner</label>
+                        <label for="qr_payload" class="form-label">QR Code Pegawai</label>
                         <input
                             id="qr_payload"
                             type="text"
@@ -83,7 +83,7 @@
                             required
                         >
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
-                            <small class="text-muted">Mendukung QR secure dan QR kartu fisik lama.</small>
+                            <small class="text-muted">Mendukung ID Card digital dan kartu pegawai lama.</small>
                             <button type="submit" class="btn btn-primary" data-scan-submit>
                                 <i class="ti ti-qrcode" aria-hidden="true"></i> Proses Kehadiran
                             </button>
@@ -120,7 +120,7 @@
 
         <div class="col-12">
             <section class="card scanner-recent-panel mb-0" aria-labelledby="recent-scan-heading">
-                <div class="card-header"><h2 id="recent-scan-heading" class="h5 mb-0">Scan Terbaru</h2></div>
+                <div class="card-header"><h2 id="recent-scan-heading" class="h5 mb-0">Kehadiran Terbaru</h2></div>
                 <div class="list-group list-group-flush" data-recent-scans>
                     @forelse ($recentAttendances as $attendance)
                         <div class="list-group-item scanner-recent-item">
@@ -128,7 +128,7 @@
                             <div><span class="badge {{ $attendance->scan_method === 'manual' ? 'bg-light-warning text-warning' : 'bg-light-success text-success' }}">{{ $attendance->scan_method_label }}</span><small>{{ $attendance->scanned_at?->locale('id')->translatedFormat('H:i:s') ?? '-' }} WIB</small></div>
                         </div>
                     @empty
-                        <div class="list-group-item text-muted py-3" data-recent-empty>Belum ada scan pada kegiatan ini.</div>
+                        <div class="list-group-item text-muted py-3" data-recent-empty>Belum ada data kehadiran pada kegiatan ini.</div>
                     @endforelse
                 </div>
             </section>
@@ -138,7 +138,7 @@
             <section class="card scanner-manual-panel mb-0">
                 <div class="card-header scanner-manual-toggle-wrap">
                     <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#manual-attendance-panel" aria-expanded="{{ $errors->any() ? 'true' : 'false' }}" aria-controls="manual-attendance-panel">
-                        <span><i class="ti ti-user-plus" aria-hidden="true"></i> Input Kehadiran Manual</span>
+                        <span><i class="ti ti-user-plus" aria-hidden="true"></i> Kehadiran Manual</span>
                         <i class="ti ti-chevron-down" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -149,7 +149,7 @@
                                 @csrf
                                 <div class="row g-3 align-items-end">
                                     <div class="col-12 col-lg-5">
-                                        <label for="employee_id" class="form-label">Pegawai</label>
+                                        <label for="employee_id" class="form-label">Pilih Pegawai</label>
                                         <select id="employee_id" name="employee_id" class="form-select" required>
                                             <option value="">Pilih pegawai</option>
                                             @foreach ($manualEmployees as $employee)
@@ -159,9 +159,9 @@
                                     </div>
                                     <div class="col-12 col-lg-5">
                                         <label for="note" class="form-label">Catatan</label>
-                                        <input id="note" name="note" class="form-control" maxlength="1000" placeholder="Contoh: QR rusak atau scanner bermasalah">
+                                        <input id="note" name="note" class="form-control" maxlength="1000" placeholder="Contoh: QR Code tidak terbaca atau scanner bermasalah">
                                     </div>
-                                    <div class="col-12 col-lg-2"><button type="submit" class="btn btn-light-primary w-100"><i class="ti ti-device-floppy" aria-hidden="true"></i> Simpan</button></div>
+                                    <div class="col-12 col-lg-2"><button type="submit" class="btn btn-light-primary w-100"><i class="ti ti-device-floppy" aria-hidden="true"></i> Simpan Kehadiran</button></div>
                                 </div>
                             </form>
                         @else
@@ -301,18 +301,18 @@
                     const status = data.status || (data.success ? 'success' : 'rejected');
 
                     if (status === 'success') {
-                        setState('success', 'Kehadiran berhasil', data.message);
+                        setState('success', 'Kehadiran berhasil dicatat', data.message);
                         updateMetrics();
                     } else if (status === 'already_attended') {
-                        setState('warning', 'Sudah melakukan absensi', data.message);
+                        setState('warning', 'Kehadiran sudah tercatat', data.message);
                     } else {
-                        setState('error', 'Scan tidak dapat diproses', data.message || 'QR Code tidak dikenali.');
+                        setState('error', 'QR Code tidak dapat diproses', data.message || 'QR Code tidak dikenali.');
                     }
 
                     showLastScan(data.employee, status, data.message || '');
                     addRecentScan(data.employee, status);
                 } catch (error) {
-                    setState('error', 'Koneksi bermasalah', 'Tidak dapat memproses scan. Silakan coba kembali.');
+                    setState('error', 'Koneksi bermasalah', 'QR Code tidak dapat diproses. Silakan coba kembali.');
                 } finally {
                     resetScannerForm();
                 }

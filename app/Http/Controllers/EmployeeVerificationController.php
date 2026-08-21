@@ -97,7 +97,7 @@ class EmployeeVerificationController extends Controller
         if (! $employee->isSubmitted() && ! $employee->isProfileSubmitted()) {
             return redirect()
                 ->route('verifications.show', $employee)
-                ->with('error', 'Hanya data dengan status submitted yang bisa diverifikasi.');
+                ->with('error', 'Hanya data berstatus Menunggu Verifikasi yang dapat diverifikasi.');
         }
 
         $employee->load('documents');
@@ -113,13 +113,13 @@ class EmployeeVerificationController extends Controller
         if (! $ktpDocument) {
             return redirect()
                 ->route('verifications.show', $employee)
-                ->with('error', 'Dokumen KTP belum diupload.');
+                ->with('error', 'Dokumen KTP belum diunggah.');
         }
 
         if (! $ktpDocument->isValid()) {
             return redirect()
                 ->route('verifications.show', $employee)
-                ->with('error', 'Dokumen KTP harus berstatus valid sebelum pegawai diverifikasi.');
+                ->with('error', 'Dokumen KTP harus disetujui sebelum pegawai diverifikasi.');
         }
 
         $requestedEmployeeNumber = trim($request->string('employee_number')->toString());
@@ -135,17 +135,17 @@ class EmployeeVerificationController extends Controller
                 : $employee->employee_number;
 
             if (blank($employeeNumber)) {
-                return 'NUP / Nomor Pegawai belum diisi.';
+                return 'NUP belum diisi.';
             }
 
             if (strlen($employeeNumber) !== Employee::EMPLOYEE_NUMBER_LENGTH || ! ctype_digit($employeeNumber)) {
-                return 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.';
+                return 'NUP harus terdiri dari 10 digit angka.';
             }
 
             if (Employee::where('employee_number', $employeeNumber)
                 ->whereKeyNot($employee->id)
                 ->exists()) {
-                return 'NUP / Nomor Pegawai sudah digunakan.';
+                return 'NUP sudah digunakan oleh pegawai lain.';
             }
 
             $employee->employee_number = $employeeNumber;
@@ -182,7 +182,7 @@ class EmployeeVerificationController extends Controller
         if (! $employee->isSubmitted() && ! $employee->isProfileSubmitted()) {
             return redirect()
                 ->route('verifications.show', $employee)
-                ->with('error', 'Hanya data dengan status submitted yang bisa ditolak.');
+                ->with('error', 'Hanya data berstatus Menunggu Verifikasi yang dapat ditolak.');
         }
 
         $validated = $request->validate([

@@ -84,7 +84,7 @@
                         @else
                             <div class="empty-state dashboard-empty-state">
                                 <span class="avtar avtar-sm bg-light-primary text-primary"><i class="ti ti-building-community" aria-hidden="true"></i></span>
-                                <h5 class="mb-1">Belum ada data pegawai aktif</h5>
+                                <h5 class="mb-1">Belum ada data pegawai aktif.</h5>
                                 <p class="text-muted mb-0">Distribusi unit akan tampil setelah data pegawai tersedia.</p>
                             </div>
                         @endif
@@ -105,7 +105,7 @@
                         @else
                             <div class="empty-state dashboard-empty-state">
                                 <span class="avtar avtar-sm bg-light-secondary text-secondary"><i class="ti ti-chart-donut" aria-hidden="true"></i></span>
-                                <h5 class="mb-1">Belum ada data komposisi</h5>
+                                <h5 class="mb-1">Belum ada data komposisi pegawai.</h5>
                                 <p class="text-muted mb-0">Komposisi akan tampil setelah jenis pegawai tersedia.</p>
                             </div>
                         @endif
@@ -120,7 +120,7 @@
                     <div class="card-header dashboard-panel-header">
                         <div>
                             <h5 class="mb-1">Tren Kehadiran Kegiatan</h5>
-                            <p class="text-muted small mb-0">Persentase kehadiran peserta aktif pada kegiatan terbaru.</p>
+                            <p class="text-muted small mb-0">Persentase kehadiran peserta terdaftar pada kegiatan terbaru.</p>
                         </div>
                         <a href="{{ route('reports.events') }}" class="btn btn-sm btn-light">Lihat Laporan</a>
                     </div>
@@ -130,8 +130,8 @@
                         @else
                             <div class="empty-state dashboard-empty-state">
                                 <span class="avtar avtar-sm bg-light-info text-info"><i class="ti ti-calendar-stats" aria-hidden="true"></i></span>
-                                <h5 class="mb-1">Belum ada data kehadiran</h5>
-                                <p class="text-muted mb-0">Tren akan tampil setelah kegiatan memiliki peserta aktif.</p>
+                                <h5 class="mb-1">Belum ada data kehadiran.</h5>
+                                <p class="text-muted mb-0">Tren akan tampil setelah kegiatan memiliki peserta terdaftar.</p>
                             </div>
                         @endif
                     </div>
@@ -159,7 +159,7 @@
                             </div>
                             <div class="dashboard-insight-item">
                                 <span class="dashboard-insight-icon is-danger"><i class="ti ti-clipboard-x" aria-hidden="true"></i></span>
-                                <span class="dashboard-insight-content"><strong>Profil Perlu Perbaikan</strong><small>Review profil ditolak</small></span>
+                                <span class="dashboard-insight-content"><strong>Profil Perlu Perbaikan</strong><small>Pengajuan profil ditolak</small></span>
                                 <span class="dashboard-insight-count">{{ number_format($dashboard['insights']['rejectedProfiles']) }}</span>
                             </div>
                             <a href="{{ route('events.index', ['status' => 'active']) }}" class="dashboard-insight-item">
@@ -199,7 +199,7 @@
                 },
                 dataLabels: { enabled: false },
                 grid: { borderColor: gridColor, strokeDashArray: 4 },
-                noData: { text: 'Belum ada data' }
+                noData: { text: 'Belum ada data.' }
             };
 
             const unitElement = document.querySelector('#employee-unit-chart');

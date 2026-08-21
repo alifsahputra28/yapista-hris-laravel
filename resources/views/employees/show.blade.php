@@ -18,7 +18,7 @@
             'verified' => 'Terverifikasi', 'rejected' => 'Ditolak',
         ];
         $profileReviewStatuses = [
-            'draft' => 'Draft', 'submitted' => 'Menunggu Review',
+            'draft' => 'Draft', 'submitted' => 'Menunggu Peninjauan',
             'approved' => 'Disetujui', 'rejected' => 'Perlu Perbaikan',
         ];
         $employmentClasses = [
@@ -60,7 +60,7 @@
 
     <x-page-header
         title="{{ $employee->full_name }}"
-        subtitle="Master profil pegawai untuk kebutuhan review Admin dan HR."
+        subtitle="Tinjau data pribadi dan kepegawaian untuk kebutuhan Admin dan HR."
         :breadcrumbs="[
             ['label' => 'Dashboard', 'url' => route('dashboard')],
             ['label' => 'Data Pegawai', 'url' => route('employees.index')],
@@ -109,7 +109,7 @@
             <section class="content-section h-100 mb-0" aria-labelledby="employment-heading">
                 <div class="content-section-header"><h2 id="employment-heading">Kepegawaian</h2></div>
                 <div class="content-section-body detail-grid">
-                    <div class="detail-item"><span class="detail-label">NUP / Nomor Pegawai</span>{{ $employee->formatted_employee_number }}</div>
+                    <div class="detail-item"><span class="detail-label">NUP</span>{{ $employee->formatted_employee_number }}</div>
                     <div class="detail-item"><span class="detail-label">Unit Kerja</span>{{ $employee->institution?->name ?? 'Belum diisi' }}</div>
                     <div class="detail-item"><span class="detail-label">Jabatan</span>{{ $employee->position?->name ?? 'Belum diisi' }}</div>
                     <div class="detail-item"><span class="detail-label">Jenis Pegawai</span>{{ $employeeTypes[$employee->employee_type] ?? $display($employee->employee_type) }}</div>
@@ -123,7 +123,7 @@
             <section class="content-section h-100 mb-0" aria-labelledby="contact-address-heading">
                 <div class="content-section-header"><h2 id="contact-address-heading">Kontak &amp; Alamat</h2></div>
                 <div class="content-section-body detail-grid">
-                    <div class="detail-item"><span class="detail-label">Email Login</span>{{ $display($employee->user?->email) }}</div>
+                    <div class="detail-item"><span class="detail-label">Email Akun</span>{{ $display($employee->user?->email) }}</div>
                     <div class="detail-item"><span class="detail-label">Email Pribadi</span>{{ $display($employee->email) }}</div>
                     <div class="detail-item"><span class="detail-label">Nomor HP</span>{{ $display($employee->phone) }}</div>
                     <div class="detail-item"><span class="detail-label">Nomor WhatsApp</span>{{ $display($employee->whatsapp_number) }}</div>
@@ -260,19 +260,19 @@
                     @else
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
-                                <thead><tr><th>Jenis Dokumen</th><th>Nama File</th><th>Status</th><th>Tanggal Upload</th><th>Catatan</th><th class="text-end">File</th></tr></thead>
+                                <thead><tr><th>Jenis Dokumen</th><th>Nama File</th><th>Status</th><th>Tanggal Unggah</th><th>Catatan</th><th class="text-end">File</th></tr></thead>
                                 <tbody>
                                     @foreach ($employee->documents as $document)
                                         <tr>
                                             <td>{{ $document->document_type_label }}</td>
                                             <td>{{ $display($document->original_name) }}</td>
-                                            <td><span class="badge {{ $documentStatusClasses[$document->status] ?? 'bg-light-secondary text-secondary' }}">{{ ['pending' => 'Menunggu', 'valid' => 'Valid', 'rejected' => 'Ditolak'][$document->status] ?? $document->status }}</span></td>
+                                            <td><span class="badge {{ $documentStatusClasses[$document->status] ?? 'bg-light-secondary text-secondary' }}">{{ ['pending' => 'Menunggu Verifikasi', 'valid' => 'Disetujui', 'rejected' => 'Perlu Diperbaiki'][$document->status] ?? $document->status }}</span></td>
                                             <td>{{ $date($document->uploaded_at, true) }}</td>
                                             <td>{{ $display($document->note) }}</td>
                                             <td class="text-end">
                                                 <div class="table-actions">
                                                     <a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary"><i class="ti ti-eye" aria-hidden="true"></i> Lihat</a>
-                                                    <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" aria-label="Download {{ $document->document_type_label }}"><i class="ti ti-download" aria-hidden="true"></i></a>
+                                                    <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" aria-label="Unduh {{ $document->document_type_label }}"><i class="ti ti-download" aria-hidden="true"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -293,20 +293,20 @@
                     <div class="detail-item"><span class="detail-label">Diverifikasi Oleh</span>{{ $employee->verifier?->name ?? 'Belum tersedia' }}</div>
                     <div class="detail-item"><span class="detail-label">Waktu Verifikasi</span>{{ $employee->verified_at ? $date($employee->verified_at, true) : 'Belum tersedia' }}</div>
                     <div class="detail-item"><span class="detail-label">Catatan Verifikasi</span>{{ $display($employee->verification_note) }}</div>
-                    <div class="detail-item"><span class="detail-label">Status Review Profil</span><span class="badge {{ $profileReviewClasses[$employee->profile_review_status] ?? 'bg-light-secondary text-secondary' }}">{{ $profileReviewStatuses[$employee->profile_review_status] ?? $display($employee->profile_review_status) }}</span></div>
-                    <div class="detail-item"><span class="detail-label">Direview Oleh</span>{{ $employee->profileReviewer?->name ?? 'Belum tersedia' }}</div>
+                    <div class="detail-item"><span class="detail-label">Status Peninjauan Profil</span><span class="badge {{ $profileReviewClasses[$employee->profile_review_status] ?? 'bg-light-secondary text-secondary' }}">{{ $profileReviewStatuses[$employee->profile_review_status] ?? $display($employee->profile_review_status) }}</span></div>
+                    <div class="detail-item"><span class="detail-label">Ditinjau Oleh</span>{{ $employee->profileReviewer?->name ?? 'Belum tersedia' }}</div>
                     <div class="detail-item"><span class="detail-label">Waktu Pengajuan Profil</span>{{ $employee->profile_submitted_at ? $date($employee->profile_submitted_at, true) : 'Belum tersedia' }}</div>
-                    <div class="detail-item"><span class="detail-label">Waktu Review Profil</span>{{ $employee->profile_reviewed_at ? $date($employee->profile_reviewed_at, true) : 'Belum tersedia' }}</div>
-                    <div class="detail-item"><span class="detail-label">Catatan Review Profil</span>{{ $display($employee->profile_review_note) }}</div>
+                    <div class="detail-item"><span class="detail-label">Waktu Peninjauan Profil</span>{{ $employee->profile_reviewed_at ? $date($employee->profile_reviewed_at, true) : 'Belum tersedia' }}</div>
+                    <div class="detail-item"><span class="detail-label">Catatan Peninjauan Profil</span>{{ $display($employee->profile_review_note) }}</div>
                 </div>
             </section>
         </div>
 
         <div class="col-12 col-xl-6">
             <section class="content-section h-100 mb-0" aria-labelledby="profile-completion-heading">
-                <div class="content-section-header"><div><h2 id="profile-completion-heading">Kelengkapan Profil</h2><p>{{ $employee->isVerified() ? 'Data tambahan bersifat opsional untuk pegawai existing yang telah terverifikasi.' : 'Menggunakan perhitungan yang sama dengan profile wizard.' }}</p></div></div>
+                <div class="content-section-header"><div><h2 id="profile-completion-heading">Kelengkapan Profil</h2><p>{{ $employee->isVerified() ? 'Data tambahan bersifat opsional bagi pegawai yang telah terverifikasi.' : 'Kelengkapan dihitung dari data pada alur pengisian profil.' }}</p></div></div>
                 <div class="content-section-body">
-                    <div class="d-flex align-items-center justify-content-between gap-3 mb-2"><span class="fw-semibold">Progress</span><strong>{{ $profileProgress['percentage'] }}%</strong></div>
+                    <div class="d-flex align-items-center justify-content-between gap-3 mb-2"><span class="fw-semibold">Kelengkapan</span><strong>{{ $profileProgress['percentage'] }}%</strong></div>
                     <div class="progress profile-progress mb-3" role="progressbar" aria-label="Kelengkapan profil" aria-valuenow="{{ $profileProgress['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-bar" style="width: {{ $profileProgress['percentage'] }}%"></div>
                     </div>

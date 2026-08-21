@@ -43,7 +43,7 @@ class EmployeeProfileController extends Controller
         if (! $employee->canEditProfileCompletion()) {
             return redirect()
                 ->route('pegawai.profile.show')
-                ->with('error', 'Data sudah diajukan/diverifikasi dan tidak dapat diedit sementara.');
+                ->with('error', 'Profil tidak dapat diubah setelah diajukan atau diverifikasi.');
         }
 
         $employee->load(['institution', 'position']);
@@ -62,7 +62,7 @@ class EmployeeProfileController extends Controller
         if (! $employee->canEditProfileCompletion()) {
             return redirect()
                 ->route('pegawai.profile.show')
-                ->with('error', 'Data sudah diajukan/diverifikasi dan tidak dapat diedit sementara.');
+                ->with('error', 'Profil tidak dapat diubah setelah diajukan atau diverifikasi.');
         }
 
         $data = $request->validated();

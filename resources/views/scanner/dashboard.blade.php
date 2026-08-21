@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Panitia Scanner | YAPISTA HRIS')
+@section('title', 'Kegiatan Aktif | YAPISTA HRIS')
 
 @section('content')
     <x-page-header
-        title="Dashboard Panitia"
-        subtitle="Pilih kegiatan aktif untuk memindai QR Code atau memantau daftar hadir."
+        title="Kegiatan Aktif"
+        subtitle="Pilih kegiatan aktif untuk mencatat atau memantau kehadiran."
         :breadcrumbs="[['label' => 'Scanner'], ['label' => 'Dashboard']]"
     >
         <x-slot:meta>
@@ -54,11 +54,11 @@
                                         <div class="table-actions">
                                             <a href="{{ route('events.scanner', $event) }}" class="btn btn-sm btn-primary">
                                                 <i class="ti ti-qrcode"></i>
-                                                Scan QR Code
+                                                Scan Kehadiran
                                             </a>
                                             <a href="{{ route('events.attendances.index', $event) }}" class="btn btn-sm btn-light-secondary">
                                                 <i class="ti ti-list-check"></i>
-                                                Daftar Hadir
+                                                Daftar Kehadiran
                                             </a>
                                         </div>
                                     </td>

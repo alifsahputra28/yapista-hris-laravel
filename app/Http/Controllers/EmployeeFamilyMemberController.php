@@ -108,6 +108,6 @@ class EmployeeFamilyMemberController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data keluarga tidak dapat diubah saat profil sudah diajukan/diverifikasi.');
+            ->with('error', 'Data keluarga tidak dapat diubah setelah profil diajukan atau diverifikasi.');
     }
 }

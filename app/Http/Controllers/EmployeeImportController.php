@@ -21,7 +21,7 @@ class EmployeeImportController extends Controller
 
         return redirect()
             ->route('employees.index')
-            ->with('success', 'Import data pegawai selesai diproses.')
+            ->with('success', 'Import data pegawai selesai.')
             ->with('import_summary', $summary);
     }
 }

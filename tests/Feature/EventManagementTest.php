@@ -122,7 +122,7 @@ class EventManagementTest extends TestCase
 
         $this->actingAs($admin)
             ->post(route('events.cancel', $event, absolute: false))
-            ->assertSessionHas('error', 'Kegiatan yang sudah ditutup tidak bisa dibatalkan.');
+            ->assertSessionHas('error', 'Kegiatan yang sudah ditutup tidak dapat dibatalkan.');
     }
 
     public function test_admin_can_regenerate_draft_event_participants(): void

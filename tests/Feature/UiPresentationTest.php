@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 class UiPresentationTest extends TestCase
@@ -41,9 +42,23 @@ class UiPresentationTest extends TestCase
             ->get(route('profile.edit', absolute: false))
             ->assertOk()
             ->assertSee('Profil Saya')
-            ->assertSee('Informasi Login')
+            ->assertSee('Informasi Akun')
             ->assertSee('pc-sidebar', escape: false)
             ->assertDontSee('Profile Information');
+    }
+
+    public function test_indonesian_authentication_and_validation_copy_is_available(): void
+    {
+        app()->setLocale('id');
+
+        $validator = Validator::make([], [
+            'full_name' => ['required'],
+            'institution_id' => ['required'],
+        ]);
+
+        $this->assertSame('Email atau password tidak sesuai.', __('auth.failed'));
+        $this->assertSame('nama lengkap wajib diisi.', $validator->errors()->first('full_name'));
+        $this->assertSame('unit kerja wajib diisi.', $validator->errors()->first('institution_id'));
     }
 
     public function test_destructive_actions_use_reusable_bootstrap_confirmation_modal(): void

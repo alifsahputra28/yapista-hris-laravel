@@ -128,7 +128,7 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
+            ->assertSessionHas('error', 'NUP harus terdiri dari 10 digit angka.');
 
         $employee->refresh();
 
@@ -155,7 +155,7 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'Dokumen KTP harus berstatus valid sebelum pegawai diverifikasi.');
+            ->assertSessionHas('error', 'Dokumen KTP harus disetujui sebelum pegawai diverifikasi.');
 
         $this->assertSame('submitted', $employee->refresh()->verification_status);
         $this->assertNull($employee->employee_number);
@@ -180,7 +180,7 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'NUP / Nomor Pegawai belum diisi.');
+            ->assertSessionHas('error', 'NUP belum diisi.');
 
         $this->assertSame('submitted', $employee->refresh()->verification_status);
         $this->assertNull($employee->employee_number);
@@ -207,7 +207,7 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
+            ->assertSessionHas('error', 'NUP harus terdiri dari 10 digit angka.');
 
         $this->assertSame('submitted', $employee->refresh()->verification_status);
         $this->assertSame('777', $employee->employee_number);
@@ -286,7 +286,7 @@ class EmployeeVerificationTest extends TestCase
         $this->actingAs($admin)
             ->post(route('verifications.approve', $employee, absolute: false))
             ->assertRedirect(route('verifications.show', $employee, absolute: false))
-            ->assertSessionHas('error', 'Hanya data dengan status submitted yang bisa diverifikasi.');
+            ->assertSessionHas('error', 'Hanya data berstatus Menunggu Verifikasi yang dapat diverifikasi.');
 
         $this->assertSame('verified', $employee->refresh()->verification_status);
         $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());

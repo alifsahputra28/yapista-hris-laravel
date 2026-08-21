@@ -83,7 +83,7 @@ class EmployeeQrCodeTest extends TestCase
 
         $cases = [
             [$draft, 'QR Code hanya tersedia untuk pegawai yang sudah terverifikasi.'],
-            [$invalid, 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.'],
+            [$invalid, 'NUP harus terdiri dari 10 digit angka.'],
             [$inactive, 'Status kepegawaian tidak memenuhi syarat untuk memiliki QR Code.'],
         ];
 
@@ -212,7 +212,7 @@ class EmployeeQrCodeTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Pindai QR Code untuk absensi kegiatan')
+            ->assertSee('Pindai QR Code untuk mencatat kehadiran')
             ->assertSee('employee-e-card', escape: false)
             ->assertSee($employee->employee_number)
             ->assertDontSee('Barcode belum tersedia')
@@ -234,7 +234,7 @@ class EmployeeQrCodeTest extends TestCase
         $this->actingAs($owner)
             ->get(route('pegawai.id-card.show', absolute: false))
             ->assertOk()
-            ->assertSee('Pindai QR Code untuk absensi kegiatan')
+            ->assertSee('Pindai QR Code untuk mencatat kehadiran')
             ->assertSee('employee-e-card', escape: false)
             ->assertDontSee('Buat Ulang QR Code')
             ->assertDontSee($token->token_encrypted);

@@ -135,7 +135,7 @@
     <section class="content-section" aria-labelledby="employment-heading">
         <div class="content-section-header"><h2 id="employment-heading">Informasi Kepegawaian</h2></div>
         <div class="content-section-body detail-grid">
-            <div class="detail-item"><span class="detail-label">NUP / Nomor Pegawai</span>{{ $employee->formatted_employee_number }}</div>
+            <div class="detail-item"><span class="detail-label">NUP</span>{{ $employee->formatted_employee_number }}</div>
             <div class="detail-item"><span class="detail-label">Unit Kerja</span>{{ $employee->institution?->name ?? 'Belum ditetapkan' }}</div>
             <div class="detail-item"><span class="detail-label">Jabatan</span>{{ $employee->position?->name ?? 'Belum ditetapkan' }}</div>
             <div class="detail-item"><span class="detail-label">Jenis Pegawai</span>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}</div>
@@ -171,7 +171,7 @@
         </div>
         <div class="content-section-body p-0">
             @if ($employee->familyMembers->isEmpty())
-                <div class="empty-state"><h6 class="mb-1">Belum ada data keluarga</h6><p class="text-muted mb-0">Bagian ini dapat dilengkapi saat datanya tersedia.</p></div>
+                <div class="empty-state"><h6 class="mb-1">Belum ada data keluarga.</h6><p class="text-muted mb-0">Bagian ini dapat dilengkapi saat datanya tersedia.</p></div>
             @else
                 <div class="table-responsive"><table class="table table-hover align-middle mb-0">
                     <thead><tr><th>Nama</th><th>Hubungan</th><th>Tanggal Lahir</th><th>Tanggungan</th>@if ($employee->canEditProfileCompletion())<th class="text-end">Aksi</th>@endif</tr></thead>
@@ -237,7 +237,7 @@
                         <span class="avtar avtar-s bg-light-primary text-primary"><i class="ti ti-lock" aria-hidden="true"></i></span>
                         <div>
                             <strong class="d-block">Email dan Password</strong>
-                            <span class="text-muted small">Perbarui informasi login dan keamanan akun.</span>
+                            <span class="text-muted small">Perbarui informasi dan keamanan akun.</span>
                         </div>
                     </div>
                     <i class="ti ti-chevron-right text-muted" aria-hidden="true"></i>
@@ -248,7 +248,7 @@
 
     @unless ($employee->isVerified())
         <section class="content-section" aria-labelledby="review-heading">
-            <div class="content-section-header"><div><h2 id="review-heading">Review dan Pengajuan</h2><p>Periksa dokumen sebelum mengirim profil ke HR.</p></div><a href="{{ route('pegawai.profile.wizard.show', 'review') }}" class="btn btn-primary">Buka Review</a></div>
+            <div class="content-section-header"><div><h2 id="review-heading">Peninjauan dan Pengajuan</h2><p>Periksa dokumen sebelum mengirim profil ke HR.</p></div><a href="{{ route('pegawai.profile.wizard.show', 'review') }}" class="btn btn-primary">Periksa Data</a></div>
         </section>
     @endunless
     </div>

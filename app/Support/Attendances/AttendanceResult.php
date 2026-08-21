@@ -20,7 +20,7 @@ class AttendanceResult
 
     public static function success(EventAttendance $attendance): self
     {
-        return new self(self::SUCCESS, 'Absensi berhasil dicatat.', $attendance);
+        return new self(self::SUCCESS, 'Kehadiran berhasil dicatat.', $attendance);
     }
 
     public static function alreadyAttended(EventAttendance $attendance, string $message): self

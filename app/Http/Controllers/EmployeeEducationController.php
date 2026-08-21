@@ -141,6 +141,6 @@ class EmployeeEducationController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data pendidikan tidak dapat diubah saat profil sudah diajukan/diverifikasi.');
+            ->with('error', 'Data pendidikan tidak dapat diubah setelah profil diajukan atau diverifikasi.');
     }
 }

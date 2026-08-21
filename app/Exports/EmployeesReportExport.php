@@ -39,7 +39,7 @@ class EmployeesReportExport
         return SimpleXlsxWriter::download($filename, [
             'No',
             'Nama Pegawai',
-            'NUP / Nomor Pegawai',
+            'NUP',
             'Unit Kerja',
             'Jabatan',
             'Jenis Pegawai',

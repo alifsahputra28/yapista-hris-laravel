@@ -152,7 +152,7 @@ class EmployeeNumberConsistencyTest extends TestCase
                 'employee_number' => '',
             ]))
             ->assertSessionHasErrors([
-                'employee_number' => 'NUP / Nomor Pegawai wajib diisi untuk pegawai yang sudah terverifikasi.',
+                'employee_number' => 'NUP wajib diisi untuk pegawai yang sudah terverifikasi.',
             ]);
 
         $this->assertSame('7770924004', $employee->refresh()->employee_number);
@@ -193,8 +193,8 @@ class EmployeeNumberConsistencyTest extends TestCase
             ]);
 
             $expected = $employeeNumber === null
-                ? 'NUP / Nomor Pegawai belum diisi.'
-                : 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.';
+                ? 'NUP belum diisi.'
+                : 'NUP harus terdiri dari 10 digit angka.';
 
             $this->actingAs($this->admin)
                 ->post(route('verifications.approve', $employee, absolute: false))
@@ -344,7 +344,7 @@ class EmployeeNumberConsistencyTest extends TestCase
 
         $this->actingAs($panitia)
             ->post(route('events.scan', $event, absolute: false), ['qr_payload' => '7770924013'])
-            ->assertSessionHas('success', 'Absensi berhasil dicatat.');
+            ->assertSessionHas('success', 'Kehadiran berhasil dicatat.');
 
         $this->actingAs($panitia)
             ->post(route('events.scan', $event, absolute: false), ['qr_payload' => $tokenService->payloadFor($token)])

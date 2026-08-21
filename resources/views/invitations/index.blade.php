@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Undangan Registrasi Pegawai | YAPISTA HRIS')
+@section('title', 'Undangan Pegawai | YAPISTA HRIS')
 
 @section('content')
     @php
@@ -22,9 +22,9 @@
     @endphp
 
     <x-page-header
-        title="Undangan Registrasi Pegawai"
-        subtitle="Pantau kode undangan, link registrasi, masa berlaku, dan status pemakaian pegawai."
-        :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Undangan Registrasi']]"
+        title="Undangan Pegawai"
+        subtitle="Pantau tautan, masa berlaku, dan status undangan pegawai."
+        :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Undangan Pegawai']]"
     >
         <x-slot:actions>
             <a href="{{ route('employees.index') }}" class="btn btn-primary"><i class="ti ti-users" aria-hidden="true"></i> Data Pegawai</a>
@@ -80,7 +80,7 @@
                 <div class="col-md-6 col-lg-3 collapse d-lg-block invitation-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="status" class="form-label">Status</label>
                     <select id="status" name="status" class="form-select">
-                        <option value="">Semua status</option>
+                        <option value="">Semua Status</option>
                         @foreach ($statuses as $value => $status)
                             <option value="{{ $value }}" @selected(request('status') === $value)>{{ $status['label'] }}</option>
                         @endforeach
@@ -90,7 +90,7 @@
                 <div class="col-md-6 col-lg-3 collapse d-lg-block invitation-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select id="institution_id" name="institution_id" class="form-select">
-                        <option value="">Semua unit kerja</option>
+                        <option value="">Semua Unit</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected((string) request('institution_id') === (string) $institution->id)>
                                 {{ $institution->name }}
@@ -104,7 +104,7 @@
                 </div>
             </form>
             @if ($hasActiveFilters)
-                <div class="filter-secondary-row justify-content-end"><a href="{{ route('invitations.index') }}" class="btn btn-sm btn-link text-muted">Reset semua</a></div>
+                <div class="filter-secondary-row justify-content-end"><a href="{{ route('invitations.index') }}" class="btn btn-sm btn-link text-muted">Reset Filter</a></div>
                 <div class="active-filter-summary" aria-label="Filter aktif"><span class="active-filter-label">Filter aktif:</span>
                     @if (request('status'))<x-active-filter-chip label="Status" :value="$statuses[request('status')]['label'] ?? request('status')" :url="route('invitations.index', request()->except('status', 'page'))" />@endif
                     @if ($activeInstitution)<x-active-filter-chip label="Unit" :value="$activeInstitution" :url="route('invitations.index', request()->except('institution_id', 'page'))" />@endif
@@ -128,7 +128,7 @@
                         <tr>
                             <th class="ps-4" style="width: 70px;">No</th>
                             <th>Pegawai</th>
-                            <th>Kode & Link</th>
+                            <th>Kode & Tautan</th>
                             <th>Status</th>
                             <th>Masa Berlaku</th>
                             <th>Dibuat Oleh</th>
@@ -161,11 +161,11 @@
                                     <div class="table-actions">
                                         <button type="button" class="btn btn-sm btn-light-primary js-copy-link" data-link="{{ $registerLink }}">
                                             <i class="ti ti-copy"></i>
-                                            Copy
+                                            Salin
                                         </button>
 
                                         @if ($invitation->isUnused())
-                                            <form action="{{ route('invitations.revoke', $invitation) }}" method="POST" data-confirm-title="Batalkan Undangan?" data-confirm-message="Undangan ini tidak dapat digunakan setelah dibatalkan. Lanjutkan?">
+                                            <form action="{{ route('invitations.revoke', $invitation) }}" method="POST" data-confirm-title="Batalkan Undangan?" data-confirm-message="Undangan tidak dapat digunakan kembali setelah dibatalkan.">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-sm btn-light-danger btn-icon" title="Batalkan">
@@ -211,7 +211,7 @@
         document.querySelectorAll('.js-copy-link').forEach((button) => {
             button.addEventListener('click', async () => {
                 await navigator.clipboard.writeText(button.dataset.link);
-                button.innerHTML = '<i class="ti ti-check"></i> Copied';
+                button.innerHTML = '<i class="ti ti-check"></i> Tersalin';
             });
         });
     </script>

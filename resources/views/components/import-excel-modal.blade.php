@@ -25,7 +25,7 @@
 
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="{{ $modalId }}-file" class="form-label">File Excel <span class="text-danger">*</span></label>
+                        <label for="{{ $modalId }}-file" class="form-label">Pilih File <span class="text-danger">*</span></label>
                         <input
                             id="{{ $modalId }}-file"
                             type="file"
@@ -42,7 +42,7 @@
 
                     <div class="border rounded p-3 mb-3">
                         <div class="fw-semibold mb-2">Struktur data</div>
-                        <p class="text-muted small mb-2">Download template agar urutan dan nama kolom sesuai dengan importer.</p>
+                        <p class="text-muted small mb-2">Unduh template agar susunan dan nama kolom sesuai.</p>
                         @if ($requiredColumns)
                             <div class="small mb-1"><span class="fw-medium">Wajib diisi:</span> {{ implode(', ', $requiredColumns) }}.</div>
                         @endif
@@ -53,7 +53,7 @@
 
                     <a href="{{ $templateRoute }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
                         <i class="ti ti-download" aria-hidden="true"></i>
-                        <span>Download Template Excel</span>
+                        <span>Unduh Template</span>
                     </a>
                 </div>
 

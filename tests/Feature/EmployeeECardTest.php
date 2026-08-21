@@ -63,7 +63,7 @@ class EmployeeECardTest extends TestCase
             ->assertSee('7770923822')
             ->assertSee('Aktif')
             ->assertSee('<svg', escape: false)
-            ->assertSee('Pindai QR Code untuk absensi kegiatan')
+            ->assertSee('Pindai QR Code untuk mencatat kehadiran')
             ->assertDontSee($token->token_encrypted)
             ->assertDontSee('3201010101010001');
 

@@ -3,7 +3,7 @@
 @section('title', 'Edit Kegiatan | YAPISTA HRIS')
 
 @section('content')
-    <x-page-header title="Edit Kegiatan" subtitle="Perbarui informasi kegiatan draft dan generate ulang peserta jika target berubah." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Kegiatan', 'url' => route('events.index')], ['label' => 'Detail', 'url' => route('events.show', $event)], ['label' => 'Edit']]" />
+    <x-page-header title="Edit Kegiatan" subtitle="Perbarui informasi kegiatan dan buat ulang peserta jika target berubah." :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Kegiatan', 'url' => route('events.index')], ['label' => 'Detail', 'url' => route('events.show', $event)], ['label' => 'Edit']]" />
 
     <div class="card">
         <div class="card-header">

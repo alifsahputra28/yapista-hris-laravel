@@ -79,7 +79,7 @@
 
     <x-import-excel-modal
         modal-id="importEmployeeModal"
-        title="Import Excel Data Pegawai"
+        title="Import Data Pegawai"
         :upload-route="route('employees.import.store')"
         :template-route="route('employees.import.template')"
         :required-columns="$importRequiredColumns"
@@ -111,7 +111,7 @@
                 <div class="col-md-6 col-lg-2 collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select id="institution_id" name="institution_id" class="form-select">
-                        <option value="">Semua unit</option>
+                        <option value="">Semua Unit</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected((string) request('institution_id') === (string) $institution->id)>
                                 {{ $institution->name }}
@@ -123,7 +123,7 @@
                 <div class="col-md-6 col-lg-2 collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="position_id" class="form-label">Jabatan</label>
                     <select id="position_id" name="position_id" class="form-select">
-                        <option value="">Semua jabatan</option>
+                        <option value="">Semua Jabatan</option>
                         @foreach ($positions as $position)
                             <option value="{{ $position->id }}" @selected((string) request('position_id') === (string) $position->id)>
                                 {{ $position->name }}
@@ -135,7 +135,7 @@
                 <div class="col-md-6 col-lg-2 collapse d-lg-block employee-mobile-filter {{ $activeFilterCount ? 'show' : '' }}">
                     <label for="employment_status" class="form-label">Status Kerja</label>
                     <select id="employment_status" name="employment_status" class="form-select">
-                        <option value="">Semua status</option>
+                        <option value="">Semua Status</option>
                         @foreach ($employmentStatuses as $value => $status)
                             <option value="{{ $value }}" @selected(request('employment_status') === $value)>
                                 {{ $status['label'] }}
@@ -160,7 +160,7 @@
                     <i class="ti ti-chevron-down" aria-hidden="true"></i>
                 </button>
                 @if ($hasActiveFilters)
-                    <a href="{{ route('employees.index') }}" class="btn btn-sm btn-link text-muted">Reset semua</a>
+                    <a href="{{ route('employees.index') }}" class="btn btn-sm btn-link text-muted">Reset Filter</a>
                 @endif
             </div>
 
@@ -170,7 +170,7 @@
                         <div class="col-md-6 col-lg-3">
                             <label for="verification_status" class="form-label">Status Verifikasi</label>
                             <select id="verification_status" name="verification_status" class="form-select" form="employee-filter-form">
-                                <option value="">Semua verifikasi</option>
+                                <option value="">Semua Status Verifikasi</option>
                                 @foreach ($verificationStatuses as $value => $status)
                                     <option value="{{ $value }}" @selected(request('verification_status') === $value)>{{ $status['label'] }}</option>
                                 @endforeach
@@ -179,7 +179,7 @@
                         <div class="col-md-6 col-lg-3">
                             <label for="employee_type" class="form-label">Jenis Pegawai</label>
                             <select id="employee_type" name="employee_type" class="form-select" form="employee-filter-form">
-                                <option value="">Semua jenis</option>
+                                <option value="">Semua Jenis Pegawai</option>
                                 @foreach ($employeeTypes as $value => $label)
                                     <option value="{{ $value }}" @selected(request('employee_type') === $value)>{{ $label }}</option>
                                 @endforeach
@@ -192,7 +192,7 @@
                                 <div class="col-lg-7">
                                     <label for="nik_exact" class="form-label">Cari berdasarkan NIK</label>
                                     <input id="nik_exact" type="text" name="nik" class="form-control" maxlength="16" inputmode="numeric" autocomplete="off" placeholder="Masukkan 16 digit NIK">
-                                    <div class="form-text">Pencarian NIK menggunakan exact secure lookup dan tidak disimpan pada URL.</div>
+                                    <div class="form-text">Pencarian aman ini hanya menerima NIK 16 digit dan tidak menyimpannya pada URL.</div>
                                 </div>
                                 <div class="col-lg-auto"><button type="submit" class="btn btn-outline-primary"><i class="ti ti-search" aria-hidden="true"></i> Cari NIK</button></div>
                             </form>
@@ -258,7 +258,7 @@
                                     <div class="fw-semibold">{{ $employee->full_name }}</div>
                                     <div class="small mt-1">
                                         @if ($employee->employee_number)
-                                            <span class="text-muted">NUP / Nomor Pegawai: {{ $employee->employee_number }}</span>
+                                            <span class="text-muted">NUP: {{ $employee->employee_number }}</span>
                                         @else
                                             <span class="badge bg-light-secondary text-secondary">Belum diisi</span>
                                         @endif

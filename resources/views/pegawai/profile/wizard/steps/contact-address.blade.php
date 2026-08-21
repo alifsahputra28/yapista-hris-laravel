@@ -1,6 +1,6 @@
 @php $display = fn ($value) => filled($value) ? $value : 'Belum diisi'; @endphp
 <div class="card">
-    <div class="card-header"><h5 class="mb-1">Kontak dan Alamat</h5><p class="mb-0 text-muted">Email pribadi tidak mengubah email akun login.</p></div>
+    <div class="card-header"><h5 class="mb-1">Kontak dan Alamat</h5><p class="mb-0 text-muted">Email pribadi tidak mengubah email akun.</p></div>
     <div class="card-body">
         @if ($editable)
             <form method="POST" action="{{ route('pegawai.profile.wizard.contact-address.update') }}" data-wizard-form>

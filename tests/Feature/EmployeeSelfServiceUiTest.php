@@ -159,7 +159,7 @@ class EmployeeSelfServiceUiTest extends TestCase
             ->get(route('profile.edit', absolute: false))
             ->assertOk()
             ->assertSee('Keamanan Akun')
-            ->assertSee('Informasi Login')
+            ->assertSee('Informasi Akun')
             ->assertSee('Ubah Password')
             ->assertSee('pc-sidebar', escape: false)
             ->assertDontSee('py-12', escape: false);

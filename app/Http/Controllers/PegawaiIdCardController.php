@@ -46,7 +46,7 @@ class PegawaiIdCardController extends Controller
     {
         return redirect()
             ->route('pegawai.id-card.show')
-            ->with('error', 'Download PDF ID Card belum tersedia. Silakan gunakan print dari browser.');
+            ->with('error', 'Unduh PDF ID Card belum tersedia. Gunakan fitur cetak pada browser.');
     }
 
     /**
@@ -61,9 +61,9 @@ class PegawaiIdCardController extends Controller
         }
 
         if (blank($employee->employee_number)) {
-            $warnings[] = 'NUP / Nomor Pegawai belum tersedia.';
+            $warnings[] = 'NUP belum tersedia.';
         } elseif (! $employee->hasValidEmployeeNumber()) {
-            $warnings[] = 'NUP / Nomor Pegawai harus 10 digit angka.';
+            $warnings[] = 'NUP harus terdiri dari 10 digit angka.';
         }
 
         if (in_array($employee->employment_status, ['nonaktif', 'resign'], true)) {

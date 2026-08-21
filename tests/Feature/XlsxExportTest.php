@@ -89,7 +89,7 @@ class XlsxExportTest extends TestCase
         $this->assertContains($included->full_name, $values);
         $this->assertContains('7770950001', $values);
         $this->assertNotContains('Pegawai Tidak Masuk', $values);
-        $this->assertSame(1, count(array_filter($values, fn (string $value): bool => $value === 'NUP / Nomor Pegawai')));
+        $this->assertSame(1, count(array_filter($values, fn (string $value): bool => $value === 'NUP')));
         $this->assertNotContains('No. Buku', $values);
     }
 
@@ -152,7 +152,7 @@ class XlsxExportTest extends TestCase
         $rows = $this->worksheetRows($response->streamedContent());
 
         $this->assertCount(1, $rows);
-        $this->assertContains('NUP / Nomor Pegawai', $rows[0]);
+        $this->assertContains('NUP', $rows[0]);
         foreach (['NIK', 'Nomor KK', 'Rekening', 'BPJS', 'QR Token', 'Password', 'nik_lookup'] as $sensitiveHeader) {
             $this->assertNotContains($sensitiveHeader, $rows[0]);
         }

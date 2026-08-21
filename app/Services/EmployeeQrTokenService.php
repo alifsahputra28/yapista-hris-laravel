@@ -141,7 +141,7 @@ class EmployeeQrTokenService
         }
 
         if (! $employee->hasValidEmployeeNumber()) {
-            throw new DomainException('NUP / Nomor Pegawai harus terdiri dari 10 digit angka.');
+            throw new DomainException('NUP harus terdiri dari 10 digit angka.');
         }
 
         if (in_array($employee->employment_status, ['nonaktif', 'resign'], true)) {

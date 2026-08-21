@@ -127,7 +127,7 @@
                     <section class="card h-100" aria-labelledby="employee-action-heading">
                         <div class="card-header"><h2 id="employee-action-heading" class="h5 mb-0">ID Card Digital</h2></div>
                         <div class="card-body d-flex align-items-center justify-content-between gap-3">
-                            <div><h3 class="h6 mb-1">Kartu pegawai siap digunakan</h3><p class="text-muted mb-3">Gunakan QR Code untuk absensi kegiatan.</p><a href="{{ route('pegawai.id-card.show') }}" class="btn btn-primary">Buka ID Card</a></div>
+                            <div><h3 class="h6 mb-1">ID Card siap digunakan</h3><p class="text-muted mb-3">Gunakan QR Code untuk mencatat kehadiran.</p><a href="{{ route('pegawai.id-card.show') }}" class="btn btn-primary">Buka ID Card</a></div>
                             @if ($qrCodeSvg)<div class="employee-id-preview-qr" role="img" aria-label="QR Code ID Card">{!! $qrCodeSvg !!}</div>@endif
                         </div>
                     </section>

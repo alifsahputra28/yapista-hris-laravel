@@ -46,12 +46,12 @@
     @endphp
 
     <x-page-header
-        title="Review {{ $employee->full_name }}"
+        title="Verifikasi {{ $employee->full_name }}"
         subtitle="Periksa data utama dan dokumen sebelum mengambil keputusan verifikasi."
         :breadcrumbs="[
             ['label' => 'Dashboard', 'url' => route('dashboard')],
             ['label' => 'Verifikasi Pegawai', 'url' => route('verifications.index')],
-            ['label' => 'Review'],
+            ['label' => 'Verifikasi'],
         ]"
         :badge-label="$verificationStatuses[$displayVerificationStatus] ?? $displayVerificationStatus"
         :badge-class="$verificationClasses[$displayVerificationStatus] ?? 'bg-light-secondary text-secondary'"
@@ -119,7 +119,7 @@
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Jenis Pegawai</small>{{ $employeeTypes[$employee->employee_type] ?? $employee->employee_type }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Status Kepegawaian</small>{{ $employmentStatuses[$employee->employment_status] ?? $employee->employment_status }}</div>
                         <div class="col-md-6 mb-3"><small class="text-muted d-block">Tanggal Masuk</small>{{ $employee->join_date?->locale('id')->translatedFormat('d M Y') ?? '-' }}</div>
-                        <div class="col-md-6 mb-3"><small class="text-muted d-block">NUP / Nomor Pegawai</small>{{ $employee->formatted_employee_number }}</div>
+                        <div class="col-md-6 mb-3"><small class="text-muted d-block">NUP</small>{{ $employee->formatted_employee_number }}</div>
                         <div class="col-md-6 mb-3">
                             <small class="text-muted d-block">Status Verifikasi</small>
                             <span class="badge {{ $verificationClasses[$displayVerificationStatus] ?? 'bg-light-secondary text-secondary' }}">
@@ -148,7 +148,7 @@
                             <th>Ukuran</th>
                             <th>Status</th>
                             <th>Catatan</th>
-                            <th>Tanggal Upload</th>
+                            <th>Tanggal Unggah</th>
                             <th style="min-width: 280px;">Aksi</th>
                         </tr>
                     </thead>
@@ -160,7 +160,7 @@
                                 <td>{{ $document->file_size ? number_format($document->file_size / 1024, 1).' KB' : '-' }}</td>
                                 <td>
                                     <span class="badge {{ $documentStatusClasses[$document->status] ?? 'bg-light-secondary text-secondary' }}">
-                                        {{ ['pending' => 'Menunggu', 'valid' => 'Valid', 'rejected' => 'Ditolak'][$document->status] ?? $document->status }}
+                                        {{ ['pending' => 'Menunggu Verifikasi', 'valid' => 'Disetujui', 'rejected' => 'Perlu Diperbaiki'][$document->status] ?? $document->status }}
                                     </span>
                                 </td>
                                 <td>{{ $document->note ?? '-' }}</td>
@@ -171,7 +171,7 @@
                                             <i class="ti ti-eye"></i>
                                             Lihat
                                         </a>
-                                        <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" title="Download dokumen">
+                                        <a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" title="Unduh dokumen">
                                             <i class="ti ti-download"></i>
                                         </a>
                                     </div>
@@ -182,7 +182,7 @@
                                         <div class="col-md-4">
                                             <select name="status" class="form-select form-select-sm" required>
                                                 <option value="valid" @selected($document->status === 'valid')>Valid</option>
-                                                <option value="rejected" @selected($document->status === 'rejected')>Rejected</option>
+                                                <option value="rejected" @selected($document->status === 'rejected')>Perlu Diperbaiki</option>
                                             </select>
                                         </div>
                                         <div class="col-md-5">
@@ -202,7 +202,7 @@
                                             <i class="ti ti-files-off f-28"></i>
                                         </div>
                                         <h5 class="mb-1">Belum ada dokumen.</h5>
-                                        <p class="text-muted mb-0">Pegawai belum mengupload dokumen pendukung.</p>
+                                        <p class="text-muted mb-0">Pegawai belum mengunggah dokumen pendukung.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -223,7 +223,7 @@
                     <form method="POST" action="{{ route('verifications.approve', $employee) }}" data-confirm-title="Setujui Data Pegawai?" data-confirm-message="Data pegawai akan ditandai terverifikasi. Lanjutkan?">
                         @csrf
                         <div class="mb-3">
-                            <label for="employee_number" class="form-label">NUP / Nomor Pegawai</label>
+                            <label for="employee_number" class="form-label">NUP</label>
                             <input id="employee_number" name="employee_number" type="text" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" value="{{ old('employee_number', $employee->employee_number) }}" class="form-control" required>
                             <div class="form-text">Masukkan tepat 10 digit sebelum menyetujui pegawai.</div>
                         </div>

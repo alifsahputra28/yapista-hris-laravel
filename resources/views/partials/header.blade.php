@@ -68,7 +68,7 @@
                             @csrf
                             <button type="submit" class="dropdown-item">
                                 <i class="ti ti-power" aria-hidden="true"></i>
-                                <span>{{ $headerUser?->isPegawai() ? 'Keluar' : 'Logout' }}</span>
+                                <span>Keluar</span>
                             </button>
                         </form>
                     </div>

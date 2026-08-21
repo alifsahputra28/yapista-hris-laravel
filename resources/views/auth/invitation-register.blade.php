@@ -44,7 +44,7 @@
                                 {{ $error }}
                             </div>
 
-                            <a href="{{ route('login') }}" class="btn btn-primary w-100">Kembali ke Login</a>
+                            <a href="{{ route('login') }}" class="btn btn-primary w-100">Kembali ke Halaman Masuk</a>
                         @else
                             @if ($errors->any())
                                 <div class="alert alert-danger" role="alert">

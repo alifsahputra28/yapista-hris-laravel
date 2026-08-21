@@ -64,6 +64,6 @@ class EmployeeAdministrativeDetailController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data administrasi tidak dapat diubah saat profil sudah diajukan/diverifikasi.');
+            ->with('error', 'Data administrasi tidak dapat diubah setelah profil diajukan atau diverifikasi.');
     }
 }

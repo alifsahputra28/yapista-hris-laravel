@@ -182,12 +182,12 @@ class EventAttendanceController extends Controller
         $attendance->load('event');
 
         if ($attendance->event?->isClosed()) {
-            return back()->with('error', 'Absensi tidak dapat dihapus karena kegiatan sudah ditutup.');
+            return back()->with('error', 'Kehadiran tidak dapat dihapus karena kegiatan sudah ditutup.');
         }
 
         $attendance->delete();
 
-        return back()->with('success', 'Data attendance berhasil dihapus.');
+        return back()->with('success', 'Data kehadiran berhasil dihapus.');
     }
 
     private function attendanceResultResponse(

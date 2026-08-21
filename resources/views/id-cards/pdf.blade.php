@@ -75,7 +75,7 @@
 
         <div class="body">
             <div class="name">{{ $employee->full_name }}</div>
-            <div class="meta">NUP / Nomor Pegawai: {{ $employee->employee_number }}</div>
+            <div class="meta">NUP: {{ $employee->employee_number }}</div>
             <div class="meta">Unit Kerja: {{ $employee->institution?->name ?? '-' }}</div>
             <div class="meta">Jabatan: {{ $employee->position?->name ?? '-' }}</div>
             <div class="meta">Status: Terverifikasi</div>
@@ -85,7 +85,7 @@
             @if ($qrCodeSvg)
                 {!! $qrCodeSvg !!}
             @endif
-            <div class="meta">Pindai QR Code untuk absensi kegiatan.</div>
+            <div class="meta">Pindai QR Code untuk mencatat kehadiran.</div>
         </div>
     </div>
 </body>

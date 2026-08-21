@@ -50,10 +50,10 @@
             </div>
         </div>
 
-        <div class="employee-e-card-qr" role="img" aria-label="QR Code absensi pegawai">
+        <div class="employee-e-card-qr" role="img" aria-label="QR Code kehadiran pegawai">
             {!! $qrCodeSvg !!}
         </div>
     </div>
 
-    <p class="employee-e-card-note">Pindai QR Code untuk absensi kegiatan</p>
+    <p class="employee-e-card-note">Pindai QR Code untuk mencatat kehadiran</p>
 </article>

@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-4">
-        <h1 class="auth-login-title">Buat Password Baru</h1>
+        <h1 class="auth-login-title">Atur Ulang Password</h1>
         <p class="text-muted mb-0">Gunakan password yang kuat dan tidak dipakai di layanan lain.</p>
     </div>
 
@@ -19,7 +19,7 @@
             @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
         <div class="mb-4">
-            <label for="password_confirmation" class="form-label">Konfirmasi Password Baru</label>
+            <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
             <input id="password_confirmation" type="password" name="password_confirmation" class="form-control @error('password_confirmation') is-invalid @enderror" required autocomplete="new-password">
             @error('password_confirmation')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>

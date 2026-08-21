@@ -164,7 +164,7 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="employee_number" class="form-label">NUP / Nomor Pegawai</label>
+            <label for="employee_number" class="form-label">NUP</label>
             <input
                 id="employee_number"
                 type="text"

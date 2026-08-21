@@ -127,7 +127,7 @@
         <div class="col-md-6">
             <div class="form-check mt-4 pt-2">
                 <input id="regenerate_participants" type="checkbox" name="regenerate_participants" value="1" class="form-check-input" @checked(old('regenerate_participants'))>
-                <label for="regenerate_participants" class="form-check-label">Generate ulang peserta berdasarkan target ini</label>
+                <label for="regenerate_participants" class="form-check-label">Buat ulang peserta berdasarkan target ini</label>
             </div>
         </div>
     @endif

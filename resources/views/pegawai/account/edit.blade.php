@@ -24,7 +24,7 @@
             <section class="card h-100" aria-labelledby="account-information-heading">
                 <div class="card-header">
                     <div>
-                        <h2 id="account-information-heading" class="h5 mb-1">Informasi Login</h2>
+                        <h2 id="account-information-heading" class="h5 mb-1">Informasi Akun</h2>
                         <p class="text-muted mb-0">Nama akun dan email yang digunakan untuk masuk.</p>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="account_email" class="form-label">Email Login</label>
+                            <label for="account_email" class="form-label">Email Akun</label>
                             <input id="account_email" type="email" name="email" value="{{ old('email', $user->email) }}" class="form-control @error('email') is-invalid @enderror" required autocomplete="username">
                             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>

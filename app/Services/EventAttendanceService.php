@@ -68,7 +68,7 @@ class EventAttendanceService
             'closed' => 'Kegiatan sudah ditutup.',
             'cancelled' => 'Kegiatan telah dibatalkan.',
             'active' => null,
-            default => 'Kegiatan tidak dapat menerima absensi.',
+            default => 'Kegiatan tidak dapat menerima pencatatan kehadiran.',
         };
     }
 
@@ -127,11 +127,11 @@ class EventAttendanceService
         }
 
         if (! $employee->hasValidEmployeeNumber()) {
-            return 'Pegawai belum memiliki NUP / Nomor Pegawai yang valid.';
+            return 'Pegawai belum memiliki NUP yang valid.';
         }
 
         if (in_array($employee->employment_status, ['nonaktif', 'resign'], true)) {
-            return 'Status kepegawaian tidak memenuhi syarat untuk melakukan absensi.';
+            return 'Pegawai tidak aktif sehingga kehadiran tidak dapat dicatat.';
         }
 
         $participant = EventParticipant::query()
@@ -174,7 +174,7 @@ class EventAttendanceService
 
         return AttendanceResult::alreadyAttended(
             $attendance,
-            $employee->full_name.' sudah melakukan absensi pada '.$time.'.'
+            'Kehadiran '.$employee->full_name.' sudah tercatat pada '.$time.'.'
         );
     }
 

@@ -114,7 +114,7 @@ class EmployeeInvitationController extends Controller
         if (! $invitation->isUnused()) {
             return redirect()
                 ->route('invitations.index')
-                ->with('error', 'Undangan hanya bisa dibatalkan jika status masih unused.');
+                ->with('error', 'Undangan hanya dapat dibatalkan jika belum digunakan.');
         }
 
         $invitation->update([

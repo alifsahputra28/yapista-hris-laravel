@@ -5,7 +5,7 @@
 @section('content')
     @php
         $statusClasses = ['pending' => 'bg-light-warning text-warning', 'valid' => 'bg-light-success text-success', 'rejected' => 'bg-light-danger text-danger'];
-        $statusLabels = ['pending' => 'Menunggu', 'valid' => 'Valid', 'rejected' => 'Ditolak'];
+        $statusLabels = ['pending' => 'Menunggu Verifikasi', 'valid' => 'Disetujui', 'rejected' => 'Perlu Diperbaiki'];
         $documentsByType = $documents->keyBy('document_type');
     @endphp
 
@@ -14,7 +14,7 @@
         subtitle="Kelola dokumen kepegawaian Anda."
         :breadcrumbs="[['label' => 'Beranda', 'url' => route('pegawai.dashboard')], ['label' => 'Dokumen']]"
     >
-        <x-slot:meta><span>{{ $documents->count() }} dokumen</span><span aria-hidden="true">&bull;</span><span>{{ $documents->where('status', 'valid')->count() }} valid</span></x-slot:meta>
+        <x-slot:meta><span>{{ $documents->count() }} dokumen</span><span aria-hidden="true">&bull;</span><span>{{ $documents->where('status', 'valid')->count() }} disetujui</span></x-slot:meta>
     </x-page-header>
 
     @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -86,7 +86,7 @@
     <section class="card d-none d-lg-block" aria-labelledby="documents-heading">
         <div class="card-header"><h2 id="documents-heading" class="h5 mb-0">Dokumen Tersimpan</h2></div>
         @if ($documents->isEmpty())
-            <div class="card-body py-4 text-center"><h3 class="h6 mb-1">Belum ada dokumen</h3><p class="text-muted mb-0">Dokumen yang diunggah akan muncul di sini.</p></div>
+            <div class="card-body py-4 text-center"><h3 class="h6 mb-1">Belum ada dokumen.</h3><p class="text-muted mb-0">Dokumen yang diunggah akan muncul di sini.</p></div>
         @else
             <div class="list-group list-group-flush">
                 @foreach ($documents as $document)
@@ -96,7 +96,7 @@
                                 <span class="avtar avtar-s bg-light-primary text-primary"><i class="ti ti-file-text" aria-hidden="true"></i></span>
                                 <div><div class="d-flex flex-wrap align-items-center gap-2 mb-1"><strong>{{ $document->document_type_label }}</strong><span class="badge {{ $statusClasses[$document->status] ?? 'bg-light-secondary text-secondary' }}">{{ $statusLabels[$document->status] ?? $document->status }}</span></div><div class="text-muted small">{{ $document->original_name ?? 'Nama file tidak tersedia' }} &bull; {{ $document->uploaded_at?->locale('id')->translatedFormat('d M Y, H:i') ?? '-' }}</div>@if (filled($document->note))<div class="small text-danger mt-2">{{ $document->note }}</div>@endif</div>
                             </div>
-                            <div class="d-flex gap-2"><a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary"><i class="ti ti-eye"></i> Lihat</a><a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" aria-label="Unduh {{ $document->document_type_label }}"><i class="ti ti-download"></i></a>@if ($employee->canManageDocuments() && ! $document->isValid())<form action="{{ route('pegawai.documents.destroy', $document) }}" method="POST" data-confirm-title="Hapus Dokumen?" data-confirm-message="Dokumen ini akan dihapus. Lanjutkan?">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-light-danger" aria-label="Hapus {{ $document->document_type_label }}"><i class="ti ti-trash"></i></button></form>@endif</div>
+                            <div class="d-flex gap-2"><a href="{{ route('employee-documents.view', $document) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light-primary"><i class="ti ti-eye"></i> Lihat</a><a href="{{ route('employee-documents.download', $document) }}" class="btn btn-sm btn-light-secondary" aria-label="Unduh {{ $document->document_type_label }}"><i class="ti ti-download"></i></a>@if ($employee->canManageDocuments() && ! $document->isValid())<form action="{{ route('pegawai.documents.destroy', $document) }}" method="POST" data-confirm-title="Hapus Dokumen?" data-confirm-message="Dokumen ini akan dihapus dari data pegawai.">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-light-danger" aria-label="Hapus {{ $document->document_type_label }}"><i class="ti ti-trash"></i></button></form>@endif</div>
                         </div>
                     </div>
                 @endforeach

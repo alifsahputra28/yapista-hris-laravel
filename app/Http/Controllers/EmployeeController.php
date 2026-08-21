@@ -286,9 +286,9 @@ class EmployeeController extends Controller
                 'max:2048',
             ],
         ], [
-            'employee_number.required' => 'NUP / Nomor Pegawai wajib diisi untuk pegawai yang sudah terverifikasi.',
-            'employee_number.digits' => 'NUP / Nomor Pegawai harus terdiri dari 10 digit angka.',
-            'employee_number.unique' => 'NUP / Nomor Pegawai sudah digunakan oleh pegawai lain.',
+            'employee_number.required' => 'NUP wajib diisi untuk pegawai yang sudah terverifikasi.',
+            'employee_number.digits' => 'NUP harus terdiri dari 10 digit angka.',
+            'employee_number.unique' => 'NUP sudah digunakan oleh pegawai lain.',
         ]);
 
         unset($data['photo']);

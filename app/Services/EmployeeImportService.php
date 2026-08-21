@@ -186,7 +186,7 @@ class EmployeeImportService
 
         if ($unsupported !== [] || $missing !== []) {
             throw ValidationException::withMessages([
-                'file' => 'Struktur kolom Excel tidak sesuai template. Download dan gunakan template terbaru.',
+                'file' => 'Struktur kolom Excel tidak sesuai template. Unduh dan gunakan template terbaru.',
             ]);
         }
 

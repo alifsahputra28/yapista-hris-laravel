@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Login | YAPISTA HRIS</title>
+    <title>Masuk | YAPISTA HRIS</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
@@ -111,12 +111,12 @@
                                 name="remember"
                                 @checked(old('remember'))
                             >
-                            <label class="form-check-label text-muted" for="remember_me">Ingat saya</label>
+                            <label class="form-check-label text-muted" for="remember_me">Ingat Saya</label>
                         </div>
 
                         @if (Route::has('password.request'))
                             <a href="{{ route('password.request') }}" class="link-primary f-w-500">
-                                Lupa password?
+                                Lupa Password?
                             </a>
                         @endif
                     </div>

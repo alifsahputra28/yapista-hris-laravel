@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         title="ID Card Pegawai"
-        subtitle="Kartu pegawai digital dan QR Code absensi kegiatan."
+        subtitle="ID Card digital dengan QR Code untuk mencatat kehadiran."
         :breadcrumbs="[
             ['label' => 'Dashboard', 'url' => route('dashboard')],
             ['label' => 'Data Pegawai', 'url' => route('employees.index')],
@@ -50,7 +50,7 @@
         <div class="alert alert-warning">{{ $warning }}</div>
     @endforeach
 
-    <section class="employee-e-card-stage" aria-label="Preview ID Card pegawai">
+    <section class="employee-e-card-stage" aria-label="Pratinjau ID Card pegawai">
         @if ($isReadyForIdCard)
             <x-employee-e-card :employee="$employee" :qr-code-svg="$qrCodeSvg" />
 
@@ -61,7 +61,7 @@
                 </button>
                 <a href="{{ route('employees.id-card.download', $employee) }}" class="btn btn-light-secondary">
                     <i class="ti ti-download" aria-hidden="true"></i>
-                    Download
+                    Unduh
                 </a>
             </div>
         @else
@@ -87,7 +87,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                     </div>
                     <div class="modal-body text-center p-4">
-                        <div class="employee-e-card-qr-modal mx-auto" role="img" aria-label="QR Code absensi pegawai">{!! $qrCodeSvg !!}</div>
+                        <div class="employee-e-card-qr-modal mx-auto" role="img" aria-label="QR Code kehadiran pegawai">{!! $qrCodeSvg !!}</div>
                         <p class="fw-semibold mt-3 mb-1">NUP {{ $employee->employee_number }}</p>
                         <p class="text-muted small mb-0">Arahkan QR Code ini ke scanner kegiatan.</p>
                     </div>
