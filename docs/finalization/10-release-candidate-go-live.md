@@ -19,9 +19,9 @@ Stage 9 gate: **PASS**.
 | Item | Actual |
 |---|---|
 | Branch | `main` |
-| Pre-release/application source HEAD | `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` |
-| Release Candidate SHA | `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` |
-| Superseded application RC | `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
+| Pre-release/application source HEAD | `9b7efda53a87fbe4f9929ad2793d552cf3344248` |
+| Release Candidate SHA | `9b7efda53a87fbe4f9929ad2793d552cf3344248` |
+| Superseded application RC | `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` (legacy QR compatibility); earlier `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
 | Version | `v1.0.0` |
 | Working tree before release docs | CLEAN |
 | Feature/dependency freeze | ACTIVE |
@@ -37,14 +37,21 @@ The controlled legacy QR compatibility change invalidated the previous deploymen
 - No login, document, profile, generic employee lookup, E-Card payload, migration, or dependency behavior was changed.
 - Legacy NUP QR is predictable and transitional; new cards remain secure-token-only and the fallback should be retired after old cards are replaced.
 
+### Complete Admin/HR Employee Detail
+
+- Admin/HR Employee Detail now presents the complete authorized employee master profile across personal, employment, contact/address, emergency contact, family, education, certification, administration/bank/BPJS, document, verification, and profile-completion sections.
+- The audit found 62 profile inputs across 26 employee scalar fields and the related family, education, certification, administrative, and document records. Existing relationships and `EmployeeProfileProgressService` remain the source of truth; no migration or business rule changed.
+- NUP remains fully visible. NIK, family-card number, family NIK, certificate numbers, bank account, tax identity, and BPJS numbers are masked. Raw QR token/hash, ciphertext, and private storage paths are not rendered.
+- Browser QA with a Super Admin session passed for incomplete and complete UAT employees at 1440x900 and 390x844: no page overflow, broken layout, or application console error. HR access and Pegawai/Panitia/guest denial are covered by feature tests.
+
 ## 3. Final Test Results
 
 | Gate | Result |
 |---|---|
-| Full suite #1 | PASS; 306 tests; 2.534 assertions; 0 failed; 0 skipped; 62.396 s |
-| Full suite #2 | PASS; 306 tests; 2.534 assertions; 0 failed; 0 skipped; 21.782 s |
-| Frontend build | PASS; Vite 8.0.16; 57 modules; 14,38 detik |
-| CSS | 41,08 kB; gzip 7,53 kB |
+| Full suite #1 | PASS; 310 tests; 2.606 assertions; 0 failed; 0 skipped; 119.489 s |
+| Full suite #2 | PASS; 310 tests; 2.606 assertions; 0 failed; 0 skipped; 25.633 s |
+| Frontend build | PASS; Vite 8.0.16; 57 modules; 3,68 detik |
+| CSS | 28,47 kB; gzip 5,58 kB |
 | JS | 89,97 kB; gzip 32,66 kB |
 | Build warning | Plugin timing informational: Laravel 69%, CSS 30%; no asset/build error |
 | Composer platform requirements | PASS, non-dev |
@@ -156,7 +163,7 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
 | Queue | NOT APPLICABLE | No active runtime queued job found |
 | Scheduler | NOT APPLICABLE | No scheduled business task found |
-| Tests | READY | Post-change run twice: 306 tests, 2.534 assertions, 0 failed/skipped |
+| Tests | READY | Post-change run twice: 310 tests, 2.606 assertions, 0 failed/skipped |
 | Build | READY | Vite 8.0.16, 57 modules, PASS |
 | Security Audit | READY | Composer 0; npm full/production 0 |
 | Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
@@ -168,7 +175,7 @@ Overall matrix: READY 5, ACTION REQUIRED 22, BLOCKER 2, PENDING PRE-GO-LIVE 1, N
 
 ## 9. Release Tag
 
-The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` requires explicit operator approval and must not happen silently.
+The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `9b7efda53a87fbe4f9929ad2793d552cf3344248` requires explicit operator approval and must not happen silently.
 
 ## 10. Deployment Plan
 
@@ -231,6 +238,6 @@ NOT STARTED. Planned checks: login success, HTTP/Laravel errors, DB connectivity
 
 ## 20. Final Status
 
-The new `v1.0.0` application candidate is technically validated and reproducible at `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8`; old RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` is superseded for deployment. The unpushed local tag still resolves to the old RC pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
+The new `v1.0.0` application candidate is technically validated and reproducible at `9b7efda53a87fbe4f9929ad2793d552cf3344248`; RC `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
 
 **GO-LIVE BLOCKED - INFRASTRUCTURE ACTION REQUIRED**
