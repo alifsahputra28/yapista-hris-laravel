@@ -1,6 +1,6 @@
 # YAPISTA HRIS v1.0.0 Go-Live Checklist
 
-Release candidate source: `9b7efda53a87fbe4f9929ad2793d552cf3344248`
+Release candidate source: `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992`
 
 Status: **PRE-GO-LIVE VERIFIED; INFRASTRUCTURE ACTION REQUIRED; PRODUCTION EXECUTION NOT AUTHORIZED**
 
@@ -14,16 +14,17 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 - [x] Release Candidate SHA confirmed.
 - [ ] Local annotated tag `v1.0.0` retargeted to the exact new RC SHA after explicit operator approval; current unpushed tag still targets superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`.
 - [x] Application source working tree clean at validation.
-- [x] Full automated suite PASS twice: 310 tests / 2.606 assertions each.
+- [x] Full automated suite PASS twice: 311 tests / 2.630 assertions each.
 - [x] Frontend build PASS with Vite 8.0.16.
 - [x] Composer production audit clean.
 - [x] npm full and production audits clean.
 - [x] Migration reviewed: 26 Ran / 0 Pending on candidate environment.
 - [x] Read-only integrity audit reports 0 unexpected anomaly.
 - [x] Backup/isolated restore drill evidence PASS.
-- [x] Rollback source identified: superseded validated RC `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8`; earlier RC remains in history.
+- [x] Rollback source identified: superseded validated RC `9b7efda53a87fbe4f9929ad2793d552cf3344248`; earlier RCs remain in history.
 - [x] Legacy QR compatibility is scanner-only, exact 10 digits, feature-flagged, and covered by cross-format duplicate tests.
 - [x] Admin/HR Employee Detail complete-profile view is regression-tested, masks sensitive identifiers, excludes raw QR/private paths, and passed 1440px/390px browser QA.
+- [x] Scanner Focus Mode is isolated to the attendance scanner, keeps Admin navigation elsewhere, and passed 1440px/390px/430px browser QA with HID Enter and refocus.
 - [ ] Production `ATTENDANCE_ALLOW_LEGACY_NUP_QR` transition decision recorded; secure-token QR remains the standard for new cards.
 - [ ] Exact production target and application path confirmed by operator.
 - [ ] Operator states `GO-LIVE APPROVED`.

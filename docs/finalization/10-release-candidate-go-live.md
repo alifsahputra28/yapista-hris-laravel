@@ -19,14 +19,22 @@ Stage 9 gate: **PASS**.
 | Item | Actual |
 |---|---|
 | Branch | `main` |
-| Pre-release/application source HEAD | `9b7efda53a87fbe4f9929ad2793d552cf3344248` |
-| Release Candidate SHA | `9b7efda53a87fbe4f9929ad2793d552cf3344248` |
-| Superseded application RC | `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` (legacy QR compatibility); earlier `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
+| Pre-release/application source HEAD | `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` |
+| Release Candidate SHA | `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` |
+| Superseded application RC | `9b7efda53a87fbe4f9929ad2793d552cf3344248` (complete employee detail); earlier `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` and `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
 | Version | `v1.0.0` |
 | Working tree before release docs | CLEAN |
 | Feature/dependency freeze | ACTIVE |
 
-The controlled legacy QR compatibility change invalidated the previous deployment RC. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+The controlled Scanner Focus Mode change superseded the previous deployment RC after its own targeted QA and full regression. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+
+### Attendance Scanner Focus Mode
+
+- The attendance scanner now selects a server-rendered scanner mode in the shared Mantis layout. Only this route omits the Admin sidebar, hamburger/header chrome, breadcrumb, and footer; normal Admin/HR pages retain the standard layout.
+- The full-width operational screen provides a compact event header, attendance metrics, scanner state, last/recent scan results, a secondary collapsed manual-attendance section, and explicit `Daftar Hadir` and `Keluar Scanner` actions.
+- HID keyboard behavior is preserved: opening the page focuses the scanner input, Enter submits the existing scan endpoint, and focus returns after success, duplicate, invalid, and nonparticipant responses.
+- Browser QA passed at 1440x900, 390x844, and 430x932 with no sidebar offset, horizontal overflow, broken action, or application console error. Dashboard, employee list, and event list retained normal Mantis navigation.
+- Secure-token and legacy NUP resolution, authorization, attendance service rules, duplicate constraints, historical methods, schema, and dependencies were not changed.
 
 ### Controlled Legacy QR Compatibility
 
@@ -48,9 +56,9 @@ The controlled legacy QR compatibility change invalidated the previous deploymen
 
 | Gate | Result |
 |---|---|
-| Full suite #1 | PASS; 310 tests; 2.606 assertions; 0 failed; 0 skipped; 119.489 s |
-| Full suite #2 | PASS; 310 tests; 2.606 assertions; 0 failed; 0 skipped; 25.633 s |
-| Frontend build | PASS; Vite 8.0.16; 57 modules; 3,68 detik |
+| Full suite #1 | PASS; 311 tests; 2.630 assertions; 0 failed; 0 skipped; 43.028 s |
+| Full suite #2 | PASS; 311 tests; 2.630 assertions; 0 failed; 0 skipped; 20.364 s |
+| Frontend build | PASS; Vite 8.0.16; 57 modules; 1,95 detik |
 | CSS | 28,47 kB; gzip 5,58 kB |
 | JS | 89,97 kB; gzip 32,66 kB |
 | Build warning | Plugin timing informational: Laravel 69%, CSS 30%; no asset/build error |
@@ -163,7 +171,7 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
 | Queue | NOT APPLICABLE | No active runtime queued job found |
 | Scheduler | NOT APPLICABLE | No scheduled business task found |
-| Tests | READY | Post-change run twice: 310 tests, 2.606 assertions, 0 failed/skipped |
+| Tests | READY | Post-change run twice: 311 tests, 2.630 assertions, 0 failed/skipped |
 | Build | READY | Vite 8.0.16, 57 modules, PASS |
 | Security Audit | READY | Composer 0; npm full/production 0 |
 | Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
@@ -175,7 +183,7 @@ Overall matrix: READY 5, ACTION REQUIRED 22, BLOCKER 2, PENDING PRE-GO-LIVE 1, N
 
 ## 9. Release Tag
 
-The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `9b7efda53a87fbe4f9929ad2793d552cf3344248` requires explicit operator approval and must not happen silently.
+The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` requires explicit operator approval and must not happen silently.
 
 ## 10. Deployment Plan
 
@@ -196,6 +204,7 @@ The plan is fully captured in `docs/deployment/go-live-checklist.md`: verify tar
 - New local public smoke: login page PASS at 1280 px and 390x844; CSRF/form/logo present; 0 broken image, horizontal overflow, or console warning/error.
 - Stage 9 accepted browser evidence covers Admin/HR, Pegawai, Panitia, E-Card, document, scanner, report, and mobile 390/430.
 - Targeted change-impact browser UAT: Panitia scanner page, legacy NUP success, duplicate, nonparticipant, invalid payload, manual attendance, and attendance-list consistency PASS. Secure-token resolution is PASS WITH NOTE through unchanged resolver plus targeted automated tests; fresh browser secure-token entry was blocked by isolated clipboard, not by the application.
+- Scanner Focus Mode browser impact QA: 1440x900, 390x844, and 430x932 PASS; scanner-only chrome removal, autofocus, HID Enter submission, focus return, duplicate/nonparticipant/invalid feedback, and Admin navigation regression were verified. Physical scanner hardware remains pending.
 - Production public/admin/employee/panitia/QR/SMTP/upload smoke: NOT EXECUTED.
 
 ## 14. Monitoring
@@ -238,6 +247,6 @@ NOT STARTED. Planned checks: login success, HTTP/Laravel errors, DB connectivity
 
 ## 20. Final Status
 
-The new `v1.0.0` application candidate is technically validated and reproducible at `9b7efda53a87fbe4f9929ad2793d552cf3344248`; RC `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
+The new `v1.0.0` application candidate is technically validated and reproducible at `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992`; RC `9b7efda53a87fbe4f9929ad2793d552cf3344248` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
 
 **GO-LIVE BLOCKED - INFRASTRUCTURE ACTION REQUIRED**
