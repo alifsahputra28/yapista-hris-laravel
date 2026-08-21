@@ -19,14 +19,22 @@ Stage 9 gate: **PASS**.
 | Item | Actual |
 |---|---|
 | Branch | `main` |
-| Pre-release/application source HEAD | `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` |
-| Release Candidate SHA | `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` |
-| Superseded application RC | `9b7efda53a87fbe4f9929ad2793d552cf3344248` (complete employee detail); earlier `66b29b2f668aa2ed60d2e5b7f9e8d622943d18b8` and `ae40647d9dbcc6a43f5e3460813b786bef5032ac` |
+| Pre-release/application source HEAD | `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` |
+| Release Candidate SHA | `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` |
+| Superseded application RC | `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` (scanner Focus Mode); earlier RCs remain in history |
 | Version | `v1.0.0` |
 | Working tree before release docs | CLEAN |
 | Feature/dependency freeze | ACTIVE |
 
-The controlled Scanner Focus Mode change superseded the previous deployment RC after its own targeted QA and full regression. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+The controlled system-wide Indonesian copywriting standardization superseded the previous deployment RC after targeted QA and full regression. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+
+### System-Wide Indonesian Copywriting
+
+- System-wide Indonesian UI copy was standardized for clarity and terminology consistency across authentication, Admin/HR, Pegawai, Panitia, scanner, documents, import/export, and reports.
+- User-facing terminology now consistently uses `Pegawai`, `NUP`, `Unit Kerja`, `Kegiatan`, `Kehadiran`, `Verifikasi`, `Masuk`, `Keluar`, `Unggah`, and `Unduh`. `ID Card`, `QR Code`, `Import`, `Export`, `Excel`, and `Password` remain intentional product/operational terms.
+- Indonesian authentication and validation language is now the application default. Internal identifiers, persisted status values, routes, field names, QR/attendance/import logic, layout, styling, schema, and dependencies were not changed.
+- Browser QA covered major Admin/HR and Panitia pages at 1440x900 and effective mobile widths 375/415 for requested 390/430 viewports. No horizontal document overflow, broken image, old attendance terminology, or application console warning/error was found. Pegawai copy was verified through feature rendering tests and source audit because a separate browser credential was not changed or reprovisioned.
+- The ongoing standard is documented in `docs/ui/system-copywriting-guideline.md`.
 
 ### Attendance Scanner Focus Mode
 
@@ -56,9 +64,9 @@ The controlled Scanner Focus Mode change superseded the previous deployment RC a
 
 | Gate | Result |
 |---|---|
-| Full suite #1 | PASS; 311 tests; 2.630 assertions; 0 failed; 0 skipped; 43.028 s |
-| Full suite #2 | PASS; 311 tests; 2.630 assertions; 0 failed; 0 skipped; 20.364 s |
-| Frontend build | PASS; Vite 8.0.16; 57 modules; 1,95 detik |
+| Full suite #1 | PASS; 312 tests; 2.633 assertions; 0 failed; 0 skipped; 20.431 s |
+| Full suite #2 | PASS; 312 tests; 2.633 assertions; 0 failed; 0 skipped; 20.331 s |
+| Frontend build | PASS; Vite 8.0.16; 57 modules; 1,49 detik |
 | CSS | 28,47 kB; gzip 5,58 kB |
 | JS | 89,97 kB; gzip 32,66 kB |
 | Build warning | Plugin timing informational: Laravel 69%, CSS 30%; no asset/build error |
@@ -171,7 +179,7 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
 | Queue | NOT APPLICABLE | No active runtime queued job found |
 | Scheduler | NOT APPLICABLE | No scheduled business task found |
-| Tests | READY | Post-change run twice: 311 tests, 2.630 assertions, 0 failed/skipped |
+| Tests | READY | Post-change run twice: 312 tests, 2.633 assertions, 0 failed/skipped |
 | Build | READY | Vite 8.0.16, 57 modules, PASS |
 | Security Audit | READY | Composer 0; npm full/production 0 |
 | Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
@@ -183,7 +191,7 @@ Overall matrix: READY 5, ACTION REQUIRED 22, BLOCKER 2, PENDING PRE-GO-LIVE 1, N
 
 ## 9. Release Tag
 
-The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` requires explicit operator approval and must not happen silently.
+The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` requires explicit operator approval and must not happen silently.
 
 ## 10. Deployment Plan
 
@@ -205,6 +213,7 @@ The plan is fully captured in `docs/deployment/go-live-checklist.md`: verify tar
 - Stage 9 accepted browser evidence covers Admin/HR, Pegawai, Panitia, E-Card, document, scanner, report, and mobile 390/430.
 - Targeted change-impact browser UAT: Panitia scanner page, legacy NUP success, duplicate, nonparticipant, invalid payload, manual attendance, and attendance-list consistency PASS. Secure-token resolution is PASS WITH NOTE through unchanged resolver plus targeted automated tests; fresh browser secure-token entry was blocked by isolated clipboard, not by the application.
 - Scanner Focus Mode browser impact QA: 1440x900, 390x844, and 430x932 PASS; scanner-only chrome removal, autofocus, HID Enter submission, focus return, duplicate/nonparticipant/invalid feedback, and Admin navigation regression were verified. Physical scanner hardware remains pending.
+- Copywriting browser impact QA: major Admin/HR and Panitia pages passed at 1440x900 and effective mobile widths 375/415 for requested 390/430 viewports, with no horizontal document overflow, broken image, old attendance terminology, or application console warning/error. Pegawai copy passed feature rendering tests and source audit; a separate browser credential was not changed or reprovisioned.
 - Production public/admin/employee/panitia/QR/SMTP/upload smoke: NOT EXECUTED.
 
 ## 14. Monitoring
@@ -247,6 +256,6 @@ NOT STARTED. Planned checks: login success, HTTP/Laravel errors, DB connectivity
 
 ## 20. Final Status
 
-The new `v1.0.0` application candidate is technically validated and reproducible at `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992`; RC `9b7efda53a87fbe4f9929ad2793d552cf3344248` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
+The new `v1.0.0` application candidate is technically validated and reproducible at `58fbbd04672a15dfcbf5f6923200a9c35960a7d0`; RC `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
 
 **GO-LIVE BLOCKED - INFRASTRUCTURE ACTION REQUIRED**
