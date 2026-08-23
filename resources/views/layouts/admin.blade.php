@@ -29,9 +29,13 @@
 @php
     $layoutMode = trim($__env->yieldContent('layout-mode'));
     $isScannerFocusMode = $layoutMode === 'scanner';
-    $bodyClass = $isScannerFocusMode
-        ? 'scanner-focus-page'
-        : (Auth::user()?->isPegawai() ? 'employee-app' : '');
+    $isEmployeeOnboardingMode = $layoutMode === 'employee-onboarding';
+    $bodyClass = match (true) {
+        $isScannerFocusMode => 'scanner-focus-page',
+        $isEmployeeOnboardingMode => 'employee-onboarding-page',
+        Auth::user()?->isPegawai() => 'employee-app',
+        default => '',
+    };
 @endphp
 
 <body class="{{ $bodyClass }}" data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
@@ -48,6 +52,32 @@
                 @yield('content')
             </div>
         </main>
+    @elseif ($isEmployeeOnboardingMode)
+        <main class="employee-onboarding-main">
+            <header class="employee-onboarding-appbar">
+                <div class="employee-onboarding-appbar-inner">
+                    <a href="{{ route('pegawai.profile.wizard.index') }}" aria-label="Kembali ke langkah aktif onboarding">
+                        <x-application-logo class="employee-onboarding-logo" image-class="img-fluid" />
+                    </a>
+                    <div class="employee-onboarding-brand-copy">
+                        <strong>Onboarding Pegawai</strong>
+                        <span>YAPISTA HRIS</span>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}" class="ms-auto">
+                        @csrf
+                        <button type="submit" class="btn btn-light-secondary btn-sm d-inline-flex align-items-center gap-2">
+                            <i class="ti ti-logout" aria-hidden="true"></i>
+                            <span>Keluar</span>
+                        </button>
+                    </form>
+                </div>
+            </header>
+            <div class="employee-onboarding-shell">
+                @yield('content')
+            </div>
+        </main>
+
+        <x-confirm-action-modal />
     @else
         @include('partials.sidebar')
         @include('partials.header')
@@ -77,7 +107,7 @@
     <script src="{{ asset('assets/js/fonts/custom-font.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
 
-    @unless ($isScannerFocusMode)
+    @unless ($isScannerFocusMode || $isEmployeeOnboardingMode)
         <script src="{{ asset('assets/js/pcoded.js') }}"></script>
         <script>layout_change('light');</script>
         <script>change_box_container('false');</script>

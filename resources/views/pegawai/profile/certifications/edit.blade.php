@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('layout-mode', Auth::user()?->employee?->isVerified() ? '' : 'employee-onboarding')
+
 @section('title', 'Edit Sertifikasi | YAPISTA HRIS')
 
 @section('content')

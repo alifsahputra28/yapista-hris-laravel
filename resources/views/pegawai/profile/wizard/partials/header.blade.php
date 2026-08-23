@@ -7,21 +7,32 @@
     ];
     [$verificationLabel, $verificationClass] = $verificationBadges[$employee->verification_status] ?? [ucfirst((string) $employee->verification_status), 'bg-light-secondary text-secondary'];
 @endphp
-<x-page-header
-    :title="$steps[$step]['label']"
-    :subtitle="$employee->isVerified() ? 'Tinjau data profil tambahan Anda.' : 'Lengkapi data pada bagian ini.'"
-    :badge-label="$verificationLabel"
-    :badge-class="$verificationClass"
-    :breadcrumbs="[
-        ['label' => 'Beranda', 'url' => route('pegawai.dashboard')],
-        ['label' => 'Akun', 'url' => route('pegawai.profile.show')],
-        ['label' => $steps[$step]['short_label']],
-    ]"
->
-    <x-slot:actions>
-        <a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left"></i> Kembali</a>
-    </x-slot:actions>
-</x-page-header>
+@if ($employee->isVerified())
+    <x-page-header
+        :title="$steps[$step]['label']"
+        subtitle="Tinjau data profil tambahan Anda."
+        :badge-label="$verificationLabel"
+        :badge-class="$verificationClass"
+        :breadcrumbs="[
+            ['label' => 'Beranda', 'url' => route('pegawai.dashboard')],
+            ['label' => 'Akun', 'url' => route('pegawai.profile.show')],
+            ['label' => $steps[$step]['short_label']],
+        ]"
+    >
+        <x-slot:actions>
+            <a href="{{ route('pegawai.profile.show') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left"></i> Kembali</a>
+        </x-slot:actions>
+    </x-page-header>
+@else
+    <header class="employee-onboarding-heading mb-3">
+        <div>
+            <p class="text-primary fw-semibold small mb-1">Lengkapi Profil Pegawai</p>
+            <h1 class="h3 mb-1">{{ $steps[$step]['label'] }}</h1>
+            <p class="text-muted mb-0">Lengkapi data pada bagian ini. Setiap langkah dapat disimpan sebagai draft.</p>
+        </div>
+        <span class="badge {{ $verificationClass }}">{{ $verificationLabel }}</span>
+    </header>
+@endif
 
 @if ($step !== 'review')
     @if ($employee->isVerified())

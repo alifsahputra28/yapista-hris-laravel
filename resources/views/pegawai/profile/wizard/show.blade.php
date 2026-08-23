@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('layout-mode', $employee->isVerified() ? '' : 'employee-onboarding')
+
 @section('title', ($steps[$step]['label'] ?? 'Lengkapi Profil').' | YAPISTA HRIS')
 
 @section('content')

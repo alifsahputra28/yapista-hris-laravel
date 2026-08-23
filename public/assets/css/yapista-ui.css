@@ -906,6 +906,134 @@
     min-width: 700px;
 }
 
+/* Employee onboarding focus mode: the employee portal remains unchanged elsewhere. */
+.employee-onboarding-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: #f4f7f6;
+}
+
+.employee-onboarding-main {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.employee-onboarding-appbar {
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.employee-onboarding-appbar-inner {
+    display: flex;
+    width: 100%;
+    max-width: 1120px;
+    min-height: 64px;
+    margin-inline: auto;
+    padding: 0.75rem 1.25rem;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.employee-onboarding-logo {
+    width: 142px;
+    height: 36px;
+    justify-content: flex-start;
+}
+
+.employee-onboarding-brand-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.employee-onboarding-brand-copy strong {
+    color: #1f2937;
+    font-size: 0.875rem;
+}
+
+.employee-onboarding-brand-copy span {
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.employee-onboarding-shell {
+    width: 100%;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding: 1.5rem 1.25rem 2rem;
+}
+
+.employee-onboarding-page .profile-form-shell,
+.employee-onboarding-page .profile-progress {
+    max-width: none;
+}
+
+.employee-onboarding-page .app-page-header nav[aria-label="Breadcrumb"] {
+    display: none;
+}
+
+.employee-onboarding-heading {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.employee-onboarding-heading h1 {
+    letter-spacing: 0;
+}
+
+.employee-onboarding-step-summary {
+    display: flex;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #dfe5eb;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.employee-onboarding-step-summary strong {
+    color: var(--bs-primary);
+}
+
+@media (max-width: 575.98px) {
+    .employee-onboarding-appbar-inner {
+        min-height: 58px;
+        padding: 0.65rem 1rem;
+    }
+
+    .employee-onboarding-logo {
+        width: 116px;
+        height: 30px;
+    }
+
+    .employee-onboarding-brand-copy {
+        display: none;
+    }
+
+    .employee-onboarding-shell {
+        padding: 1rem 0.75rem 1.5rem;
+    }
+
+    .employee-onboarding-heading {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .employee-onboarding-heading h1 {
+        font-size: 1.35rem;
+    }
+
+    .employee-onboarding-page .app-page-header {
+        margin-bottom: 1rem;
+    }
+}
+
 /* Attendance scanner focus mode: intentionally scoped away from the admin shell. */
 .scanner-focus-page {
     min-height: 100vh;

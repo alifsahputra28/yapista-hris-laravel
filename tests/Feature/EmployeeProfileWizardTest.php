@@ -48,6 +48,31 @@ class EmployeeProfileWizardTest extends TestCase
         }
     }
 
+    public function test_new_employee_wizard_uses_focused_onboarding_layout(): void
+    {
+        [$user] = $this->employeeUser();
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'identification', absolute: false))
+            ->assertOk()
+            ->assertSee('class="employee-onboarding-page"', escape: false)
+            ->assertSee('employee-onboarding-appbar', escape: false)
+            ->assertSee('Onboarding Pegawai')
+            ->assertSee('Langkah 1 dari 6')
+            ->assertSee(route('logout', absolute: false), escape: false)
+            ->assertDontSee('class="pc-sidebar"', escape: false)
+            ->assertDontSee('class="pc-header', escape: false)
+            ->assertDontSee('employee-bottom-nav', escape: false)
+            ->assertDontSee('aria-label="Breadcrumb"', escape: false);
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.family-members.create', absolute: false))
+            ->assertOk()
+            ->assertSee('class="employee-onboarding-page"', escape: false)
+            ->assertDontSee('class="pc-sidebar"', escape: false)
+            ->assertDontSee('employee-bottom-nav', escape: false);
+    }
+
     public function test_wizard_index_opens_first_incomplete_step_and_complete_profile_opens_review(): void
     {
         [$user, $employee] = $this->employeeUser();
@@ -248,6 +273,9 @@ class EmployeeProfileWizardTest extends TestCase
         $this->actingAs($user)
             ->get(route('pegawai.profile.wizard.show', 'identification', absolute: false))
             ->assertOk()
+            ->assertSee('class="pc-sidebar"', escape: false)
+            ->assertSee('employee-bottom-nav', escape: false)
+            ->assertDontSee('class="employee-onboarding-page"', escape: false)
             ->assertSee('Identitas')
             ->assertSee('Kontak')
             ->assertSee('Periksa')
