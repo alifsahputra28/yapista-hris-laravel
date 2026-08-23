@@ -1,6 +1,6 @@
 # YAPISTA HRIS v1.0.0 Go-Live Checklist
 
-Release candidate source: `58fbbd04672a15dfcbf5f6923200a9c35960a7d0`
+Release candidate source: `f1872d7d400a54a2ff6586729dd6f135c9bc3162`
 
 Status: **PRE-GO-LIVE VERIFIED; INFRASTRUCTURE ACTION REQUIRED; PRODUCTION EXECUTION NOT AUTHORIZED**
 
@@ -14,7 +14,7 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 - [x] Release Candidate SHA confirmed.
 - [ ] Local annotated tag `v1.0.0` retargeted to the exact new RC SHA after explicit operator approval; current unpushed tag still targets superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`.
 - [x] Application source working tree clean at validation.
-- [x] Full automated suite PASS twice: 312 tests / 2.633 assertions each.
+- [x] Full automated suite PASS twice: 319 tests / 2.641 assertions each.
 - [x] Frontend build PASS with Vite 8.0.16.
 - [x] Composer production audit clean.
 - [x] npm full and production audits clean.
@@ -26,6 +26,7 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 - [x] Admin/HR Employee Detail complete-profile view is regression-tested, masks sensitive identifiers, excludes raw QR/private paths, and passed 1440px/390px browser QA.
 - [x] Scanner Focus Mode is isolated to the attendance scanner, keeps Admin navigation elsewhere, and passed 1440px/390px/430px browser QA with HID Enter and refocus.
 - [x] System-wide Indonesian copy is standardized and covered by targeted tests, two full regressions, desktop/mobile browser review, and `docs/ui/system-copywriting-guideline.md`.
+- [x] Invitation onboarding distinguishes verified existing employees (three optional steps; NUP/QR preserved) from new employees (six required steps; HR approval required for NUP/QR).
 - [ ] Production `ATTENDANCE_ALLOW_LEGACY_NUP_QR` transition decision recorded; secure-token QR remains the standard for new cards.
 - [ ] Exact production target and application path confirmed by operator.
 - [ ] Operator states `GO-LIVE APPROVED`.

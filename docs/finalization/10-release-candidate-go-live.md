@@ -19,14 +19,23 @@ Stage 9 gate: **PASS**.
 | Item | Actual |
 |---|---|
 | Branch | `main` |
-| Pre-release/application source HEAD | `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` |
-| Release Candidate SHA | `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` |
-| Superseded application RC | `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` (scanner Focus Mode); earlier RCs remain in history |
+| Pre-release/application source HEAD | `f1872d7d400a54a2ff6586729dd6f135c9bc3162` |
+| Release Candidate SHA | `f1872d7d400a54a2ff6586729dd6f135c9bc3162` |
+| Superseded application RC | `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` (system copywriting); earlier RCs remain in history |
 | Version | `v1.0.0` |
 | Working tree before release docs | CLEAN |
 | Feature/dependency freeze | ACTIVE |
 
-The controlled system-wide Indonesian copywriting standardization superseded the previous deployment RC after targeted QA and full regression. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+The controlled role-aware employee onboarding change superseded the system-copywriting RC after targeted QA and full regression. Production source of truth is now the exact new RC SHA above. Documentation commits created after validation do not change application source.
+
+### Role-Aware Employee Onboarding
+
+- Invitation registration now opens profile onboarding instead of the employee dashboard.
+- Imported existing employees with a valid 10-digit NUP remain verified and retain their active QR/E-Card. They receive a compact three-step optional flow: identity, contact/address, and review. They can maintain family, education, certification, administration, and owned documents later from Account without re-verification.
+- New employees without NUP remain draft and use the existing six-step onboarding. Dashboard access guides them back to onboarding until their profile has been submitted; HR approval remains the only flow that assigns NUP, verified metadata, and an active QR.
+- Official NUP, institution, position, employment status, verification status, and QR are not editable through employee profile requests. Verified employees cannot submit themselves for verification again.
+- No migration, dependency, import mapping, QR payload, or verification eligibility rule changed.
+- Targeted and broad change-impact regression passed 145 tests / 1.263 assertions. Local browser smoke confirmed the application login entry point; authenticated onboarding rendering and mutations were verified through feature tests without creating or resetting a UAT credential.
 
 ### System-Wide Indonesian Copywriting
 
@@ -64,9 +73,9 @@ The controlled system-wide Indonesian copywriting standardization superseded the
 
 | Gate | Result |
 |---|---|
-| Full suite #1 | PASS; 312 tests; 2.633 assertions; 0 failed; 0 skipped; 20.431 s |
-| Full suite #2 | PASS; 312 tests; 2.633 assertions; 0 failed; 0 skipped; 20.331 s |
-| Frontend build | PASS; Vite 8.0.16; 57 modules; 1,49 detik |
+| Full suite #1 | PASS; 319 tests; 2.641 assertions; 0 failed; 0 skipped; 34.581 s |
+| Full suite #2 | PASS; 319 tests; 2.641 assertions; 0 failed; 0 skipped; 35.824 s |
+| Frontend build | PASS; Vite 8.0.16; 57 modules; 3,11 detik |
 | CSS | 28,47 kB; gzip 5,58 kB |
 | JS | 89,97 kB; gzip 32,66 kB |
 | Build warning | Plugin timing informational: Laravel 69%, CSS 30%; no asset/build error |
@@ -179,7 +188,7 @@ The `.env.example` is not a production credential template; `docs/deployment/pro
 | Scanner | PENDING PRE-GO-LIVE | Application HID flow PASS; physical device untested |
 | Queue | NOT APPLICABLE | No active runtime queued job found |
 | Scheduler | NOT APPLICABLE | No scheduled business task found |
-| Tests | READY | Post-change run twice: 312 tests, 2.633 assertions, 0 failed/skipped |
+| Tests | READY | Post-change run twice: 319 tests, 2.641 assertions, 0 failed/skipped |
 | Build | READY | Vite 8.0.16, 57 modules, PASS |
 | Security Audit | READY | Composer 0; npm full/production 0 |
 | Migration | READY | Candidate 26 Ran, 0 Pending; production not touched |
@@ -191,7 +200,7 @@ Overall matrix: READY 5, ACTION REQUIRED 22, BLOCKER 2, PENDING PRE-GO-LIVE 1, N
 
 ## 9. Release Tag
 
-The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` requires explicit operator approval and must not happen silently.
+The local annotated tag `v1.0.0` still resolves to superseded RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac`. It was not pushed. Retargeting to new RC `f1872d7d400a54a2ff6586729dd6f135c9bc3162` requires explicit operator approval and must not happen silently.
 
 ## 10. Deployment Plan
 
@@ -256,6 +265,6 @@ NOT STARTED. Planned checks: login success, HTTP/Laravel errors, DB connectivity
 
 ## 20. Final Status
 
-The new `v1.0.0` application candidate is technically validated and reproducible at `58fbbd04672a15dfcbf5f6923200a9c35960a7d0`; RC `006d3aaf23fb5f73a75ccfef8d3eaa8068cf2992` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
+The new `v1.0.0` application candidate is technically validated and reproducible at `f1872d7d400a54a2ff6586729dd6f135c9bc3162`; RC `58fbbd04672a15dfcbf5f6923200a9c35960a7d0` is superseded for deployment. The unpushed local tag still resolves to the earlier RC `ae40647d9dbcc6a43f5e3460813b786bef5032ac` pending explicit operator approval. Production remains untouched. Deployment cannot proceed because mandatory infrastructure has not been supplied or verified and explicit Go-Live approval has not been given.
 
 **GO-LIVE BLOCKED - INFRASTRUCTURE ACTION REQUIRED**
