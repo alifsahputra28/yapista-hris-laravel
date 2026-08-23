@@ -35,9 +35,7 @@ class EmployeeFamilyMemberController extends Controller
 
         $employee->familyMembers()->create($request->validated());
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'family')
-            ->with('success', 'Data anggota keluarga berhasil ditambahkan.');
+        return $this->savedRedirect($employee, 'Data anggota keluarga berhasil ditambahkan.');
     }
 
     public function edit(EmployeeFamilyMember $familyMember): RedirectResponse|View
@@ -65,9 +63,7 @@ class EmployeeFamilyMemberController extends Controller
 
         $familyMember->update($request->validated());
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'family')
-            ->with('success', 'Data anggota keluarga berhasil diperbarui.');
+        return $this->savedRedirect($employee, 'Data anggota keluarga berhasil diperbarui.');
     }
 
     public function destroy(EmployeeFamilyMember $familyMember): RedirectResponse
@@ -81,9 +77,7 @@ class EmployeeFamilyMemberController extends Controller
 
         $familyMember->delete();
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'family')
-            ->with('success', 'Data anggota keluarga berhasil dihapus.');
+        return $this->savedRedirect($employee, 'Data anggota keluarga berhasil dihapus.');
     }
 
     private function currentEmployee(): Employee
@@ -108,6 +102,13 @@ class EmployeeFamilyMemberController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data keluarga tidak dapat diubah setelah profil diajukan atau diverifikasi.');
+            ->with('error', 'Data keluarga tidak dapat diubah saat profil sedang diajukan.');
+    }
+
+    private function savedRedirect(Employee $employee, string $message): RedirectResponse
+    {
+        return $employee->isVerified()
+            ? redirect()->route('pegawai.profile.show')->with('success', $message)
+            : redirect()->route('pegawai.profile.wizard.show', 'family')->with('success', $message);
     }
 }

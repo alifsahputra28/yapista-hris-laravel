@@ -49,9 +49,7 @@ class EmployeeEducationController extends Controller
             $employee->educations()->create($data);
         });
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'education')
-            ->with('success', 'Data pendidikan berhasil ditambahkan.');
+        return $this->savedRedirect($employee, 'Data pendidikan berhasil ditambahkan.');
     }
 
     public function edit(EmployeeEducation $education): RedirectResponse|View
@@ -89,9 +87,7 @@ class EmployeeEducationController extends Controller
             $education->update($data);
         });
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'education')
-            ->with('success', 'Data pendidikan berhasil diperbarui.');
+        return $this->savedRedirect($employee, 'Data pendidikan berhasil diperbarui.');
     }
 
     public function destroy(EmployeeEducation $education): RedirectResponse
@@ -115,9 +111,7 @@ class EmployeeEducationController extends Controller
             $this->documentStorage->deletePath($path);
         }
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'education')
-            ->with('success', 'Data pendidikan berhasil dihapus.');
+        return $this->savedRedirect($employee, 'Data pendidikan berhasil dihapus.');
     }
 
     private function currentEmployee(): Employee
@@ -141,6 +135,13 @@ class EmployeeEducationController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data pendidikan tidak dapat diubah setelah profil diajukan atau diverifikasi.');
+            ->with('error', 'Data pendidikan tidak dapat diubah saat profil sedang diajukan.');
+    }
+
+    private function savedRedirect(Employee $employee, string $message): RedirectResponse
+    {
+        return $employee->isVerified()
+            ? redirect()->route('pegawai.profile.show')->with('success', $message)
+            : redirect()->route('pegawai.profile.wizard.show', 'education')->with('success', $message);
     }
 }

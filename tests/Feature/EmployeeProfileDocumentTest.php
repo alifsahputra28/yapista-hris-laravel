@@ -136,7 +136,7 @@ class EmployeeProfileDocumentTest extends TestCase
         $this->assertDatabaseCount('employee_documents', 0);
     }
 
-    public function test_verified_employee_can_upload_an_owned_document_without_reopening_profile_edits(): void
+    public function test_verified_employee_can_upload_an_owned_document_and_update_optional_profile_data(): void
     {
         Storage::fake('private');
 
@@ -166,7 +166,7 @@ class EmployeeProfileDocumentTest extends TestCase
 
         $this->assertSame('pending', $document->status);
         Storage::disk('private')->assertExists($document->file_path);
-        $this->assertFalse($employee->fresh()->canEditProfileCompletion());
+        $this->assertTrue($employee->fresh()->canEditProfileCompletion());
     }
 
     public function test_employee_can_not_delete_another_employee_document(): void

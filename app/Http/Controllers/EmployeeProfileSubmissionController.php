@@ -17,6 +17,12 @@ class EmployeeProfileSubmissionController extends Controller
         $employee = Auth::user()?->employee;
         abort_unless($employee instanceof Employee, 404, 'Data pegawai tidak ditemukan.');
 
+        if ($employee->isVerified()) {
+            return redirect()
+                ->route('pegawai.profile.show')
+                ->with('warning', 'Pegawai terverifikasi tidak perlu mengajukan verifikasi ulang.');
+        }
+
         $result = $submissionService->submit($employee, $request->user());
 
         if ($result['already_submitted']) {

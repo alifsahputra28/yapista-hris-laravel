@@ -211,30 +211,76 @@ class EmployeeProfileWizardTest extends TestCase
         $this->assertSame('Bank Uji', $employee->administrativeDetail->bank_name);
     }
 
-    public function test_submitted_and_verified_profiles_are_read_only_and_updates_are_blocked(): void
+    public function test_submitted_profile_is_read_only_and_updates_are_blocked(): void
     {
-        foreach (['submitted', 'verified'] as $index => $status) {
-            [$user, $employee] = $this->employeeUser([
-                'verification_status' => $status,
-                'employee_number' => $status === 'verified' ? '77709239'.str_pad((string) $index, 2, '0', STR_PAD_LEFT) : null,
-            ], "wizard.locked.{$status}@yapista.test");
+        [$user, $employee] = $this->employeeUser([
+            'verification_status' => 'submitted',
+            'profile_review_status' => Employee::PROFILE_REVIEW_SUBMITTED,
+        ], 'wizard.locked.submitted@yapista.test');
 
-            $this->actingAs($user)
-                ->get(route('pegawai.profile.wizard.show', 'identification', absolute: false))
-                ->assertOk()
-                ->assertSee('tidak dapat diubah')
-                ->assertDontSee('Simpan Draft');
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'identification', absolute: false))
+            ->assertOk()
+            ->assertSee('tidak dapat diubah')
+            ->assertDontSee('Simpan Draft');
 
-            $this->actingAs($user)
-                ->put(route('pegawai.profile.wizard.identification.update', absolute: false), [
-                    'full_name' => 'Nama Tidak Boleh Berubah',
-                    'wizard_action' => 'stay',
-                ])
-                ->assertRedirect(route('pegawai.profile.wizard.show', 'identification', absolute: false))
-                ->assertSessionHas('error');
+        $this->actingAs($user)
+            ->put(route('pegawai.profile.wizard.identification.update', absolute: false), [
+                'full_name' => 'Nama Tidak Boleh Berubah',
+                'wizard_action' => 'stay',
+            ])
+            ->assertRedirect(route('pegawai.profile.wizard.show', 'identification', absolute: false))
+            ->assertSessionHas('error');
 
-            $this->assertNotSame('Nama Tidak Boleh Berubah', $employee->fresh()->full_name);
-        }
+        $this->assertNotSame('Nama Tidak Boleh Berubah', $employee->fresh()->full_name);
+    }
+
+    public function test_verified_employee_uses_compact_optional_wizard_and_keeps_official_fields(): void
+    {
+        [$user, $employee] = $this->employeeUser([
+            'employee_number' => '0770923803',
+            'verification_status' => 'verified',
+            'verified_at' => now(),
+        ], 'wizard.verified@yapista.test');
+        $institutionId = $employee->institution_id;
+        $positionId = $employee->position_id;
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'identification', absolute: false))
+            ->assertOk()
+            ->assertSee('Identitas')
+            ->assertSee('Kontak')
+            ->assertSee('Periksa')
+            ->assertDontSee('/pegawai/profile/complete/family', escape: false)
+            ->assertDontSee('/pegawai/profile/complete/education', escape: false)
+            ->assertDontSee('Simpan Draft');
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'family', absolute: false))
+            ->assertNotFound();
+
+        $this->actingAs($user)
+            ->put(route('pegawai.profile.wizard.identification.update', absolute: false), [
+                'full_name' => 'Pegawai Lama Diperbarui',
+                'birth_place' => 'Batam',
+                'wizard_action' => 'next',
+            ])
+            ->assertRedirect(route('pegawai.profile.wizard.show', 'contact-address', absolute: false))
+            ->assertSessionHas('success');
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'review', absolute: false))
+            ->assertOk()
+            ->assertSee('Status pegawai tetap terverifikasi')
+            ->assertSee('0770923803')
+            ->assertDontSee('Kirim untuk Verifikasi');
+
+        $employee->refresh();
+        $this->assertSame('Pegawai Lama Diperbarui', $employee->full_name);
+        $this->assertSame('0770923803', $employee->employee_number);
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertSame($institutionId, $employee->institution_id);
+        $this->assertSame($positionId, $employee->position_id);
     }
 
     public function test_review_masks_sensitive_values_and_shows_incomplete_submission_state(): void

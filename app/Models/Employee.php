@@ -338,8 +338,11 @@ class Employee extends Model
 
     public function canEditProfileCompletion(): bool
     {
-        return $this->canEditProfile()
-            && in_array($this->profile_review_status, [self::PROFILE_REVIEW_DRAFT, self::PROFILE_REVIEW_REJECTED], true);
+        if ($this->isProfileSubmitted()) {
+            return false;
+        }
+
+        return $this->isVerified() || $this->canEditProfile();
     }
 
     public function canManageDocuments(): bool

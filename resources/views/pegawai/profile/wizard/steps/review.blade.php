@@ -1,3 +1,37 @@
+@if ($employee->isVerified())
+@php
+    $display = fn ($value) => filled($value) ? $value : 'Belum diisi';
+    $mask = fn ($value) => filled($value) ? str_repeat('*', max(strlen($value) - 4, 0)).substr($value, -4) : 'Belum diisi';
+@endphp
+
+<div class="alert alert-light-success">
+    <i class="ti ti-circle-check me-1" aria-hidden="true"></i>
+    <strong>Status pegawai tetap terverifikasi.</strong>
+    NUP, QR Code, dan ID Card Anda tetap aktif selama status kerja memenuhi ketentuan.
+</div>
+
+<div class="card">
+    <div class="card-header"><h5 class="mb-1">Periksa Data Dasar</h5><p class="mb-0 text-muted">Data tambahan dapat diperbarui kembali kapan saja melalui menu Akun.</p></div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6"><small class="text-muted d-block">Nama Lengkap</small><strong>{{ $employee->full_name }}</strong></div>
+            <div class="col-md-6"><small class="text-muted d-block">NUP</small><strong>{{ $employee->formatted_employee_number }}</strong></div>
+            <div class="col-md-6"><small class="text-muted d-block">Unit Kerja</small>{{ $employee->institution?->name ?? 'Belum ditetapkan' }}</div>
+            <div class="col-md-6"><small class="text-muted d-block">Jabatan</small>{{ $employee->position?->name ?? 'Belum ditetapkan' }}</div>
+            <div class="col-md-6"><small class="text-muted d-block">NIK</small>{{ $employee->masked_nik ?? 'Belum diisi' }}</div>
+            <div class="col-md-6"><small class="text-muted d-block">Nomor Kartu Keluarga</small>{{ $mask($employee->family_card_number) }}</div>
+            <div class="col-md-6"><small class="text-muted d-block">Nomor HP / WhatsApp</small>{{ $display($employee->phone) }} / {{ $display($employee->whatsapp_number) }}</div>
+            <div class="col-md-6"><small class="text-muted d-block">Email Pribadi</small>{{ $display($employee->email) }}</div>
+            <div class="col-12"><small class="text-muted d-block">Alamat Domisili</small>{{ $display($employee->address) }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between gap-2">
+    <a href="{{ route('pegawai.profile.wizard.show', 'contact-address') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left" aria-hidden="true"></i> Kembali</a>
+    <a href="{{ route('pegawai.dashboard') }}" class="btn btn-primary">Selesai &amp; Buka Beranda <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+</div>
+@else
 @php
     $display = fn ($value) => filled($value) ? $value : 'Belum diisi';
     $mask = fn ($value) => filled($value) ? str_repeat('*', max(strlen($value) - 4, 0)).substr($value, -4) : 'Belum diisi';
@@ -115,3 +149,4 @@
 </div></div>
 
 <div class="d-flex flex-wrap justify-content-between gap-2"><a href="{{ route('pegawai.profile.wizard.show', 'administration') }}" class="btn btn-light-secondary"><i class="ti ti-arrow-left"></i> Kembali</a><a href="{{ route('pegawai.profile.show') }}" class="btn btn-primary">Kembali ke Profil</a></div>
+@endif

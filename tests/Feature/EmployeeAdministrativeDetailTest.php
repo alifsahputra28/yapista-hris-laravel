@@ -192,7 +192,7 @@ class EmployeeAdministrativeDetailTest extends TestCase
         $this->assertNull($employee->administrativeDetail()->first());
     }
 
-    public function test_guest_panitia_and_locked_profiles_cannot_edit_or_update(): void
+    public function test_guest_panitia_and_submitted_profile_cannot_edit_or_update(): void
     {
         $editRoute = route('pegawai.profile.administrative-details.edit', absolute: false);
         $updateRoute = route('pegawai.profile.administrative-details.update', absolute: false);
@@ -203,18 +203,25 @@ class EmployeeAdministrativeDetailTest extends TestCase
         $this->actingAs($panitia)->get($editRoute)->assertForbidden();
         $this->actingAs($panitia)->put($updateRoute, ['bank_name' => 'Panitia'])->assertForbidden();
 
-        foreach (['submitted', 'verified'] as $status) {
-            [$user, $employee] = $this->employeeUser(
-                ['verification_status' => $status],
-                "administrative.locked.{$status}@yapista.test",
-            );
-            $profileRoute = route('pegawai.profile.show', absolute: false);
+        [$user, $employee] = $this->employeeUser(
+            ['verification_status' => 'submitted'],
+            'administrative.locked.submitted@yapista.test',
+        );
+        $profileRoute = route('pegawai.profile.show', absolute: false);
 
-            $this->actingAs($user)->get($editRoute)->assertRedirect($profileRoute);
-            $this->actingAs($user)->put($updateRoute, ['bank_name' => 'Tidak Disimpan'])->assertRedirect($profileRoute);
-            $this->assertNull($employee->administrativeDetail()->first());
-            $this->assertSame($status, $employee->refresh()->verification_status);
-        }
+        $this->actingAs($user)->get($editRoute)->assertRedirect($profileRoute);
+        $this->actingAs($user)->put($updateRoute, ['bank_name' => 'Tidak Disimpan'])->assertRedirect($profileRoute);
+        $this->assertNull($employee->administrativeDetail()->first());
+        $this->assertSame('submitted', $employee->refresh()->verification_status);
+
+        [$verifiedUser, $verifiedEmployee] = $this->employeeUser([
+            'employee_number' => '0770923813',
+            'verification_status' => 'verified',
+        ], 'administrative.verified@yapista.test');
+        $this->actingAs($verifiedUser)->put($updateRoute, ['bank_name' => 'Bank Tambahan'])
+            ->assertRedirect($profileRoute);
+        $this->assertSame('Bank Tambahan', $verifiedEmployee->administrativeDetail()->value('bank_name'));
+        $this->assertSame('verified', $verifiedEmployee->fresh()->verification_status);
     }
 
     public function test_employee_id_manipulation_is_ignored_and_hr_fields_are_unchanged(): void
@@ -290,7 +297,7 @@ class EmployeeAdministrativeDetailTest extends TestCase
         $user->unsetRelation('employee');
         $this->actingAs($user)->get('/pegawai/profile')
             ->assertOk()
-            ->assertDontSee('Edit Data Administrasi');
+            ->assertSee('Edit Data Administrasi');
     }
 
     public function test_sensitive_administrative_data_does_not_appear_on_id_card_scanner_or_employee_export(): void

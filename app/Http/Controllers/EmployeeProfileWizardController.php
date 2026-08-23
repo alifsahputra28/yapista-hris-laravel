@@ -27,30 +27,38 @@ class EmployeeProfileWizardController extends Controller
     {
         $employee = $this->currentEmployee();
         $progress = $this->progressService->calculate($employee);
+        $nextStep = $progress['next_incomplete_step'];
 
-        return redirect()->route('pegawai.profile.wizard.show', $progress['next_incomplete_step']);
+        if ($employee->isVerified()) {
+            $nextStep = collect(ProfileWizardStep::EXISTING_EMPLOYEE_STEPS)
+                ->first(fn (string $step): bool => $step === 'review'
+                    || ! ($progress['sections'][$step]['completed'] ?? false));
+        }
+
+        return redirect()->route('pegawai.profile.wizard.show', $nextStep ?? 'review');
     }
 
     public function show(string $step): View
     {
-        abort_unless(ProfileWizardStep::exists($step), 404);
-
         $employee = $this->currentEmployee();
+        $steps = ProfileWizardStep::for($employee);
+        abort_unless(array_key_exists($step, $steps), 404);
+
         $relations = ['institution', 'position', 'familyMembers', 'educations', 'administrativeDetail'];
         if (in_array($step, ['education', 'review'], true)) {
             $relations[] = 'certifications';
         }
         $employee->load($relations);
-        $submissionChecklist = $step === 'review'
+        $submissionChecklist = $step === 'review' && ! $employee->isVerified()
             ? $this->submissionService->inspect($employee)
             : null;
 
         return view('pegawai.profile.wizard.show', [
             'employee' => $employee,
             'step' => $step,
-            'steps' => ProfileWizardStep::all(),
-            'previousStep' => ProfileWizardStep::previous($step),
-            'nextStep' => ProfileWizardStep::next($step),
+            'steps' => $steps,
+            'previousStep' => ProfileWizardStep::previousIn($step, $steps),
+            'nextStep' => ProfileWizardStep::nextIn($step, $steps),
             'editable' => $employee->canEditProfileCompletion(),
             'profileProgress' => $this->progressService->calculate($employee),
             'submissionChecklist' => $submissionChecklist,
@@ -89,7 +97,7 @@ class EmployeeProfileWizardController extends Controller
             $this->photoStorageService->deletePath($oldPhoto);
         }
 
-        return $this->savedRedirect('identification', $action);
+        return $this->savedRedirect($employee, 'identification', $action);
     }
 
     public function updateContactAddress(UpdateEmployeeContactAddressStepRequest $request): RedirectResponse
@@ -109,7 +117,7 @@ class EmployeeProfileWizardController extends Controller
 
         $employee->update($data);
 
-        return $this->savedRedirect('contact-address', $action);
+        return $this->savedRedirect($employee, 'contact-address', $action);
     }
 
     public function updateEmergencyContact(UpdateEmployeeEmergencyContactStepRequest $request): RedirectResponse
@@ -124,7 +132,7 @@ class EmployeeProfileWizardController extends Controller
         unset($data['wizard_action']);
         $employee->update($data);
 
-        return $this->savedRedirect('family', $action);
+        return $this->savedRedirect($employee, 'family', $action);
     }
 
     private function currentEmployee(): Employee
@@ -146,12 +154,15 @@ class EmployeeProfileWizardController extends Controller
             ->with('error', 'Profil sedang terkunci dan tidak dapat diubah.');
     }
 
-    private function savedRedirect(string $step, string $action): RedirectResponse
+    private function savedRedirect(Employee $employee, string $step, string $action): RedirectResponse
     {
-        $destination = $action === 'next' ? ProfileWizardStep::next($step) : $step;
+        $steps = ProfileWizardStep::for($employee);
+        $destination = $action === 'next' ? ProfileWizardStep::nextIn($step, $steps) : $step;
 
         return redirect()
             ->route('pegawai.profile.wizard.show', $destination ?? 'review')
-            ->with('success', 'Data berhasil disimpan sebagai draft.');
+            ->with('success', $employee->isVerified()
+                ? 'Data profil berhasil disimpan.'
+                : 'Data berhasil disimpan sebagai draft.');
     }
 }

@@ -30,7 +30,7 @@
 
         @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-        @if ($employee->isSubmitted())
+        @if ($employee->isProfileSubmitted())
             <div class="alert alert-warning">Data sedang diperiksa HR dan sementara tidak dapat diubah.</div>
         @elseif ($employee->verification_status === 'rejected' && filled($employee->verification_note))
             <div class="alert alert-danger"><strong>Perlu perbaikan:</strong> {{ $employee->verification_note }}</div>
@@ -77,7 +77,11 @@
         </div>
 
         <a href="{{ route('pegawai.profile.wizard.index') }}" class="d-flex align-items-center justify-content-between gap-3 p-3 mb-3 border rounded bg-white text-body text-decoration-none">
-            <div><strong class="d-block">Data tambahan</strong><span class="text-muted small">Opsional &bull; perbarui jika diperlukan</span></div><i class="ti ti-chevron-right text-muted" aria-hidden="true"></i>
+            <div>
+                <strong class="d-block">{{ $employee->isVerified() ? 'Data tambahan' : 'Lengkapi profil' }}</strong>
+                <span class="text-muted small">{{ $employee->isVerified() ? 'Opsional; perbarui jika diperlukan' : 'Wajib sebelum proses verifikasi' }}</span>
+            </div>
+            <i class="ti ti-chevron-right text-muted" aria-hidden="true"></i>
         </a>
 
         <form method="POST" action="{{ route('logout') }}">
@@ -108,7 +112,7 @@
 
     @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-    @if ($employee->isSubmitted())
+    @if ($employee->isProfileSubmitted())
         <div class="alert alert-warning">Profil sedang diperiksa HR dan sementara tidak dapat diubah.</div>
     @elseif ($employee->verification_status === 'rejected' && filled($employee->verification_note))
         <div class="alert alert-danger"><strong>Perlu perbaikan:</strong> {{ $employee->verification_note }}</div>

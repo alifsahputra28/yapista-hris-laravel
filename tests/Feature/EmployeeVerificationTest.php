@@ -7,6 +7,7 @@ use App\Models\EmployeeDocument;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\EmployeeQrTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -262,6 +263,39 @@ class EmployeeVerificationTest extends TestCase
         $this->assertSame($admin->id, $employee->verified_by);
         $this->assertNull($employee->verified_at);
         $this->assertTrue($employee->canEditProfile());
+    }
+
+    public function test_rejecting_profile_changes_for_verified_employee_preserves_official_status_and_qr(): void
+    {
+        $admin = User::factory()->create(['role' => 'hr_admin', 'status' => 'active']);
+        $employee = $this->employee([
+            'employee_number' => '0770923804',
+            'verification_status' => 'verified',
+            'verified_by' => $admin->id,
+            'verified_at' => now()->subDay(),
+        ]);
+        $verifiedAt = $employee->verified_at;
+        $qrToken = app(EmployeeQrTokenService::class)->generate($employee, $admin);
+        $employee->forceFill([
+            'profile_review_status' => Employee::PROFILE_REVIEW_SUBMITTED,
+            'profile_submitted_at' => now(),
+        ])->save();
+
+        $this->actingAs($admin)
+            ->post(route('verifications.reject', $employee, absolute: false), [
+                'verification_note' => 'Alamat perlu diperbaiki.',
+            ])
+            ->assertRedirect(route('verifications.show', $employee, absolute: false))
+            ->assertSessionHas('success');
+
+        $employee->refresh();
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertSame('0770923804', $employee->employee_number);
+        $this->assertTrue($employee->verified_at->equalTo($verifiedAt));
+        $this->assertSame(Employee::PROFILE_REVIEW_REJECTED, $employee->profile_review_status);
+        $this->assertSame('Alamat perlu diperbaiki.', $employee->profile_review_note);
+        $this->assertSame($qrToken->id, $employee->activeQrToken()->value('id'));
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
     }
 
     public function test_double_approve_is_safe_and_does_not_create_duplicate_qr(): void

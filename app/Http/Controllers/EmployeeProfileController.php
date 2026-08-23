@@ -43,7 +43,7 @@ class EmployeeProfileController extends Controller
         if (! $employee->canEditProfileCompletion()) {
             return redirect()
                 ->route('pegawai.profile.show')
-                ->with('error', 'Profil tidak dapat diubah setelah diajukan atau diverifikasi.');
+                ->with('error', 'Profil tidak dapat diubah saat sedang diajukan.');
         }
 
         $employee->load(['institution', 'position']);
@@ -62,7 +62,7 @@ class EmployeeProfileController extends Controller
         if (! $employee->canEditProfileCompletion()) {
             return redirect()
                 ->route('pegawai.profile.show')
-                ->with('error', 'Profil tidak dapat diubah setelah diajukan atau diverifikasi.');
+                ->with('error', 'Profil tidak dapat diubah saat sedang diajukan.');
         }
 
         $data = $request->validated();
@@ -95,7 +95,9 @@ class EmployeeProfileController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('success', 'Profil berhasil disimpan sebagai draft.');
+            ->with('success', $employee->isVerified()
+                ? 'Data profil berhasil diperbarui.'
+                : 'Profil berhasil disimpan sebagai draft.');
     }
 
     private function currentEmployee(): ?Employee

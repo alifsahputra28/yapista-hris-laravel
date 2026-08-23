@@ -75,6 +75,31 @@ class EmployeeSelfServiceUiTest extends TestCase
             ->assertDontSee('Profil belum lengkap');
     }
 
+    public function test_new_employee_is_guided_to_onboarding_until_profile_is_submitted(): void
+    {
+        [$user, $employee] = $this->employeeUser();
+        $employee->forceFill([
+            'employee_number' => null,
+            'verification_status' => 'draft',
+            'verified_at' => null,
+        ])->save();
+
+        $this->actingAs($user)
+            ->get(route('pegawai.dashboard', absolute: false))
+            ->assertRedirect(route('pegawai.profile.wizard.index', absolute: false))
+            ->assertSessionHas('warning');
+
+        $employee->forceFill([
+            'profile_review_status' => Employee::PROFILE_REVIEW_SUBMITTED,
+            'profile_submitted_at' => now(),
+        ])->save();
+        $user->unsetRelation('employee');
+
+        $this->actingAs($user)
+            ->get(route('pegawai.dashboard', absolute: false))
+            ->assertOk();
+    }
+
     public function test_employee_activity_pages_only_show_their_own_events(): void
     {
         [$user, $employee] = $this->employeeUser();

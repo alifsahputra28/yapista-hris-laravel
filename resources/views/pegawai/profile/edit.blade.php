@@ -9,7 +9,9 @@
 
     <div class="alert alert-light-primary border border-primary-subtle" role="alert">
         <i class="ti ti-info-circle me-1"></i>
-        Lengkapi profil secara bertahap. Data yang belum tersedia dapat dikosongkan dan disimpan sebagai draft.
+        {{ $employee->isVerified()
+            ? 'Data tambahan dapat diperbarui kapan saja tanpa mengubah status kepegawaian Anda.'
+            : 'Lengkapi profil secara bertahap. Data yang belum tersedia dapat dikosongkan dan disimpan sebagai draft.' }}
     </div>
 
     <form method="POST" action="{{ route('pegawai.profile.update') }}" enctype="multipart/form-data">

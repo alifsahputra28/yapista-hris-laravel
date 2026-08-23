@@ -7,6 +7,7 @@ use App\Models\EventAttendance;
 use App\Services\DashboardMetricsService;
 use App\Services\EmployeeQrTokenService;
 use App\Support\IdCards\QrCodeRenderer;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
@@ -24,8 +25,15 @@ class DashboardController extends Controller
         Request $request,
         EmployeeQrTokenService $tokenService,
         QrCodeRenderer $qrCodeRenderer,
-    ): View {
+    ): RedirectResponse|View {
         $employee = $request->user()->employee?->load(['institution', 'position', 'activeQrToken']);
+
+        if ($employee && ! $employee->isVerified() && ! $employee->isProfileSubmitted()) {
+            return redirect()
+                ->route('pegawai.profile.wizard.index')
+                ->with('warning', 'Lengkapi profil dan kirim untuk verifikasi sebelum melanjutkan.');
+        }
+
         $nextEvent = null;
         $recentAttendances = collect();
         $qrCodeSvg = null;

@@ -53,7 +53,10 @@ class EmployeeProfileSubmissionTest extends TestCase
             'verification_status' => 'verified',
             'profile_review_status' => Employee::PROFILE_REVIEW_DRAFT,
         ])->save();
-        $this->assertFalse($employee->fresh()->canEditProfileCompletion());
+        $this->assertTrue($employee->fresh()->canEditProfileCompletion());
+
+        $employee->forceFill(['profile_review_status' => Employee::PROFILE_REVIEW_APPROVED])->save();
+        $this->assertTrue($employee->fresh()->canEditProfileCompletion());
     }
 
     public function test_document_slots_support_private_replace_repeated_records_and_owned_targets(): void
@@ -298,6 +301,27 @@ class EmployeeProfileSubmissionTest extends TestCase
         ])->assertRedirect(route('pegawai.profile.wizard.show', 'review', absolute: false))
             ->assertSessionHas('warning');
         $this->assertSame($submittedAt, $employee->fresh()->profile_submitted_at->toISOString());
+    }
+
+    public function test_verified_employee_can_not_be_submitted_for_verification_again(): void
+    {
+        [$user, $employee] = $this->employeeUser([
+            'employee_number' => '0770923802',
+            'verification_status' => 'verified',
+            'verified_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('pegawai.profile.submit', absolute: false), [
+                'declaration' => '1',
+            ])
+            ->assertRedirect(route('pegawai.profile.show', absolute: false))
+            ->assertSessionHas('warning');
+
+        $employee->refresh();
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertSame(Employee::PROFILE_REVIEW_DRAFT, $employee->profile_review_status);
+        $this->assertSame('0770923802', $employee->employee_number);
     }
 
     public function test_submitted_profile_blocks_all_employee_write_paths_but_remains_readable(): void

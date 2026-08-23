@@ -7,6 +7,7 @@ use App\Models\EmployeeInvitation;
 use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\EmployeeQrTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -87,7 +88,7 @@ class EmployeeInvitationTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('pegawai.dashboard', absolute: false));
+        $response->assertRedirect(route('pegawai.profile.wizard.index', absolute: false));
         $this->assertAuthenticated();
 
         $user = User::where('email', $invitation->email)->firstOrFail();
@@ -96,6 +97,42 @@ class EmployeeInvitationTest extends TestCase
         $this->assertSame($user->id, $employee->refresh()->user_id);
         $this->assertSame('used', $invitation->refresh()->status);
         $this->assertNotNull($invitation->used_at);
+    }
+
+    public function test_existing_verified_employee_keeps_official_status_and_qr_after_invitation_registration(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+        $employee = $this->employee();
+        $employee->forceFill([
+            'employee_number' => '0770923801',
+            'verification_status' => 'verified',
+            'verified_by' => $admin->id,
+            'verified_at' => now(),
+        ])->save();
+        $qrToken = app(EmployeeQrTokenService::class)->generate($employee, $admin);
+        $invitation = EmployeeInvitation::create([
+            'employee_id' => $employee->id,
+            'invitation_code' => 'YAPISTA-REG-EXISTING1',
+            'email' => $employee->email,
+            'phone' => $employee->phone,
+            'status' => 'unused',
+            'expired_at' => now()->addDays(14),
+            'created_by' => $admin->id,
+        ]);
+
+        $this->post(route('invitation.register.store', $invitation->invitation_code, absolute: false), [
+            'name' => $employee->full_name,
+            'email' => $invitation->email,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect(route('pegawai.profile.wizard.index', absolute: false));
+
+        $employee->refresh();
+        $this->assertSame('verified', $employee->verification_status);
+        $this->assertSame('0770923801', $employee->employee_number);
+        $this->assertSame($qrToken->id, $employee->activeQrToken()->value('id'));
+        $this->assertSame(1, $employee->qrTokens()->where('is_active', true)->whereNull('revoked_at')->count());
+        $this->assertNotNull($employee->user_id);
     }
 
     public function test_invalid_invitation_code_can_not_be_used(): void

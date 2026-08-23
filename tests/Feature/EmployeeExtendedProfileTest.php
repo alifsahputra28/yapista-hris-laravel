@@ -54,11 +54,14 @@ class EmployeeExtendedProfileTest extends TestCase
         $this->assertNotSame('Nama Pemilik', $otherEmployee->refresh()->full_name);
     }
 
-    public function test_only_draft_and_rejected_profiles_can_be_edited_without_changing_status(): void
+    public function test_draft_rejected_and_verified_profiles_can_be_edited_without_changing_status(): void
     {
-        foreach (['draft', 'rejected'] as $status) {
+        foreach (['draft', 'rejected', 'verified'] as $status) {
             [$user, $employee] = $this->employeeUser(
-                ['verification_status' => $status],
+                [
+                    'verification_status' => $status,
+                    'employee_number' => $status === 'verified' ? '0770923810' : null,
+                ],
                 $status.'@yapista.test',
             );
 
@@ -70,22 +73,20 @@ class EmployeeExtendedProfileTest extends TestCase
             $this->assertSame('islam', $employee->religion);
         }
 
-        foreach (['submitted', 'verified'] as $status) {
-            [$user, $employee] = $this->employeeUser(
-                ['verification_status' => $status],
-                $status.'@yapista.test',
-            );
+        [$user, $employee] = $this->employeeUser(
+            ['verification_status' => 'submitted'],
+            'submitted.locked@yapista.test',
+        );
 
-            $this->actingAs($user)
-                ->get('/pegawai/profile/edit')
-                ->assertRedirect(route('pegawai.profile.show', absolute: false));
-            $this->actingAs($user)
-                ->put('/pegawai/profile', ['full_name' => 'Tidak Berubah', 'religion' => 'islam'])
-                ->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)
+            ->get('/pegawai/profile/edit')
+            ->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)
+            ->put('/pegawai/profile', ['full_name' => 'Tidak Berubah', 'religion' => 'islam'])
+            ->assertRedirect(route('pegawai.profile.show', absolute: false));
 
-            $this->assertNotSame('Tidak Berubah', $employee->refresh()->full_name);
-            $this->assertSame($status, $employee->verification_status);
-        }
+        $this->assertNotSame('Tidak Berubah', $employee->refresh()->full_name);
+        $this->assertSame('submitted', $employee->verification_status);
     }
 
     public function test_employee_can_save_partial_draft_and_empty_optional_fields_become_null(): void

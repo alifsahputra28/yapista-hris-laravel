@@ -189,6 +189,19 @@ class EmployeeVerificationController extends Controller
             'verification_note' => ['required', 'string', 'max:1000'],
         ]);
 
+        if ($employee->isVerified() && $employee->isProfileSubmitted()) {
+            $employee->forceFill([
+                'profile_review_status' => Employee::PROFILE_REVIEW_REJECTED,
+                'profile_review_note' => $validated['verification_note'],
+                'profile_reviewed_by' => Auth::id(),
+                'profile_reviewed_at' => now(),
+            ])->save();
+
+            return redirect()
+                ->route('verifications.show', $employee)
+                ->with('success', 'Perubahan profil dikembalikan untuk diperbaiki. Status pegawai tetap terverifikasi.');
+        }
+
         $updates = [
             'verification_status' => 'rejected',
             'verification_note' => $validated['verification_note'],
@@ -205,7 +218,7 @@ class EmployeeVerificationController extends Controller
             ]);
         }
 
-        $employee->update($updates);
+        $employee->forceFill($updates)->save();
 
         return redirect()
             ->route('verifications.index')

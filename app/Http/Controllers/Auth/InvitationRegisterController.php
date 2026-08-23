@@ -105,7 +105,11 @@ class InvitationRegisterController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('pegawai.dashboard');
+        return redirect()
+            ->route('pegawai.profile.wizard.index')
+            ->with('success', $user->employee?->isVerified()
+                ? 'Akun berhasil dibuat. Periksa dan lengkapi data profil Anda.'
+                : 'Akun berhasil dibuat. Lengkapi profil untuk melanjutkan proses verifikasi.');
     }
 
     private function findInvitation(string $code): ?EmployeeInvitation

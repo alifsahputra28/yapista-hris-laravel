@@ -214,29 +214,46 @@ class EmployeeFamilyProfileTest extends TestCase
         $this->assertSame($owner->id, $ownerEmployee->user_id);
     }
 
-    public function test_submitted_and_verified_profiles_can_not_crud_family_members(): void
+    public function test_submitted_profile_can_not_crud_family_members(): void
     {
-        foreach (['submitted', 'verified'] as $status) {
-            [$user, $employee] = $this->employeeUser(
-                ['verification_status' => $status],
-                'locked.'.$status.'@yapista.test',
-            );
-            $member = $this->familyMember($employee);
+        [$user, $employee] = $this->employeeUser(
+            ['verification_status' => 'submitted'],
+            'locked.submitted@yapista.test',
+        );
+        $member = $this->familyMember($employee);
 
-            $this->actingAs($user)->get(route('pegawai.profile.family-members.create', absolute: false))->assertRedirect(route('pegawai.profile.show', absolute: false));
-            $this->actingAs($user)->post(route('pegawai.profile.family-members.store', absolute: false), [
-                'full_name' => 'Tidak Dibuat', 'relationship' => 'other',
-            ])->assertRedirect(route('pegawai.profile.show', absolute: false));
-            $this->actingAs($user)->get(route('pegawai.profile.family-members.edit', $member, absolute: false))->assertRedirect(route('pegawai.profile.show', absolute: false));
-            $this->actingAs($user)->put(route('pegawai.profile.family-members.update', $member, absolute: false), [
-                'full_name' => 'Tidak Diubah', 'relationship' => 'other',
-            ])->assertRedirect(route('pegawai.profile.show', absolute: false));
-            $this->actingAs($user)->delete(route('pegawai.profile.family-members.destroy', $member, absolute: false))->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)->get(route('pegawai.profile.family-members.create', absolute: false))->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)->post(route('pegawai.profile.family-members.store', absolute: false), [
+            'full_name' => 'Tidak Dibuat', 'relationship' => 'other',
+        ])->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)->get(route('pegawai.profile.family-members.edit', $member, absolute: false))->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)->put(route('pegawai.profile.family-members.update', $member, absolute: false), [
+            'full_name' => 'Tidak Diubah', 'relationship' => 'other',
+        ])->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)->delete(route('pegawai.profile.family-members.destroy', $member, absolute: false))->assertRedirect(route('pegawai.profile.show', absolute: false));
 
-            $this->assertCount(1, $employee->familyMembers);
-            $this->assertSame('Anggota Keluarga', $member->refresh()->full_name);
-            $this->assertSame($status, $employee->refresh()->verification_status);
-        }
+        $this->assertCount(1, $employee->familyMembers);
+        $this->assertSame('Anggota Keluarga', $member->refresh()->full_name);
+        $this->assertSame('submitted', $employee->refresh()->verification_status);
+    }
+
+    public function test_verified_employee_can_add_optional_family_data_without_losing_status(): void
+    {
+        [$user, $employee] = $this->employeeUser([
+            'employee_number' => '0770923811',
+            'verification_status' => 'verified',
+        ], 'verified.family@yapista.test');
+
+        $this->actingAs($user)->post(route('pegawai.profile.family-members.store', absolute: false), [
+            'full_name' => 'Keluarga Tambahan',
+            'relationship' => 'father',
+        ])->assertRedirect(route('pegawai.profile.show', absolute: false));
+
+        $this->assertDatabaseHas('employee_family_members', [
+            'employee_id' => $employee->id,
+            'full_name' => 'Keluarga Tambahan',
+        ]);
+        $this->assertSame('verified', $employee->fresh()->verification_status);
     }
 
     public function test_profile_views_show_empty_state_emergency_contact_and_masked_family_nik(): void

@@ -253,31 +253,48 @@ class EmployeeEducationCertificationTest extends TestCase
         $this->assertSame('Sertifikat Uji', $certification->refresh()->name);
     }
 
-    public function test_submitted_and_verified_profiles_cannot_crud_education_or_certification(): void
+    public function test_submitted_profile_cannot_crud_education_or_certification(): void
     {
-        foreach (['submitted', 'verified'] as $status) {
-            [$user, $employee] = $this->employeeUser(['verification_status' => $status], "locked.records.{$status}@yapista.test");
-            $education = $this->education($employee);
-            $certification = $this->certification($employee);
-            $profile = route('pegawai.profile.show', absolute: false);
+        [$user, $employee] = $this->employeeUser(['verification_status' => 'submitted'], 'locked.records.submitted@yapista.test');
+        $education = $this->education($employee);
+        $certification = $this->certification($employee);
+        $profile = route('pegawai.profile.show', absolute: false);
 
-            $this->actingAs($user)->get(route('pegawai.profile.educations.create', absolute: false))->assertRedirect($profile);
-            $this->actingAs($user)->post(route('pegawai.profile.educations.store', absolute: false), $this->educationPayload())->assertRedirect($profile);
-            $this->actingAs($user)->get(route('pegawai.profile.educations.edit', $education, absolute: false))->assertRedirect($profile);
-            $this->actingAs($user)->put(route('pegawai.profile.educations.update', $education, absolute: false), $this->educationPayload(['institution_name' => 'Tidak Diubah']))->assertRedirect($profile);
-            $this->actingAs($user)->delete(route('pegawai.profile.educations.destroy', $education, absolute: false))->assertRedirect($profile);
-            $this->actingAs($user)->get(route('pegawai.profile.certifications.create', absolute: false))->assertRedirect($profile);
-            $this->actingAs($user)->post(route('pegawai.profile.certifications.store', absolute: false), ['name' => 'Tidak Dibuat'])->assertRedirect($profile);
-            $this->actingAs($user)->get(route('pegawai.profile.certifications.edit', $certification, absolute: false))->assertRedirect($profile);
-            $this->actingAs($user)->put(route('pegawai.profile.certifications.update', $certification, absolute: false), ['name' => 'Tidak Diubah'])->assertRedirect($profile);
-            $this->actingAs($user)->delete(route('pegawai.profile.certifications.destroy', $certification, absolute: false))->assertRedirect($profile);
+        $this->actingAs($user)->get(route('pegawai.profile.educations.create', absolute: false))->assertRedirect($profile);
+        $this->actingAs($user)->post(route('pegawai.profile.educations.store', absolute: false), $this->educationPayload())->assertRedirect($profile);
+        $this->actingAs($user)->get(route('pegawai.profile.educations.edit', $education, absolute: false))->assertRedirect($profile);
+        $this->actingAs($user)->put(route('pegawai.profile.educations.update', $education, absolute: false), $this->educationPayload(['institution_name' => 'Tidak Diubah']))->assertRedirect($profile);
+        $this->actingAs($user)->delete(route('pegawai.profile.educations.destroy', $education, absolute: false))->assertRedirect($profile);
+        $this->actingAs($user)->get(route('pegawai.profile.certifications.create', absolute: false))->assertRedirect($profile);
+        $this->actingAs($user)->post(route('pegawai.profile.certifications.store', absolute: false), ['name' => 'Tidak Dibuat'])->assertRedirect($profile);
+        $this->actingAs($user)->get(route('pegawai.profile.certifications.edit', $certification, absolute: false))->assertRedirect($profile);
+        $this->actingAs($user)->put(route('pegawai.profile.certifications.update', $certification, absolute: false), ['name' => 'Tidak Diubah'])->assertRedirect($profile);
+        $this->actingAs($user)->delete(route('pegawai.profile.certifications.destroy', $certification, absolute: false))->assertRedirect($profile);
 
-            $this->assertCount(1, $employee->educations);
-            $this->assertCount(1, $employee->certifications);
-            $this->assertSame('Universitas Uji', $education->refresh()->institution_name);
-            $this->assertSame('Sertifikat Uji', $certification->refresh()->name);
-            $this->assertSame($status, $employee->refresh()->verification_status);
-        }
+        $this->assertCount(1, $employee->educations);
+        $this->assertCount(1, $employee->certifications);
+        $this->assertSame('Universitas Uji', $education->refresh()->institution_name);
+        $this->assertSame('Sertifikat Uji', $certification->refresh()->name);
+        $this->assertSame('submitted', $employee->refresh()->verification_status);
+    }
+
+    public function test_verified_employee_can_add_optional_education_and_certification(): void
+    {
+        [$user, $employee] = $this->employeeUser([
+            'employee_number' => '0770923812',
+            'verification_status' => 'verified',
+        ], 'verified.records@yapista.test');
+
+        $this->actingAs($user)
+            ->post(route('pegawai.profile.educations.store', absolute: false), $this->educationPayload())
+            ->assertRedirect(route('pegawai.profile.show', absolute: false));
+        $this->actingAs($user)
+            ->post(route('pegawai.profile.certifications.store', absolute: false), ['name' => 'Sertifikasi Tambahan'])
+            ->assertRedirect(route('pegawai.profile.show', absolute: false));
+
+        $this->assertCount(1, $employee->educations);
+        $this->assertCount(1, $employee->certifications);
+        $this->assertSame('verified', $employee->fresh()->verification_status);
     }
 
     public function test_profile_views_show_empty_states_mask_values_and_hide_locked_actions(): void
@@ -309,10 +326,8 @@ class EmployeeEducationCertificationTest extends TestCase
         $user->unsetRelation('employee');
         $this->actingAs($user)->get('/pegawai/profile')
             ->assertOk()
-            ->assertDontSee('Tambah Pendidikan')
-            ->assertDontSee('Tambah Sertifikasi')
-            ->assertDontSee('Hapus data pendidikan ini?')
-            ->assertDontSee('Hapus data sertifikasi ini?');
+            ->assertSee('Tambah Pendidikan')
+            ->assertSee('Tambah Sertifikasi');
     }
 
     /**

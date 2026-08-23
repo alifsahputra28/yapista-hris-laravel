@@ -39,9 +39,7 @@ class EmployeeCertificationController extends Controller
 
         $employee->certifications()->create($request->validated());
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'education')
-            ->with('success', 'Data sertifikasi berhasil ditambahkan.');
+        return $this->savedRedirect($employee, 'Data sertifikasi berhasil ditambahkan.');
     }
 
     public function edit(EmployeeCertification $certification): RedirectResponse|View
@@ -69,9 +67,7 @@ class EmployeeCertificationController extends Controller
 
         $certification->update($request->validated());
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'education')
-            ->with('success', 'Data sertifikasi berhasil diperbarui.');
+        return $this->savedRedirect($employee, 'Data sertifikasi berhasil diperbarui.');
     }
 
     public function destroy(EmployeeCertification $certification): RedirectResponse
@@ -95,9 +91,7 @@ class EmployeeCertificationController extends Controller
             $this->documentStorage->deletePath($path);
         }
 
-        return redirect()
-            ->route('pegawai.profile.wizard.show', 'education')
-            ->with('success', 'Data sertifikasi berhasil dihapus.');
+        return $this->savedRedirect($employee, 'Data sertifikasi berhasil dihapus.');
     }
 
     private function currentEmployee(): Employee
@@ -121,6 +115,13 @@ class EmployeeCertificationController extends Controller
 
         return redirect()
             ->route('pegawai.profile.show')
-            ->with('error', 'Data sertifikasi tidak dapat diubah setelah profil diajukan atau diverifikasi.');
+            ->with('error', 'Data sertifikasi tidak dapat diubah saat profil sedang diajukan.');
+    }
+
+    private function savedRedirect(Employee $employee, string $message): RedirectResponse
+    {
+        return $employee->isVerified()
+            ? redirect()->route('pegawai.profile.show')->with('success', $message)
+            : redirect()->route('pegawai.profile.wizard.show', 'education')->with('success', $message);
     }
 }
