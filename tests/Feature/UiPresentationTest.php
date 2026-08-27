@@ -80,4 +80,39 @@ class UiPresentationTest extends TestCase
             ->assertSee('id="confirm-action-modal"', escape: false)
             ->assertDontSee('return confirm(', escape: false);
     }
+
+    public function test_admin_sidebar_groups_current_hris_modules_with_mantis_submenus(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'super_admin',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('dashboard', absolute: false))
+            ->assertOk()
+            ->assertSee('Modul HRIS')
+            ->assertSee('data-nav-group="organization"', escape: false)
+            ->assertSee('data-nav-group="employees"', escape: false)
+            ->assertSee('data-nav-group="activities"', escape: false)
+            ->assertSee('data-nav-group="reports"', escape: false)
+            ->assertSee('class="pc-submenu"', escape: false)
+            ->assertSeeInOrder(['Organisasi', 'Manajemen Pegawai', 'Kegiatan &amp; Kehadiran', 'Laporan'], escape: false)
+            ->assertDontSee('<label>Master Data</label>', escape: false)
+            ->assertDontSee('<label>Registrasi</label>', escape: false);
+    }
+
+    public function test_sidebar_opens_only_the_admin_group_for_the_current_route(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'hr_admin',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('institutions.index', absolute: false))
+            ->assertOk()
+            ->assertSee('pc-hasmenu active pc-trigger" data-nav-group="organization', escape: false)
+            ->assertSee('aria-expanded="true"', escape: false);
+    }
 }

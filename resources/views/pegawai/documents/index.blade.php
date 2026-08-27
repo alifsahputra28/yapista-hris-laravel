@@ -58,7 +58,7 @@
 
     @if ($employee->canManageDocuments())
         <section id="upload-document" class="content-section" aria-labelledby="upload-heading">
-            <div class="content-section-header"><div><h2 id="upload-heading">Unggah Dokumen</h2><p>PDF, JPG, JPEG, atau PNG.</p></div></div>
+            <div class="content-section-header"><div><h2 id="upload-heading">Unggah Dokumen</h2><p>Format: PDF, JPG, JPEG, atau PNG. Maksimal {{ config('documents.max_upload_label') }} per file.</p></div></div>
             <div class="content-section-body">
                 <form method="POST" action="{{ route('pegawai.documents.store') }}" enctype="multipart/form-data" class="row g-3">
                     @csrf

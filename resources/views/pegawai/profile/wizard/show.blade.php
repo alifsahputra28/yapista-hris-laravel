@@ -10,6 +10,7 @@
     @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     @if (session('warning'))<div class="alert alert-warning">{{ session('warning') }}</div>@endif
     @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+    @error('file')<div class="alert alert-danger">{{ $message }}</div>@enderror
     @unless ($editable) @include('pegawai.profile.wizard.partials.locked-alert') @endunless
 
     @include('pegawai.profile.wizard.partials.stepper')

@@ -240,6 +240,25 @@ class EmployeeProfileSubmissionTest extends TestCase
         $this->assertTrue($nikAsTaxId['can_submit']);
     }
 
+    public function test_optional_administration_fields_do_not_block_profile_submission(): void
+    {
+        [, $employee] = $this->employeeUser();
+        $education = $this->completeProfile($employee);
+        $employee->administrativeDetail()->delete();
+
+        foreach (['ktp', 'kk', 'buku_rekening'] as $type) {
+            $this->putDocument($employee, $type);
+        }
+        $this->putDocument($employee, 'ijazah', "education:{$education->id}", $education->id);
+
+        $checklist = app(EmployeeProfileSubmissionService::class)->inspect($employee->fresh());
+
+        $this->assertTrue($checklist['can_submit']);
+        $this->assertSame([], $checklist['missing_data']);
+        $this->assertTrue($checklist['data_progress']['sections']['administration']['completed']);
+        $this->assertSame(100, $checklist['data_progress']['sections']['administration']['percentage']);
+    }
+
     public function test_single_highest_education_can_temporarily_use_available_legacy_ijazah(): void
     {
         [, $employee] = $this->employeeUser();

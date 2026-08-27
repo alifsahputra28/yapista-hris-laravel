@@ -13,10 +13,11 @@
             @php
                 $section = $profileProgress['sections'][$slug] ?? null;
                 $completed = $section['completed'] ?? false;
+                $showCompleted = $completed && $slug !== 'administration';
             @endphp
             <li class="nav-item flex-fill">
-                <a href="{{ route('pegawai.profile.wizard.show', $slug) }}" class="nav-link {{ $step === $slug ? 'active' : '' }} {{ $completed ? 'is-complete' : '' }}" @if ($step === $slug) aria-current="step" @endif>
-                    <span class="profile-step-number">@if ($completed)<i class="ti ti-check" aria-hidden="true"></i>@else{{ $loop->iteration }}@endif</span>
+                <a href="{{ route('pegawai.profile.wizard.show', $slug) }}" class="nav-link {{ $step === $slug ? 'active' : '' }} {{ $showCompleted ? 'is-complete' : '' }}" @if ($step === $slug) aria-current="step" @endif>
+                    <span class="profile-step-number">@if ($showCompleted)<i class="ti ti-check" aria-hidden="true"></i>@else{{ $loop->iteration }}@endif</span>
                     <span class="fw-semibold">{{ $definition['short_label'] }}</span>
                 </a>
             </li>

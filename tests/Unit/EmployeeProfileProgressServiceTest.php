@@ -22,9 +22,11 @@ class EmployeeProfileProgressServiceTest extends TestCase
 
         $this->assertSame(['identification', 'contact-address', 'family', 'education', 'administration'], array_keys($progress['sections']));
         $this->assertSame(5, $progress['total_sections']);
-        $this->assertSame(0, $progress['completed_sections']);
+        $this->assertSame(1, $progress['completed_sections']);
         $this->assertSame('identification', $progress['next_incomplete_step']);
-        $this->assertSame(4, $progress['percentage']);
+        $this->assertSame(24, $progress['percentage']);
+        $this->assertTrue($progress['sections']['administration']['completed']);
+        $this->assertSame(100, $progress['sections']['administration']['percentage']);
         foreach (['profile_completion_percentage', 'profile_percentage', 'completed_steps', 'profile_is_complete', 'last_profile_step', 'wizard_step'] as $column) {
             $this->assertFalse(Schema::hasColumn('employees', $column));
         }
@@ -106,10 +108,15 @@ class EmployeeProfileProgressServiceTest extends TestCase
         $this->assertCount(0, $employee->certifications);
     }
 
-    public function test_administration_progress_uses_conditional_tax_and_bpjs_numbers(): void
+    public function test_administration_fields_are_optional_but_selected_statuses_keep_conditional_numbers(): void
     {
         $employee = $this->employee();
-        $employee->administrativeDetail()->create([
+        $emptySection = $this->progress($employee)['sections']['administration'];
+        $this->assertTrue($emptySection['completed']);
+        $this->assertSame(100, $emptySection['percentage']);
+        $this->assertSame([], $emptySection['missing']);
+
+        $detail = $employee->administrativeDetail()->create([
             'bank_name' => 'Bank Uji',
             'bank_account_number' => '001122334455',
             'bank_account_holder' => 'Pegawai Uji',
@@ -119,10 +126,14 @@ class EmployeeProfileProgressServiceTest extends TestCase
         ]);
 
         $section = $this->progress($employee->fresh())['sections']['administration'];
-        $this->assertSame(75, $section['percentage']);
+        $this->assertSame(0, $section['percentage']);
         $this->assertFalse($section['completed']);
+        $this->assertEqualsCanonicalizing(
+            ['Nomor identitas pajak atau penanda NIK sebagai identitas pajak', 'Nomor BPJS Kesehatan'],
+            $section['missing'],
+        );
 
-        $employee->administrativeDetail->update([
+        $detail->update([
             'nik_used_as_tax_id' => true,
             'bpjs_health_number' => '001122334466',
         ]);

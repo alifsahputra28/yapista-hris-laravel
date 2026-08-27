@@ -67,7 +67,8 @@ EMPLOYEE_NIK_LOOKUP_KEY=...
 - Paksa HTTPS di reverse proxy/web server dan teruskan header proxy secara benar.
 - Document root harus menunjuk ke `<release>/public`, bukan root repository.
 - Nonaktifkan directory listing; `public/.htaccess` sudah menetapkan `Options -Indexes` untuk Apache.
-- Batasi ukuran request sesuai batas upload aplikasi dan tolak executable/script uploads di web server.
+- Batas aplikasi untuk setiap dokumen pegawai adalah 2 MB (2.048 KB). Infrastruktur harus memberi ruang untuk multipart overhead; gunakan sekurangnya `upload_max_filesize=4M` dan `post_max_size=8M`, atau nilai existing yang lebih besar.
+- Tolak executable/script uploads di web server; aplikasi tetap menerapkan allowlist format dan batas 2 MB di backend.
 - Jangan log query string sensitif. Route undangan bertoken bertanda tangan perlu redaksi access log.
 
 ## Filesystem And Permissions

@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/yapista-ui.css') }}">
 </head>
 
-<body class="auth-login-page">
+<body class="auth-login-page auth-login-with-building">
     <div class="loader-bg">
         <div class="loader-track">
             <div class="loader-fill"></div>
@@ -34,10 +34,9 @@
                 <div class="auth-brand-copy">
                     <p class="auth-brand-eyebrow">Yayasan Pendidikan Ibnu Sina Batam</p>
                     <h1>Sistem Informasi Kepegawaian</h1>
-                    <p>Kelola layanan kepegawaian YAPISTA secara aman dalam satu sistem.</p>
+                    <p>Kelola data kepegawaian YAPISTA secara terintegrasi dan aman.</p>
                 </div>
             </div>
-            <p class="auth-brand-footer mb-0">&copy; {{ date('Y') }} YAPISTA HRIS</p>
         </section>
 
         <section class="auth-form-panel">
@@ -127,8 +126,19 @@
                 </form>
 
                 <p class="auth-form-footer mb-0">Gunakan akun yang telah diberikan oleh HR/Admin.</p>
+                <p class="auth-login-copyright mb-0">&copy; {{ date('Y') }} YAPISTA HRIS</p>
             </div>
         </section>
+
+        <div class="auth-brand-visual" aria-hidden="true">
+            <div class="auth-brand-viewport">
+                <img
+                    src="{{ asset('assets/images/building_yapista.png') }}"
+                    class="auth-brand-building"
+                    alt=""
+                >
+            </div>
+        </div>
     </main>
 
     <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>

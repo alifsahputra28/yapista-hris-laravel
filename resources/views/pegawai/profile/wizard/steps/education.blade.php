@@ -1,6 +1,6 @@
 @php $statusClasses = ['active' => 'bg-light-success text-success', 'no_expiry' => 'bg-light-primary text-primary', 'expired' => 'bg-light-warning text-warning', 'inactive' => 'bg-light-secondary text-secondary']; @endphp
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2"><div><h5 class="mb-1">Riwayat Pendidikan</h5><p class="mb-0 text-muted">Tambahkan pendidikan dan tentukan satu pendidikan tertinggi.</p></div>@if ($editable)<a href="{{ route('pegawai.profile.educations.create') }}" class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Tambah Pendidikan</a>@endif</div>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2"><div><h5 class="mb-1">Riwayat Pendidikan</h5><p class="mb-0 text-muted">Tambahkan minimal satu pendidikan dan tentukan pendidikan tertinggi. @unless($employee->isVerified()) <span class="text-danger">*</span> Wajib sebelum profil dikirim. @endunless</p></div>@if ($editable)<a href="{{ route('pegawai.profile.educations.create') }}" class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Tambah Pendidikan</a>@endif</div>
     <div class="card-body p-0">
         @if ($employee->educations->isEmpty())
             <div class="empty-state"><i class="ti ti-school fs-1 text-muted"></i><h6 class="mt-3 mb-1">Belum ada data pendidikan.</h6><p class="text-muted mb-0">Data dapat ditambahkan kemudian.</p></div>

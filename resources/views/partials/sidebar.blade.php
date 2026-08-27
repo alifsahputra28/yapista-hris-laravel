@@ -8,6 +8,10 @@
     $isAdmin = $user?->isSuperAdmin() || $user?->isHrAdmin();
     $isPanitia = $user?->isPanitia();
     $isPegawai = $user?->isPegawai();
+    $organizationActive = request()->routeIs('institutions.*', 'positions.*');
+    $employeeManagementActive = request()->routeIs('employees.*', 'verifications.*', 'invitations.*', 'employee-documents.*');
+    $activityActive = request()->routeIs('events.*', 'event-participants.*', 'event-attendances.*');
+    $reportsActive = request()->routeIs('reports.*');
 @endphp
 
 <nav class="pc-sidebar">
@@ -29,84 +33,56 @@
 
                 @if ($isAdmin)
                     <li class="pc-item pc-caption">
-                        <label>Master Data</label>
-                        <i class="ti ti-database"></i>
+                        <label>Modul HRIS</label>
+                        <i class="ti ti-layout-grid"></i>
                     </li>
 
-                    <li class="pc-item {{ request()->routeIs('institutions.*') ? 'active' : '' }}">
-                        <a href="{{ route('institutions.index') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-building"></i></span>
-                            <span class="pc-mtext">Unit Kerja</span>
+                    <li class="pc-item pc-hasmenu {{ $organizationActive ? 'active pc-trigger' : '' }}" data-nav-group="organization">
+                        <a href="#!" class="pc-link" aria-expanded="{{ $organizationActive ? 'true' : 'false' }}">
+                            <span class="pc-micon"><i class="ti ti-building-community"></i></span>
+                            <span class="pc-mtext">Organisasi</span>
+                            <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
                         </a>
+                        <ul class="pc-submenu">
+                            <li class="pc-item {{ request()->routeIs('institutions.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('institutions.index') }}">Unit Kerja</a></li>
+                            <li class="pc-item {{ request()->routeIs('positions.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('positions.index') }}">Jabatan</a></li>
+                        </ul>
                     </li>
 
-                    <li class="pc-item {{ request()->routeIs('positions.*') ? 'active' : '' }}">
-                        <a href="{{ route('positions.index') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-briefcase"></i></span>
-                            <span class="pc-mtext">Jabatan</span>
-                        </a>
-                    </li>
-
-                    <li class="pc-item pc-caption">
-                        <label>Pegawai</label>
-                        <i class="ti ti-users"></i>
-                    </li>
-
-                    <li class="pc-item {{ request()->routeIs('employees.*') ? 'active' : '' }}">
-                        <a href="{{ route('employees.index') }}" class="pc-link">
+                    <li class="pc-item pc-hasmenu {{ $employeeManagementActive ? 'active pc-trigger' : '' }}" data-nav-group="employees">
+                        <a href="#!" class="pc-link" aria-expanded="{{ $employeeManagementActive ? 'true' : 'false' }}">
                             <span class="pc-micon"><i class="ti ti-users"></i></span>
-                            <span class="pc-mtext">Data Pegawai</span>
+                            <span class="pc-mtext">Manajemen Pegawai</span>
+                            <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
                         </a>
+                        <ul class="pc-submenu">
+                            <li class="pc-item {{ request()->routeIs('employees.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('employees.index') }}">Data Pegawai</a></li>
+                            <li class="pc-item {{ request()->routeIs('verifications.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('verifications.index') }}">Verifikasi Pegawai</a></li>
+                            <li class="pc-item {{ request()->routeIs('invitations.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('invitations.index') }}">Undangan Pegawai</a></li>
+                        </ul>
                     </li>
 
-                    <li class="pc-item {{ request()->routeIs('verifications.*') ? 'active' : '' }}">
-                        <a href="{{ route('verifications.index') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-user-check"></i></span>
-                            <span class="pc-mtext">Verifikasi Pegawai</span>
-                        </a>
-                    </li>
-
-                    <li class="pc-item pc-caption">
-                        <label>Registrasi</label>
-                        <i class="ti ti-mail"></i>
-                    </li>
-
-                    <li class="pc-item {{ request()->routeIs('invitations.*') ? 'active' : '' }}">
-                        <a href="{{ route('invitations.index') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-mail"></i></span>
-                            <span class="pc-mtext">Undangan Pegawai</span>
-                        </a>
-                    </li>
-
-                    <li class="pc-item pc-caption">
-                        <label>Kegiatan</label>
-                        <i class="ti ti-calendar-event"></i>
-                    </li>
-
-                    <li class="pc-item {{ request()->routeIs('events.*') || request()->routeIs('event-participants.*') ? 'active' : '' }}">
-                        <a href="{{ route('events.index') }}" class="pc-link">
+                    <li class="pc-item pc-hasmenu {{ $activityActive ? 'active pc-trigger' : '' }}" data-nav-group="activities">
+                        <a href="#!" class="pc-link" aria-expanded="{{ $activityActive ? 'true' : 'false' }}">
                             <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
-                            <span class="pc-mtext">Data Kegiatan</span>
+                            <span class="pc-mtext">Kegiatan &amp; Kehadiran</span>
+                            <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
                         </a>
+                        <ul class="pc-submenu">
+                            <li class="pc-item {{ $activityActive ? 'active' : '' }}"><a class="pc-link" href="{{ route('events.index') }}">Data Kegiatan</a></li>
+                        </ul>
                     </li>
 
-                    <li class="pc-item pc-caption">
-                        <label>Laporan</label>
-                        <i class="ti ti-file-report"></i>
-                    </li>
-
-                    <li class="pc-item {{ request()->routeIs('reports.employees') ? 'active' : '' }}">
-                        <a href="{{ route('reports.employees') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-users"></i></span>
-                            <span class="pc-mtext">Laporan Pegawai</span>
+                    <li class="pc-item pc-hasmenu {{ $reportsActive ? 'active pc-trigger' : '' }}" data-nav-group="reports">
+                        <a href="#!" class="pc-link" aria-expanded="{{ $reportsActive ? 'true' : 'false' }}">
+                            <span class="pc-micon"><i class="ti ti-file-report"></i></span>
+                            <span class="pc-mtext">Laporan</span>
+                            <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
                         </a>
-                    </li>
-
-                    <li class="pc-item {{ request()->routeIs('reports.events') || request()->routeIs('reports.events.attendances') ? 'active' : '' }}">
-                        <a href="{{ route('reports.events') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-calendar-event"></i></span>
-                            <span class="pc-mtext">Laporan Kegiatan</span>
-                        </a>
+                        <ul class="pc-submenu">
+                            <li class="pc-item {{ request()->routeIs('reports.employees', 'reports.employees.export') ? 'active' : '' }}"><a class="pc-link" href="{{ route('reports.employees') }}">Laporan Pegawai</a></li>
+                            <li class="pc-item {{ request()->routeIs('reports.events', 'reports.events.export', 'reports.events.attendances', 'reports.events.attendances.export') ? 'active' : '' }}"><a class="pc-link" href="{{ route('reports.events') }}">Laporan Kegiatan</a></li>
+                        </ul>
                     </li>
 
                 @endif

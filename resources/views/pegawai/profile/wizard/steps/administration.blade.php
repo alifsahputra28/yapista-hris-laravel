@@ -6,7 +6,10 @@
     $display = fn ($value) => filled($value) ? $value : 'Belum diisi';
     $nikTaxValue = old('nik_used_as_tax_id', is_null($detail->nik_used_as_tax_id) ? '' : ($detail->nik_used_as_tax_id ? '1' : '0'));
 @endphp
-<div class="alert alert-light-primary">Data ini bersifat sensitif dan hanya digunakan untuk administrasi kepegawaian. Data dapat dilengkapi secara bertahap.</div>
+<div class="alert alert-light-primary">
+    Data bank, status pajak, dan status BPJS bersifat opsional serta dapat dilengkapi kapan saja.
+    Nomor pajak/BPJS dan dokumen pendukung hanya diperlukan jika status terkait dipilih terdaftar atau aktif.
+</div>
 @if ($editable)
 <form method="POST" action="{{ route('pegawai.profile.administrative-details.update') }}" data-wizard-form>
     @csrf @method('PUT')

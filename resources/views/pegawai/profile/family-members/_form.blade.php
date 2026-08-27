@@ -5,12 +5,12 @@
 
 <div class="row g-3">
     <div class="col-md-6">
-        <label for="full_name" class="form-label">Nama Lengkap</label>
+        <label for="full_name" class="form-label">Nama Lengkap <x-required-mark /></label>
         <input id="full_name" type="text" name="full_name" value="{{ old('full_name', $familyMember->full_name) }}" maxlength="255" class="form-control @error('full_name') is-invalid @enderror" required>
         @error('full_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="col-md-6">
-        <label for="relationship" class="form-label">Hubungan</label>
+        <label for="relationship" class="form-label">Hubungan <x-required-mark /></label>
         <select id="relationship" name="relationship" class="form-select @error('relationship') is-invalid @enderror" required>
             <option value="">Pilih hubungan</option>
             @foreach ($relationships as $value => $label)

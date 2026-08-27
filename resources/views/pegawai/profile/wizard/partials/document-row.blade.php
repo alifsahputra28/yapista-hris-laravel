@@ -26,7 +26,10 @@
                     <input type="hidden" name="document_context" value="wizard">
                     @if ($educationId)<input type="hidden" name="employee_education_id" value="{{ $educationId }}">@endif
                     @if ($certificationId)<input type="hidden" name="employee_certification_id" value="{{ $certificationId }}">@endif
-                    <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="form-control form-control-sm" style="max-width: 210px" required aria-label="Pilih {{ $item['label'] }}">
+                    <div style="max-width: 210px">
+                        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="form-control form-control-sm w-100" required aria-label="Pilih {{ $item['label'] }}">
+                        <small class="form-text d-block">PDF/JPG/PNG. Maksimal {{ config('documents.max_upload_label') }} per file.</small>
+                    </div>
                     <button type="submit" class="btn btn-sm btn-outline-primary"><i class="ti ti-upload"></i> {{ $item['uploaded'] ? 'Ganti' : 'Unggah' }}</button>
                 </form>
                 @if ($item['document_id'] && $item['document_status'] !== 'valid')

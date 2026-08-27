@@ -29,7 +29,7 @@ class StoreEmployeeDocumentRequest extends FormRequest
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
                 'mimetypes:application/pdf,image/jpeg,image/png',
-                'max:5120',
+                'max:'.config('documents.max_upload_kb'),
             ],
         ];
     }
@@ -40,7 +40,7 @@ class StoreEmployeeDocumentRequest extends FormRequest
             'document_type.in' => 'Jenis dokumen tidak dapat diunggah oleh pegawai.',
             'file.mimes' => 'Dokumen harus berupa PDF, JPG, JPEG, atau PNG.',
             'file.mimetypes' => 'Isi file dokumen tidak sesuai format yang diizinkan.',
-            'file.max' => 'Ukuran dokumen maksimal 5 MB.',
+            'file.max' => 'Ukuran dokumen maksimal '.config('documents.max_upload_label').'.',
         ];
     }
 }

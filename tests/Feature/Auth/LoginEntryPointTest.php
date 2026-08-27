@@ -42,6 +42,9 @@ class LoginEntryPointTest extends TestCase
             ->assertOk()
             ->assertSee('Selamat Datang')
             ->assertSee('Sistem Informasi Kepegawaian')
+            ->assertSee('auth-login-with-building', escape: false)
+            ->assertSee('auth-brand-building', escape: false)
+            ->assertSee(asset('assets/images/building_yapista.png'), escape: false)
             ->assertSee('name="_token"', escape: false)
             ->assertSee('Ingat Saya')
             ->assertSee('Lupa Password?')
@@ -51,6 +54,8 @@ class LoginEntryPointTest extends TestCase
             ->assertDontSee('Google')
             ->assertDontSee('Facebook')
             ->assertDontSee('Apple');
+
+        $this->assertFileExists(public_path('assets/images/building_yapista.png'));
 
         foreach (['super_admin', 'hr_admin', 'pegawai', 'panitia'] as $role) {
             $user = User::factory()->create(['role' => $role, 'status' => 'active']);

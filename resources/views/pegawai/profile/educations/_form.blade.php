@@ -7,7 +7,7 @@
 
 <div class="row g-3">
     <div class="col-md-6">
-        <label for="education_level" class="form-label">Jenjang Pendidikan</label>
+        <label for="education_level" class="form-label">Jenjang Pendidikan <x-required-mark /></label>
         <select id="education_level" name="education_level" class="form-select @error('education_level') is-invalid @enderror" required>
             <option value="">Pilih jenjang pendidikan</option>
             @foreach ($educationLevels as $value => $label)
@@ -17,7 +17,7 @@
         @error('education_level')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="col-md-6">
-        <label for="institution_name" class="form-label">Nama Institusi</label>
+        <label for="institution_name" class="form-label">Nama Institusi <x-required-mark /></label>
         <input id="institution_name" type="text" name="institution_name" value="{{ old('institution_name', $education->institution_name) }}" maxlength="255" class="form-control @error('institution_name') is-invalid @enderror" required>
         @error('institution_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>

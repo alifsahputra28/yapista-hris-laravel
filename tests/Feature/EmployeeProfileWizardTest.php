@@ -73,6 +73,28 @@ class EmployeeProfileWizardTest extends TestCase
             ->assertDontSee('employee-bottom-nav', escape: false);
     }
 
+    public function test_new_employee_forms_explain_required_fields_and_administration_is_optional(): void
+    {
+        [$user] = $this->employeeUser();
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'identification', absolute: false))
+            ->assertOk()
+            ->assertSee('Wajib dilengkapi sebelum profil dikirim')
+            ->assertSee('<span class="text-danger" aria-hidden="true">*</span>', escape: false);
+
+        $this->actingAs($user)
+            ->get(route('pegawai.profile.wizard.show', 'administration', absolute: false))
+            ->assertOk()
+            ->assertSee('Data bank, status pajak, dan status BPJS bersifat opsional')
+            ->assertSee('<span class="profile-step-number">5</span>', escape: false)
+            ->assertDontSee('<span class="profile-step-number"><i class="ti ti-check"', escape: false)
+            ->assertDontSee('Nama Bank <span class="text-danger"', escape: false)
+            ->assertDontSee('Status Pajak <span class="text-danger"', escape: false)
+            ->assertDontSee('Status BPJS Kesehatan <span class="text-danger"', escape: false)
+            ->assertDontSee('Status BPJS Ketenagakerjaan <span class="text-danger"', escape: false);
+    }
+
     public function test_wizard_index_opens_first_incomplete_step_and_complete_profile_opens_review(): void
     {
         [$user, $employee] = $this->employeeUser();

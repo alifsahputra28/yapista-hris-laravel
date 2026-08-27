@@ -140,7 +140,7 @@
     @elseif ($editable && $submissionChecklist['can_submit'])
         <form method="POST" action="{{ route('pegawai.profile.submit') }}" data-wizard-form data-confirm-title="Kirim Profil?" data-confirm-message="Setelah dikirim, profil tidak dapat diubah sampai diperiksa oleh HR/Admin. Lanjutkan?">
             @csrf
-            <div class="form-check mb-3"><input id="declaration" name="declaration" value="1" type="checkbox" class="form-check-input @error('declaration') is-invalid @enderror" required><label for="declaration" class="form-check-label">Saya memastikan data dan dokumen yang diberikan benar serta sesuai dengan dokumen resmi.</label>@error('declaration')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+            <div class="form-check mb-3"><input id="declaration" name="declaration" value="1" type="checkbox" class="form-check-input @error('declaration') is-invalid @enderror" required><label for="declaration" class="form-check-label">Saya memastikan data dan dokumen yang diberikan benar serta sesuai dengan dokumen resmi. <x-required-mark /></label>@error('declaration')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
             <button type="submit" class="btn btn-success"><i class="ti ti-send"></i> Kirim untuk Verifikasi</button>
         </form>
     @elseif ($editable)

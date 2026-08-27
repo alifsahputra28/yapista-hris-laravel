@@ -96,14 +96,7 @@ class EmployeeProfileProgressService
     private function administration(Employee $employee): array
     {
         $detail = $employee->administrativeDetail;
-        $items = [
-            'Nama bank' => filled($detail?->bank_name),
-            'Nomor rekening' => filled($detail?->bank_account_number),
-            'Nama pemilik rekening' => filled($detail?->bank_account_holder),
-            'Status pajak' => filled($detail?->tax_status),
-            'Status BPJS Kesehatan' => filled($detail?->bpjs_health_status),
-            'Status BPJS Ketenagakerjaan' => filled($detail?->bpjs_employment_status),
-        ];
+        $items = [];
 
         if ($detail?->tax_status === 'registered') {
             $items['Nomor identitas pajak atau penanda NIK sebagai identitas pajak'] = filled($detail->tax_identification_number)
@@ -131,7 +124,7 @@ class EmployeeProfileProgressService
         return [
             'label' => $label,
             'completed' => $completedItems === $totalItems,
-            'percentage' => $totalItems === 0 ? 0 : (int) round(($completedItems / $totalItems) * 100),
+            'percentage' => $totalItems === 0 ? 100 : (int) round(($completedItems / $totalItems) * 100),
             'completed_items' => $completedItems,
             'total_items' => $totalItems,
             'missing' => array_values(array_keys(array_filter($items, fn (bool $completed): bool => ! $completed))),

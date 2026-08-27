@@ -1404,10 +1404,12 @@
 }
 
 .auth-login-shell {
+    position: relative;
     display: grid;
     min-height: 100vh;
     min-height: 100dvh;
-    grid-template-columns: minmax(420px, 48%) minmax(0, 1fr);
+    overflow: hidden;
+    grid-template-columns: minmax(520px, 55%) minmax(420px, 1fr);
 }
 
 .auth-brand-panel {
@@ -1484,6 +1486,67 @@
     font-size: 0.75rem;
 }
 
+.auth-login-with-building .auth-brand-panel {
+    justify-content: flex-start;
+    color: #1f2937;
+    background: #f8fbfa;
+    padding: clamp(3rem, 4vw, 4rem);
+}
+
+.auth-login-with-building .auth-brand-content {
+    position: relative;
+    z-index: 2;
+    margin: 0;
+}
+
+.auth-login-with-building .auth-login-brand-logo {
+    padding: 0;
+    background: transparent;
+}
+
+.auth-login-with-building .auth-brand-eyebrow {
+    color: #01765a;
+}
+
+.auth-login-with-building .auth-brand-copy h1 {
+    color: #1f2937;
+}
+
+.auth-login-with-building .auth-brand-copy > p:last-child {
+    color: #667085;
+}
+
+.auth-login-with-building .auth-brand-visual {
+    position: absolute;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    width: 55%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.auth-login-with-building .auth-brand-viewport {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.auth-login-with-building .auth-brand-building {
+    position: absolute;
+    bottom: -10vh;
+    left: 50%;
+    display: block;
+    width: 110%;
+    max-width: none;
+    height: auto;
+    object-fit: contain;
+    object-position: center bottom;
+    mix-blend-mode: multiply;
+    transform: translateX(-50%);
+}
+
 .auth-form-panel {
     display: flex;
     min-width: 0;
@@ -1493,13 +1556,32 @@
     background: #fff;
 }
 
+.auth-login-with-building .auth-form-panel {
+    position: relative;
+    z-index: 2;
+    padding-top: clamp(3rem, 8vh, 5rem);
+    padding-right: clamp(2.5rem, 4vw, 4.5rem);
+    padding-bottom: clamp(3rem, 8vh, 5rem);
+    padding-left: clamp(2.5rem, 4vw, 4.5rem);
+    align-items: center;
+    border-left: 1px solid #edf2f0;
+}
+
+.auth-login-with-building .auth-login-form {
+    transform: translateY(-1.5rem);
+}
+
 .auth-login-form {
     width: 100%;
-    max-width: 430px;
+    max-width: 440px;
+}
+
+.auth-login-form > .mb-4 {
+    margin-bottom: 1.875rem !important;
 }
 
 .auth-login-title {
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.5rem;
     color: #1f2937;
     font-size: 1.75rem;
     font-weight: 700;
@@ -1511,7 +1593,11 @@
 }
 
 .auth-login-form .form-control {
-    min-height: 46px;
+    min-height: 48px;
+}
+
+.auth-login-form form > .mb-3 {
+    margin-bottom: 1.25rem !important;
 }
 
 .auth-login-form .form-control:focus {
@@ -1529,7 +1615,7 @@
 }
 
 .auth-password-toggle {
-    width: 46px;
+    width: 48px;
     padding-inline: 0;
     border-color: #dbe1e8;
 }
@@ -1547,7 +1633,7 @@
 }
 
 .auth-login-submit {
-    min-height: 46px;
+    min-height: 48px;
     border-color: #02936f;
     background: #02936f;
     font-weight: 600;
@@ -1566,13 +1652,22 @@
     text-align: center;
 }
 
+.auth-login-copyright {
+    margin-top: 1.25rem;
+    color: #98a2b3;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
 @media (max-width: 991.98px) {
     .auth-login-page {
-        background: #02936f;
+        background: #fff;
     }
 
     .auth-login-shell {
-        display: block;
+        display: flex;
+        overflow: hidden;
+        flex-direction: column;
     }
 
     .auth-brand-panel {
@@ -1581,13 +1676,42 @@
         justify-content: center;
     }
 
+    .auth-login-with-building .auth-brand-panel {
+        min-height: 0;
+        padding: 1.25rem 1.25rem 0;
+        color: #1f2937;
+        background: #fff;
+    }
+
+    .auth-login-with-building .auth-brand-copy {
+        display: none;
+    }
+
+    .auth-login-with-building .auth-brand-visual {
+        position: relative;
+        inset: auto;
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        background: transparent;
+    }
+
+    .auth-login-with-building .auth-brand-viewport {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: clamp(220px, 58vw, 250px);
+        overflow: hidden;
+    }
+
     .auth-brand-content {
         margin: 0;
     }
 
     .auth-login-brand-logo {
-        width: 180px;
-        height: 48px;
+        width: 168px;
+        height: 45px;
     }
 
     .auth-brand-copy {
@@ -1610,12 +1734,25 @@
     }
 
     .auth-form-panel {
-        min-height: calc(100vh - 180px);
-        min-height: calc(100dvh - 180px);
-        margin-top: -20px;
+        min-height: 0;
+        margin-top: 0;
         padding: 2rem 1.5rem;
         align-items: flex-start;
-        border-radius: 20px 20px 0 0;
+        border-radius: 0;
+    }
+
+    .auth-login-with-building .auth-form-panel {
+        padding: 1.5rem 1.25rem 2rem;
+        border-left: 0;
+    }
+
+    .auth-login-with-building .auth-login-form {
+        transform: none;
+    }
+
+    .auth-login-with-building .auth-brand-building {
+        bottom: -2.5rem;
+        width: min(120%, 560px);
     }
 
     .auth-login-form {
@@ -1629,9 +1766,14 @@
         padding: 1.35rem 1rem 2.5rem;
     }
 
+    .auth-login-with-building .auth-brand-panel {
+        min-height: 0;
+        padding: 1.25rem 1.25rem 0;
+    }
+
     .auth-login-brand-logo {
-        width: 160px;
-        height: 43px;
+        width: 164px;
+        height: 44px;
     }
 
     .auth-brand-copy {
@@ -1643,9 +1785,30 @@
     }
 
     .auth-form-panel {
-        min-height: calc(100vh - 164px);
-        min-height: calc(100dvh - 164px);
-        padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom));
+        min-height: 0;
+        padding: 1.25rem 1.25rem calc(3.75rem + env(safe-area-inset-bottom));
+    }
+
+    .auth-login-with-building .auth-form-panel {
+        padding: 1.25rem 1.25rem calc(3.75rem + env(safe-area-inset-bottom));
+    }
+
+    .auth-login-with-building .auth-brand-visual {
+        z-index: 3;
+        height: auto;
+        margin-top: -4.375rem;
+        overflow: visible;
+    }
+
+    .auth-login-with-building .auth-brand-viewport {
+        height: clamp(300px, 82vw, 340px);
+        background: transparent;
+    }
+
+    .auth-login-with-building .auth-brand-building {
+        bottom: -1.5rem;
+        width: 132%;
+        max-width: 620px;
     }
 
     .auth-login-title {
@@ -1653,8 +1816,9 @@
     }
 
     .auth-session-options {
-        align-items: flex-start;
-        flex-wrap: wrap;
+        align-items: center;
+        flex-wrap: nowrap;
+        font-size: 0.875rem;
     }
 }
 
