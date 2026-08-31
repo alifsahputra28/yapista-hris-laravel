@@ -59,7 +59,14 @@ EMPLOYEE_NIK_LOOKUP_KEY=...
 
 `APP_KEY` dan `EMPLOYEE_NIK_LOOKUP_KEY` wajib berupa dua secret berbeda, stabil, dan dicadangkan melalui secret escrow. Jangan mengganti salah satunya setelah data terenkripsi/blind index dipakai tanpa prosedur rotasi khusus. `APP_PREVIOUS_KEYS` hanya digunakan dalam rotasi yang direncanakan.
 
-`EMPLOYEE_SEED_DEFAULT_PASSWORD` tidak dibutuhkan untuk runtime normal dan harus kosong kecuali ada prosedur provisioning yang disetujui. Seeder tidak dijalankan saat deployment produksi.
+`DatabaseSeeder` kini hanya berisi master Unit/Jabatan, tanpa akun atau data dummy.
+Master seeding production bersifat explicit setelah review operator; bukan langkah
+otomatis setiap deployment. `UAT_SEED_PASSWORD` khusus non-production dan harus
+kosong/tidak tersedia di runtime production. Variable lama
+`EMPLOYEE_SEED_DEFAULT_PASSWORD` tidak lagi dipakai. Semua seeder sintetis menolak
+production, termasuk pemanggilan langsung dengan `--force`. Bootstrap Super Admin
+pertama memerlukan prosedur provisioning aman yang disetujui operator; tidak ada
+credential default. Lihat [Data Seeding Strategy](data-seeding-strategy.md).
 
 ## Web And TLS
 

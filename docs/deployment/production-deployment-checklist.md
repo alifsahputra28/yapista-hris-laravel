@@ -58,7 +58,7 @@ Checklist ini tidak memberi izin deployment otomatis. Semua item **Blocker** waj
 - [ ] Deploy release baru secara atomic (release directory/symlink), jangan overwrite source aktif parsial.
 - [ ] Hubungkan shared persistent storage yang benar.
 - [ ] Jalankan `php artisan migrate --force` hanya setelah backup dan review migration pending.
-- [ ] Jangan menjalankan seeder, `migrate:fresh`, `db:wipe`, atau destructive command.
+- [ ] Jangan menjalankan synthetic seeder, `migrate:fresh`, `migrate:refresh`, `db:wipe`, atau destructive command. Master-only `db:seed --force` bersifat explicit/opsional setelah daftar Unit/Jabatan direview operator; lihat `data-seeding-strategy.md`.
 - [ ] Jalankan `php artisan optimize:clear`.
 - [ ] Jalankan `php artisan config:cache`, `route:cache`, dan `view:cache`.
 - [ ] Restart PHP-FPM/web workers agar opcode cache memakai release baru.

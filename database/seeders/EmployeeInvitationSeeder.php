@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Employee;
 use App\Models\EmployeeInvitation;
 use App\Models\User;
+use Database\Seeders\Support\SyntheticSeed;
 use Illuminate\Database\Seeder;
 
 class EmployeeInvitationSeeder extends Seeder
@@ -14,6 +14,7 @@ class EmployeeInvitationSeeder extends Seeder
      */
     public function run(): void
     {
+        SyntheticSeed::guard(['local', 'testing']);
         if (! class_exists(EmployeeInvitation::class)) {
             return;
         }
@@ -58,7 +59,7 @@ class EmployeeInvitationSeeder extends Seeder
         ];
 
         foreach ($invitations as $invitation) {
-            $employee = Employee::query()
+            $employee = SyntheticSeed::employees()
                 ->where('email', $invitation['employee_email'])
                 ->whereNull('user_id')
                 ->first();

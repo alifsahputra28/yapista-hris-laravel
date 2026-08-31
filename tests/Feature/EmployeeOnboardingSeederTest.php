@@ -37,7 +37,7 @@ class EmployeeOnboardingSeederTest extends TestCase
         $user = $employee->user()->firstOrFail();
         $this->assertSame('pegawai', $user->role);
         $this->assertSame('active', $user->status);
-        $this->assertTrue(Hash::check('password', $user->password));
+        $this->assertTrue(Hash::check('test-only-seed-password', $user->password));
         $this->assertSame('verified', $employee->verification_status);
         $this->assertTrue($employee->isEligibleForIdCard());
         $this->assertNotNull($employee->activeQrToken()->first());
@@ -71,7 +71,7 @@ class EmployeeOnboardingSeederTest extends TestCase
         $this->assertSame('draft', $newEmployee->verification_status);
         $this->assertFalse($newEmployee->qrTokens()->exists());
         $this->assertFalse($newEmployee->isEligibleForIdCard());
-        $this->assertTrue(Hash::check('password', $newEmployee->user->password));
+        $this->assertTrue(Hash::check('test-only-seed-password', $newEmployee->user->password));
     }
 
     public function test_rerun_preserves_password_profile_status_and_related_records(): void
@@ -322,6 +322,7 @@ class EmployeeOnboardingSeederTest extends TestCase
 
     private function seedMasterData(): void
     {
+        config(['seeding.uat_password' => 'test-only-seed-password']);
         $this->seed([
             UserSeeder::class,
             InstitutionSeeder::class,

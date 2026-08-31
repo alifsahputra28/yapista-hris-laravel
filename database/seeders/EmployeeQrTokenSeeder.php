@@ -5,17 +5,18 @@ namespace Database\Seeders;
 use App\Models\Employee;
 use App\Models\User;
 use App\Services\EmployeeQrTokenService;
+use Database\Seeders\Support\SyntheticSeed;
 use Illuminate\Database\Seeder;
 
 class EmployeeQrTokenSeeder extends Seeder
 {
     public function run(): void
     {
+        SyntheticSeed::guard();
         $admin = User::where('email', 'admin@yapista.test')->first();
         $tokenService = app(EmployeeQrTokenService::class);
 
-        Employee::query()
-            ->where('verification_status', 'verified')
+        SyntheticSeed::employees()->eligibleForEvents()
             ->get(['id', 'employee_number', 'verification_status', 'employment_status'])
             ->filter(fn (Employee $employee): bool => $employee->hasValidEmployeeNumber())
             ->each(function (Employee $employee) use ($admin, $tokenService): void {

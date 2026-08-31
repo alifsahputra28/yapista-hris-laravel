@@ -6,7 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeDocument;
 use App\Models\Event;
 use App\Models\User;
-use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\DevelopmentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -17,12 +17,13 @@ class DatabaseSeederIdempotencyTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_database_seeder_is_idempotent_and_preserves_onboarding_data(): void
+    public function test_development_seeder_is_idempotent_and_preserves_onboarding_data(): void
     {
+        config(['seeding.uat_password' => 'test-only-seed-password']);
         Carbon::setTestNow('2026-08-03 09:00:00');
 
         try {
-            $this->seed(DatabaseSeeder::class);
+            $this->seed(DevelopmentSeeder::class);
 
             $budi = Employee::where('employee_number', '7770923824')->firstOrFail();
             $budiUser = $budi->user()->firstOrFail();
@@ -58,14 +59,14 @@ class DatabaseSeederIdempotencyTest extends TestCase
                 'event_participants' => 34,
                 'event_attendances' => 9,
             ], $counts);
-            $eventId = Event::where('name', 'Rapat Koordinasi Yayasan')->firstOrFail()->id;
+            $eventId = Event::where('name', '[DEV] Rapat Koordinasi Yayasan')->firstOrFail()->id;
 
             Carbon::setTestNow('2026-08-10 09:00:00');
-            $this->seed(DatabaseSeeder::class);
+            $this->seed(DevelopmentSeeder::class);
 
             $this->assertSame($counts, $this->tableCounts());
-            $this->assertSame($eventId, Event::where('name', 'Rapat Koordinasi Yayasan')->value('id'));
-            $this->assertSame('2026-08-10', Event::where('name', 'Rapat Koordinasi Yayasan')->firstOrFail()->event_date->toDateString());
+            $this->assertSame($eventId, Event::where('name', '[DEV] Rapat Koordinasi Yayasan')->value('id'));
+            $this->assertSame('2026-08-03', Event::where('name', '[DEV] Rapat Koordinasi Yayasan')->firstOrFail()->event_date->toDateString());
 
             $budi->refresh();
             $this->assertSame($budiUser->id, $budi->user_id);
@@ -87,7 +88,7 @@ class DatabaseSeederIdempotencyTest extends TestCase
                 ->where('scan_method', 'manual')
                 ->whereNotNull('qr_token_id')
                 ->count());
-            $this->assertTrue(Hash::check('password', User::where('email', 'pegawai@yapista.test')->firstOrFail()->password));
+            $this->assertTrue(Hash::check('test-only-seed-password', User::where('email', 'pegawai@yapista.test')->firstOrFail()->password));
         } finally {
             Carbon::setTestNow();
         }

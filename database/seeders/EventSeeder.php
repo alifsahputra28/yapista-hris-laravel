@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Event;
 use App\Models\User;
+use Database\Seeders\Support\SyntheticSeed;
 use Illuminate\Database\Seeder;
 
 class EventSeeder extends Seeder
@@ -13,6 +14,7 @@ class EventSeeder extends Seeder
      */
     public function run(): void
     {
+        SyntheticSeed::guard(['local', 'testing']);
         $admin = User::where('email', 'admin@yapista.test')->first();
         $hr = User::where('email', 'hr@yapista.test')->first();
 
@@ -75,14 +77,17 @@ class EventSeeder extends Seeder
         ];
 
         foreach ($events as $event) {
-            Event::updateOrCreate(
-                ['name' => $event['name']],
+            if (SyntheticSeed::developmentEvent($event['name'])) {
+                continue;
+            }
+            Event::firstOrCreate(
+                ['name' => '[DEV] '.$event['name']],
                 [
                     'event_date' => $event['event_date'],
                     'start_time' => $event['start_time'],
                     'end_time' => $event['end_time'],
                     'location' => $event['location'],
-                    'description' => $event['description'],
+                    'description' => '[DEV FIXTURE] '.$event['description'],
                     'target_type' => $event['target_type'],
                     'status' => $event['status'],
                     'created_by' => $event['created_by'],

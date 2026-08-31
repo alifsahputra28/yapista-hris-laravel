@@ -1,13 +1,13 @@
 <?php
 
 /*
-| Employee onboarding data
+| Synthetic local/UAT fixtures ONLY. Never use this file for real onboarding.
 | A 10-digit employee_number marks an existing verified employee and receives QR.
 | A null employee_number marks a new draft employee and does not receive QR.
 | institution_name and position_name must already exist in their master seeders.
 | Profile fields are intentionally omitted. Existing employees remain verified;
 | new employees may complete them through the normal onboarding workflow.
-| New-account passwords come from EMPLOYEE_SEED_DEFAULT_PASSWORD.
+| New-account passwords come from operator-supplied UAT_SEED_PASSWORD.
 */
 
 return [

@@ -7,6 +7,7 @@ use App\Models\Institution;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\EmployeeQrTokenService;
+use Database\Seeders\Support\SyntheticSeed;
 use DateTimeImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,7 @@ class EmployeeSeeder extends Seeder
 
     public function run(): void
     {
+        SyntheticSeed::guard();
         $dataFile = database_path('seeders/data/employees.php');
         $rows = require $dataFile;
 
@@ -78,14 +80,14 @@ class EmployeeSeeder extends Seeder
      */
     public function seedRows(array $rows): array
     {
+        SyntheticSeed::guard();
         $preparedRows = $this->validateAndPrepareRows($rows);
-        $defaultPassword = $this->resolveDefaultPassword();
         $qrTokenService = app(EmployeeQrTokenService::class);
         $qrCreator = User::query()->where('email', 'admin@yapista.test')->first();
 
         $this->assertNoDatabaseConflicts($preparedRows);
 
-        return DB::transaction(function () use ($preparedRows, $defaultPassword, $qrTokenService, $qrCreator): array {
+        return DB::transaction(function () use ($preparedRows, $qrTokenService, $qrCreator): array {
             $summary = [
                 'existing_employees_created' => 0,
                 'existing_employees_updated' => 0,
@@ -98,23 +100,18 @@ class EmployeeSeeder extends Seeder
             ];
 
             foreach ($preparedRows as $row) {
-                $user = User::firstOrCreate(
-                    ['email' => $row['login_email']],
-                    [
+                $user = User::where('email', $row['login_email'])->first();
+                if (! $user) {
+                    $user = User::create([
+                        'email' => $row['login_email'],
                         'name' => $row['full_name'],
-                        'password' => Hash::make($row['temporary_password'] ?? $defaultPassword),
+                        'password' => Hash::make(SyntheticSeed::password($row['temporary_password'] ?? null)),
                         'role' => 'pegawai',
                         'status' => 'active',
-                    ],
-                );
+                    ]);
+                }
 
                 $summary[$user->wasRecentlyCreated ? 'users_created' : 'users_preserved']++;
-
-                $user->fill([
-                    'name' => $row['full_name'],
-                    'role' => 'pegawai',
-                    'status' => 'active',
-                ])->save();
 
                 $employeeByNumber = $row['employee_number'] !== null
                     ? Employee::query()->where('employee_number', $row['employee_number'])->first()
@@ -219,6 +216,9 @@ class EmployeeSeeder extends Seeder
             if (filter_var($row['login_email'], FILTER_VALIDATE_EMAIL) === false) {
                 throw new RuntimeException("Data pegawai baris {$line}: login_email tidak valid.");
             }
+            if (! str_ends_with($row['login_email'], '@yapista.test')) {
+                throw new RuntimeException("Data pegawai baris {$line}: synthetic login_email harus memakai domain yapista.test.");
+            }
 
             if (isset($loginEmails[$row['login_email']])) {
                 throw new RuntimeException("Data pegawai baris {$line}: login_email {$row['login_email']} duplikat dalam file data.");
@@ -286,6 +286,9 @@ class EmployeeSeeder extends Seeder
             }
 
             $employeeUsingUser = $user ? Employee::where('user_id', $user->id)->first() : null;
+            if ($employeeByNumber && $employeeByNumber->user_id === null) {
+                throw new RuntimeException("Data pegawai baris {$line}: employee_number dimiliki data tanpa bukti fixture; tidak diubah.");
+            }
             if ($row['employee_number'] !== null
                 && $employeeUsingUser
                 && (($employeeByNumber && $employeeUsingUser->isNot($employeeByNumber))
@@ -297,17 +300,6 @@ class EmployeeSeeder extends Seeder
                 throw new RuntimeException("Data pegawai baris {$line}: employee_number sudah terhubung ke akun lain.");
             }
         }
-    }
-
-    private function resolveDefaultPassword(): string
-    {
-        $password = env('EMPLOYEE_SEED_DEFAULT_PASSWORD');
-
-        if (blank($password) && app()->environment('production')) {
-            throw new RuntimeException('EMPLOYEE_SEED_DEFAULT_PASSWORD wajib tersedia untuk proses onboarding di production.');
-        }
-
-        return filled($password) ? (string) $password : 'password';
     }
 
     private function isValidDate(string $value): bool

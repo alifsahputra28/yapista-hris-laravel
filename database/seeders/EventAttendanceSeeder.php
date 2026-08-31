@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Employee;
 use App\Models\EmployeeQrToken;
-use App\Models\Event;
 use App\Models\EventAttendance;
 use App\Models\EventParticipant;
 use App\Models\User;
+use Database\Seeders\Support\SyntheticSeed;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -18,6 +17,7 @@ class EventAttendanceSeeder extends Seeder
      */
     public function run(): void
     {
+        SyntheticSeed::guard(['local', 'testing']);
         $panitia = User::where('email', 'panitia@yapista.test')->first();
 
         $this->seedAttendance('Rapat Koordinasi Yayasan', [
@@ -41,7 +41,7 @@ class EventAttendanceSeeder extends Seeder
      */
     private function seedAttendance(string $eventName, array $attendances, ?int $scannerId): void
     {
-        $event = Event::where('name', $eventName)->first();
+        $event = SyntheticSeed::developmentEvent($eventName);
 
         if (! $event) {
             return;
@@ -50,7 +50,7 @@ class EventAttendanceSeeder extends Seeder
         $baseTime = Carbon::parse($event->event_date->format('Y-m-d').' '.($event->start_time?->format('H:i:s') ?? '08:00:00'));
 
         foreach ($attendances as $attendance) {
-            $employee = Employee::query()
+            $employee = SyntheticSeed::employees()->eligibleForEvents()
                 ->whereHas('user', fn ($query) => $query->where('email', $attendance['login_email']))
                 ->first();
 
@@ -73,7 +73,7 @@ class EventAttendanceSeeder extends Seeder
                 ->whereNull('revoked_at')
                 ->first();
 
-            EventAttendance::updateOrCreate(
+            EventAttendance::firstOrCreate(
                 [
                     'event_id' => $event->id,
                     'employee_id' => $employee->id,

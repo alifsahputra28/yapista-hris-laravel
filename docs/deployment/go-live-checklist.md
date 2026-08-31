@@ -8,6 +8,25 @@ Never record credentials, private paths, employee PII, or raw QR tokens in this 
 
 ## Pre-Deploy
 
+### Data Hygiene Review - 31 August 2026
+
+The release checkmarks below describe earlier historical validation, not approval
+of the current dirty working tree. Latest full regression is **not green**:
+349 tests, 348 passed, 1 pre-existing DashboardInsights failure, twice.
+See [Data Seeding Strategy](data-seeding-strategy.md) for actual evidence and dry-run counts.
+
+- [x] Production DatabaseSeeder reviewed: master Unit/Jabatan only.
+- [x] No dummy users or default credentials created by production seed.
+- [x] UatSeeder is not called automatically; every synthetic entry point is environment-guarded.
+- [x] Production master data identified: 7 units / 37 positions; no master data deleted.
+- [x] Factory remains test/dev-only and is not called by default seed.
+- [ ] UAT credentials absent from actual production target; local DB has 16 legacy-default fixture accounts and must not be cloned.
+- [ ] Staging synthetic DB/storage isolated and provisioned using an operator-supplied secret.
+- [ ] Final deployment artifact excludes runtime dummy uploads, dumps, private/quarantine files, exports and .env.
+- [ ] Initial production Super Admin provisioning approved without hardcoded credentials.
+- [ ] Current local UNKNOWN records/files reviewed before any specifically approved cleanup.
+- [ ] Latest full regression passes twice and a clean deployment source is validated.
+
 ### Application Gate
 
 - [x] Stage 9 operator acceptance recorded.

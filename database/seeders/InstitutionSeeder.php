@@ -23,7 +23,7 @@ class InstitutionSeeder extends Seeder
         ];
 
         foreach ($institutions as $institution) {
-            Institution::updateOrCreate(
+            Institution::firstOrCreate(
                 ['name' => $institution['name']],
                 [
                     'level' => $institution['level'],
