@@ -99,6 +99,9 @@ Do not run migration until every required pre-deploy and backup item is checked.
 ## Deploy
 
 - [ ] Checkout/deploy exact RC SHA; do not copy an untracked working directory.
+- [ ] For the upload-ready artifact, verify the ZIP SHA-256 against its external `.sha256` sidecar and read `RELEASE-MANIFEST.txt`.
+- [ ] Confirm `BUILD-PROVENANCE.json` names the approved application RC and packaging SHA, with no runtime diff between them.
+- [ ] Confirm the extracted artifact contains production `vendor/` and `public/build/`, but no `.env`, `node_modules/`, tests, Git metadata, runtime upload, dump, or UAT account data.
 - [ ] Install backend dependencies using `composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction`.
 - [ ] Install frontend dependencies using `npm ci` on build host.
 - [ ] Run `npm run build` or promote the verified prebuilt artifact.

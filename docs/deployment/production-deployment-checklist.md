@@ -51,6 +51,9 @@ Checklist ini tidak memberi izin deployment otomatis. Semua item **Blocker** waj
 - [ ] `npm ci` dan `npm run build` lulus di clean build.
 - [ ] `public/build/manifest.json` dan asset versioned tersedia.
 - [ ] Tidak ada `.env`, dump, backup, private document, atau test artifact di artifact web.
+- [ ] Folder dan ZIP upload-ready berasal dari script `scripts/build-upload-package.ps1`, bukan copy working tree manual.
+- [ ] SHA-256 ZIP cocok dengan sidecar; `RELEASE-MANIFEST.txt`, `DEPLOYMENT-README.txt`, dan `BUILD-PROVENANCE.json` sudah direview.
+- [ ] Artifact menyertakan production `vendor/` dan compiled assets, serta mengecualikan `node_modules/`, `tests/`, `.git/`, runtime upload, dan UAT credential/data.
 
 ## 6. Deploy
 
