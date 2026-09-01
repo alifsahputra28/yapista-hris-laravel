@@ -19,9 +19,11 @@ class EventMetricsService
      */
     public function counts(): array
     {
-        $monthStart = now()->startOfMonth()->toDateString();
-        $monthEnd = now()->endOfMonth()->toDateString();
-        $today = now()->toDateString();
+        $dayStart = now()->startOfDay();
+        $monthStart = $dayStart->copy()->startOfMonth()->toDateString();
+        $nextMonthStart = $dayStart->copy()->startOfMonth()->addMonth()->toDateString();
+        $today = $dayStart->toDateString();
+        $tomorrow = $dayStart->copy()->addDay()->toDateString();
 
         $counts = Event::query()
             ->selectRaw('COUNT(*) AS total')
@@ -29,8 +31,9 @@ class EventMetricsService
             ->selectRaw("SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active")
             ->selectRaw("SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) AS closed")
             ->selectRaw("SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled")
-            ->selectRaw('SUM(CASE WHEN event_date BETWEEN ? AND ? THEN 1 ELSE 0 END) AS this_month', [$monthStart, $monthEnd])
-            ->selectRaw("SUM(CASE WHEN status = 'active' AND event_date = ? THEN 1 ELSE 0 END) AS active_today", [$today])
+            // Half-open ranges work with both DATE and cast datetime storage.
+            ->selectRaw('SUM(CASE WHEN event_date >= ? AND event_date < ? THEN 1 ELSE 0 END) AS this_month', [$monthStart, $nextMonthStart])
+            ->selectRaw("SUM(CASE WHEN status = 'active' AND event_date >= ? AND event_date < ? THEN 1 ELSE 0 END) AS active_today", [$today, $tomorrow])
             ->first();
 
         return [

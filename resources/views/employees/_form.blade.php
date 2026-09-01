@@ -1,14 +1,11 @@
 @php
-    $employeeTypes = [
-        'guru' => 'Guru',
-        'dosen' => 'Dosen',
-        'tenaga_kependidikan' => 'Tenaga Kependidikan',
-        'staff_yayasan' => 'Staff Yayasan',
-        'security' => 'Security',
-        'cleaning_service' => 'Cleaning Service',
-        'driver' => 'Driver',
-        'teknisi' => 'Teknisi',
-    ];
+    $employeeTypes = \App\Support\Imports\EmployeeImportColumns::EMPLOYEE_TYPES;
+    $selectedInstitution = (string) old('institution_id', $employee->institution_id);
+    $selectedPosition = (string) old('position_id', $employee->position_id);
+    $unitPositions = $positions->filter(fn ($position) => (string) $position->institution_id === $selectedInstitution);
+    $positionPlaceholder = $selectedInstitution === ''
+        ? 'Pilih unit kerja terlebih dahulu'
+        : ($unitPositions->isEmpty() ? 'Belum ada jabatan pada unit kerja ini.' : 'Pilih jabatan');
     $employmentStatuses = [
         'aktif' => 'Aktif',
         'kontrak' => 'Kontrak',
@@ -164,7 +161,7 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="employee_number" class="form-label">NUP</label>
+            <label for="employee_number" class="form-label">NUP (Pegawai Lama)</label>
             <input
                 id="employee_number"
                 type="text"
@@ -191,44 +188,53 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="institution_id" class="form-label">Unit Kerja</label>
-            <select id="institution_id" name="institution_id" class="form-select @error('institution_id') is-invalid @enderror" required>
-                <option value="">Pilih unit kerja</option>
+            <label for="institution_id" class="form-label">Unit Kerja <span class="text-danger" aria-hidden="true">*</span></label>
+            <select id="institution_id" name="institution_id" class="form-select @error('institution_id') is-invalid @enderror" required @error('institution_id') aria-invalid="true" aria-describedby="institution_id-error" @enderror>
+                <option value="">Cari atau pilih unit kerja</option>
                 @foreach ($institutions as $institution)
-                    <option value="{{ $institution->id }}" @selected((int) old('institution_id', $employee->institution_id) === $institution->id)>
+                    <option value="{{ $institution->id }}" @selected($selectedInstitution === (string) $institution->id)>
                         {{ $institution->name }}{{ $institution->level ? ' - '.$institution->level : '' }}
                     </option>
                 @endforeach
             </select>
 
             @error('institution_id')
-                <div class="invalid-feedback">{{ $message }}</div>
+                <div id="institution_id-error" class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
     </div>
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="position_id" class="form-label">Jabatan</label>
-            <select id="position_id" name="position_id" class="form-select @error('position_id') is-invalid @enderror" required>
-                <option value="">Pilih jabatan</option>
-                @foreach ($positions as $position)
-                    <option value="{{ $position->id }}" @selected((int) old('position_id', $employee->position_id) === $position->id)>
-                        {{ $position->name }}{{ $position->institution ? ' - '.$position->institution->name : '' }}
+            <label for="position_id" class="form-label">Jabatan <span class="text-danger" aria-hidden="true">*</span></label>
+            <select id="position_id" name="position_id" class="form-select @error('position_id') is-invalid @enderror"
+                required @disabled($selectedInstitution === '' || $unitPositions->isEmpty())
+                aria-describedby="position-help{{ $errors->has('position_id') ? ' position_id-error' : '' }}"
+                @error('position_id') aria-invalid="true" @enderror>
+                <option value="">{{ $positionPlaceholder }}</option>
+                @foreach ($unitPositions as $position)
+                    <option value="{{ $position->id }}" @selected($selectedPosition === (string) $position->id)>
+                        {{ $position->name }}
                     </option>
                 @endforeach
             </select>
 
             @error('position_id')
-                <div class="invalid-feedback">{{ $message }}</div>
+                <div id="position_id-error" class="invalid-feedback">{{ $message }}</div>
             @enderror
+            <small id="position-help" class="form-text" aria-live="polite">{{ $selectedInstitution !== '' && $unitPositions->isEmpty() ? 'Belum ada jabatan pada unit kerja ini.' : 'Pilihan jabatan menyesuaikan unit kerja yang dipilih.' }}</small>
+            <template id="employee-position-options">
+                @foreach ($positions as $position)
+                    <option value="{{ $position->id }}" data-institution-id="{{ $position->institution_id }}">{{ $position->name }}</option>
+                @endforeach
+            </template>
         </div>
     </div>
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="employee_type" class="form-label">Jenis Pegawai</label>
-            <select id="employee_type" name="employee_type" class="form-select @error('employee_type') is-invalid @enderror" required>
+            <label for="employee_type" class="form-label">Jenis Pegawai <span class="text-danger" aria-hidden="true">*</span></label>
+            <select id="employee_type" name="employee_type" class="form-select @error('employee_type') is-invalid @enderror" required @error('employee_type') aria-invalid="true" aria-describedby="employee_type-error" @enderror>
                 <option value="">Pilih jenis pegawai</option>
                 @foreach ($employeeTypes as $value => $label)
                     <option value="{{ $value }}" @selected(old('employee_type', $employee->employee_type) === $value)>
@@ -238,7 +244,7 @@
             </select>
 
             @error('employee_type')
-                <div class="invalid-feedback">{{ $message }}</div>
+                <div id="employee_type-error" class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
     </div>
@@ -298,6 +304,10 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="{{ asset('assets/js/employee-work-fields.js') }}"></script>
+@endpush
 
 <div class="d-flex gap-2">
     <button type="submit" class="btn btn-primary">

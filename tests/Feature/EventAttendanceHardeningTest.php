@@ -106,6 +106,115 @@ class EventAttendanceHardeningTest extends TestCase
         }
     }
 
+    public function test_scanner_keeps_secondary_forms_in_bootstrap_surfaces(): void
+    {
+        $event = $this->event();
+        $employee = $this->employee();
+        $this->participant($event, $employee);
+
+        $this->actingAs($this->user('panitia'))
+            ->get(route('events.scanner', $event, absolute: false))
+            ->assertOk()
+            ->assertSee('class="scanner-workspace"', false)
+            ->assertSee('data-bs-target="#manual-attendance-modal"', false)
+            ->assertSee('class="modal fade scanner-manual-modal"', false)
+            ->assertSee('data-reopen="false"', false)
+            ->assertSee('id="manual-attendance-form"', false)
+            ->assertSee(route('events.attendances.manual', $event), false)
+            ->assertSee('class="offcanvas offcanvas-end scanner-recent-panel"', false)
+            ->assertSee('data-bs-target="#recent-attendance-panel"', false)
+            ->assertSee('data-result-overlay role="status" aria-live="polite" aria-atomic="true" hidden', false)
+            ->assertSee('id="qr_payload" type="password"', false)
+            ->assertSee('assets/js/attendance-scanner.js', false)
+            ->assertDontSee('id="manual-attendance-panel"', false)
+            ->assertDontSee('scanner-result-panel', false);
+    }
+
+    public function test_manual_validation_reopens_modal_and_preserves_input_without_recording_attendance(): void
+    {
+        $event = $this->event();
+        $employee = $this->employee();
+        $this->participant($event, $employee);
+        $url = route('events.scanner', $event, absolute: false);
+
+        $this->actingAs($this->user('panitia'))
+            ->from($url)
+            ->post(route('events.attendances.manual', $event, absolute: false), [
+                'employee_id' => '',
+                'note' => 'Catatan dummy scanner',
+            ])
+            ->assertRedirect($url)
+            ->assertSessionHasErrors('employee_id')
+            ->assertSessionHasInput('note', 'Catatan dummy scanner');
+
+        // Follow the same session cookie as a browser so JSON error bags are rehydrated.
+        $this->withCookie(config('session.cookie'), session()->getId())->get($url)
+            ->assertOk()
+            ->assertSee('data-reopen="true"', false)
+            ->assertSee('id="employee_id-error"', false)
+            ->assertSee('Catatan dummy scanner');
+
+        $this->from($url)
+            ->post(route('events.attendances.manual', $event, absolute: false), [
+                'employee_id' => $employee->id,
+                'note' => str_repeat('x', 1001),
+            ])
+            ->assertRedirect($url)
+            ->assertSessionHasErrors('note');
+
+        $this->get($url)
+            ->assertOk()
+            ->assertSee('data-reopen="true"', false)
+            ->assertSee('value="'.$employee->id.'" selected', false)
+            ->assertSee('id="note-error"', false)
+            ->assertSee(str_repeat('x', 1001));
+
+        $this->assertDatabaseCount('event_attendances', 0);
+    }
+
+    public function test_recent_scanner_surface_is_limited_and_eager_loaded_with_manual_success_visible(): void
+    {
+        $event = $this->event();
+        $scanner = $this->user('panitia');
+        for ($index = 0; $index < 6; $index++) {
+            $employee = $this->employee(['full_name' => 'Riwayat Synthetic '.$index]);
+            $this->participant($event, $employee);
+            $this->attendance($event, $employee, $scanner)->update(['scanned_at' => now()->subMinutes(10 - $index)]);
+        }
+        $manual = $this->employee(['full_name' => 'Manual Synthetic Terbaru']);
+        $this->participant($event, $manual);
+        $url = route('events.scanner', $event, absolute: false);
+
+        $this->actingAs($scanner)->from($url)
+            ->post(route('events.attendances.manual', $event, absolute: false), [
+                'employee_id' => $manual->id,
+                'note' => 'Scanner kendala UAT',
+            ])
+            ->assertRedirect($url)
+            ->assertSessionHas('success');
+
+        $this->get($url)
+            ->assertOk()
+            ->assertSee('Manual Synthetic Terbaru')
+            ->assertDontSee('Riwayat Synthetic 0')
+            ->assertDontSee('Riwayat Synthetic 1')
+            ->assertViewHas('recentAttendances', function ($recent) use ($manual): bool {
+                return $recent->count() === 5
+                    && $recent->first()->employee_id === $manual->id
+                    && $recent->first()->scan_method === 'manual'
+                    && $recent->every(fn ($attendance) => $attendance->relationLoaded('employee')
+                        && $attendance->employee->relationLoaded('institution')
+                        && $attendance->employee->relationLoaded('position'));
+            });
+
+        $this->assertDatabaseHas('event_attendances', [
+            'event_id' => $event->id,
+            'employee_id' => $manual->id,
+            'scan_method' => 'manual',
+            'note' => 'Scanner kendala UAT',
+        ]);
+    }
+
     public function test_only_admin_and_hr_can_delete_attendance_and_closed_event_is_protected(): void
     {
         $event = $this->event();

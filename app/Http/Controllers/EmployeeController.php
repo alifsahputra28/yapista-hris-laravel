@@ -175,6 +175,15 @@ class EmployeeController extends Controller
         $institutions = $this->activeInstitutions();
         $positions = $this->activePositions();
 
+        // Keep the assigned master data visible even when it has since been deactivated.
+        $employee->loadMissing(['institution', 'position']);
+        if ($employee->institution && ! $institutions->contains('id', $employee->institution_id)) {
+            $institutions->push($employee->institution);
+        }
+        if ($employee->position && ! $positions->contains('id', $employee->position_id)) {
+            $positions->push($employee->position);
+        }
+
         return view('employees.edit', compact('employee', 'institutions', 'positions'));
     }
 
@@ -286,6 +295,12 @@ class EmployeeController extends Controller
                 'max:2048',
             ],
         ], [
+            'institution_id.required' => 'Unit kerja wajib dipilih.',
+            'institution_id.exists' => 'Unit kerja yang dipilih tidak tersedia.',
+            'position_id.required' => 'Jabatan wajib dipilih.',
+            'position_id.exists' => 'Jabatan yang dipilih tidak sesuai dengan unit kerja.',
+            'employee_type.required' => 'Jenis pegawai wajib dipilih.',
+            'employee_type.in' => 'Jenis pegawai yang dipilih tidak valid.',
             'employee_number.required' => 'NUP wajib diisi untuk pegawai yang sudah terverifikasi.',
             'employee_number.digits' => 'NUP harus terdiri dari 10 digit angka.',
             'employee_number.unique' => 'NUP sudah digunakan oleh pegawai lain.',

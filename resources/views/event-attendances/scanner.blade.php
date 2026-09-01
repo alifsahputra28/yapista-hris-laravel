@@ -8,6 +8,8 @@
         $exitRoute = Auth::user()?->isPanitia()
             ? route('scanner.dashboard')
             : route('events.show', $event);
+        $manualHasErrors = $errors->has('employee_id') || $errors->has('note');
+        $latestAttendance = $recentAttendances->first();
     @endphp
 
     <header class="scanner-focus-header" aria-labelledby="scanner-page-title">
@@ -40,7 +42,7 @@
         @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         @if (session('warning'))<div class="alert alert-warning">{{ session('warning') }}</div>@endif
         @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-        @if ($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
+        @if ($errors->any() && ! $manualHasErrors)<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
     </div>
 
     <div class="metric-strip scanner-metric-strip" aria-label="Ringkasan kehadiran">
@@ -50,273 +52,118 @@
         <div class="metric-item"><div class="metric-label">Tingkat Kehadiran</div><div class="metric-value" data-metric="percentage">{{ $attendancePercentage }}%</div></div>
     </div>
 
-    <div class="row g-3 scanner-workspace">
-        <div class="col-12 col-xl-7">
-            <section class="card scanner-primary-panel h-100 mb-0" aria-labelledby="scanner-input-heading">
-                <div class="card-header">
-                    <div>
-                        <h2 id="scanner-input-heading" class="h5 mb-1">Scan ID Card Pegawai</h2>
-                        <p class="text-muted small mb-0">Arahkan scanner ke QR Code pada ID Card pegawai.</p>
-                    </div>
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="scanner-state is-ready" data-scanner-state role="status" aria-live="polite">
-                        <span class="scanner-state-icon"><i class="ti ti-scan" data-state-icon aria-hidden="true"></i></span>
-                        <span>
-                            <strong data-state-title>Siap menerima scanner</strong>
-                            <small data-state-message>Arahkan scanner ke QR Code pada ID Card pegawai.</small>
-                        </span>
-                    </div>
-
-                    <form id="qr-scan-form" class="scanner-input-form" method="POST" action="{{ route('events.scan', $event) }}">
-                        @csrf
-                        <label for="qr_payload" class="form-label">QR Code Pegawai</label>
-                        <input
-                            id="qr_payload"
-                            type="text"
-                            name="qr_payload"
-                            class="form-control form-control-lg text-center fw-semibold"
-                            autocomplete="off"
-                            maxlength="128"
-                            placeholder="Pindai QR Code pegawai..."
-                            autofocus
-                            required
-                        >
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
-                            <small class="text-muted">Mendukung ID Card digital dan kartu pegawai lama.</small>
-                            <button type="submit" class="btn btn-primary" data-scan-submit>
-                                <i class="ti ti-qrcode" aria-hidden="true"></i> Proses Kehadiran
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </section>
+    <section class="scanner-workspace" aria-labelledby="scanner-input-heading">
+        <div class="scanner-stage">
+            <div class="scanner-state is-ready" data-scanner-state role="status" aria-live="polite">
+                <span class="scanner-state-icon"><i class="ti ti-scan" data-state-icon aria-hidden="true"></i></span>
+                <h2 id="scanner-input-heading" data-state-title>Siap menerima scanner</h2>
+                <p data-state-message>Arahkan scanner ke QR Code pada ID Card pegawai.</p>
+            </div>
+            <form id="qr-scan-form" class="scanner-input-form" method="POST" action="{{ route('events.scan', $event) }}">
+                @csrf
+                <label for="qr_payload" class="visually-hidden">QR Code Pegawai</label>
+                <input id="qr_payload" type="password" name="qr_payload"
+                    class="form-control form-control-lg text-center" autocomplete="off"
+                    maxlength="128" placeholder="Pindai QR Code pegawai..." autofocus required>
+                <button type="submit" class="btn btn-light-secondary mt-3" data-scan-submit>
+                    <i class="ti ti-qrcode" aria-hidden="true"></i> Proses Kehadiran
+                </button>
+            </form>
         </div>
 
-        <div class="col-12 col-xl-5">
-            <section class="card scanner-result-panel h-100 mb-0" aria-labelledby="last-scan-heading">
-                <div class="card-header"><h2 id="last-scan-heading" class="h5 mb-0">Hasil Scan Terakhir</h2></div>
-                <div class="card-body">
-                    <div class="scanner-result-empty" data-last-scan-empty>
-                        <i class="ti ti-id-badge-2" aria-hidden="true"></i>
-                        <p class="mb-0">Hasil identitas akan tampil setelah QR dipindai.</p>
-                    </div>
-                    <div class="scanner-result" data-last-scan hidden>
-                        <div class="scanner-result-avatar"><i class="ti ti-user" aria-hidden="true"></i></div>
-                        <div class="scanner-result-identity">
-                            <strong data-result-name>-</strong>
-                            <span>NUP <span data-result-number>-</span></span>
-                            <span data-result-unit>-</span>
-                            <span data-result-position>-</span>
-                        </div>
-                        <div class="scanner-result-status">
-                            <span class="badge bg-light-secondary text-secondary" data-result-status>-</span>
-                            <small data-result-time>-</small>
-                        </div>
-                    </div>
+        <div class="scanner-result-overlay" data-result-overlay role="status" aria-live="polite" aria-atomic="true" hidden>
+            <div class="scanner-result-heading"><i class="ti ti-circle-check" data-result-icon aria-hidden="true"></i><strong data-result-title></strong></div>
+            <p class="small mb-0" data-result-message></p>
+            <div class="scanner-result-person" data-result-person hidden>
+                <span class="scanner-result-avatar"><i class="ti ti-user" aria-hidden="true"></i></span>
+                <div class="scanner-result-identity">
+                    <strong data-result-name></strong>
+                    <span>NUP <span data-result-number></span></span>
+                    <span data-result-unit></span>
+                    <span data-result-position></span>
+                    <small data-result-time></small>
                 </div>
-            </section>
+            </div>
         </div>
 
-        <div class="col-12">
-            <section class="card scanner-recent-panel mb-0" aria-labelledby="recent-scan-heading">
-                <div class="card-header"><h2 id="recent-scan-heading" class="h5 mb-0">Kehadiran Terbaru</h2></div>
-                <div class="list-group list-group-flush" data-recent-scans>
-                    @forelse ($recentAttendances as $attendance)
-                        <div class="list-group-item scanner-recent-item">
-                            <div><strong>{{ $attendance->employee?->full_name ?? 'Pegawai tidak tersedia' }}</strong><small>NUP {{ $attendance->employee?->formatted_employee_number ?? 'Belum diisi' }} &middot; {{ $attendance->employee?->institution?->name ?? 'Unit belum diisi' }}</small></div>
-                            <div><span class="badge {{ $attendance->scan_method === 'manual' ? 'bg-light-warning text-warning' : 'bg-light-success text-success' }}">{{ $attendance->scan_method_label }}</span><small>{{ $attendance->scanned_at?->locale('id')->translatedFormat('H:i:s') ?? '-' }} WIB</small></div>
-                        </div>
-                    @empty
-                        <div class="list-group-item text-muted py-3" data-recent-empty>Belum ada data kehadiran pada kegiatan ini.</div>
-                    @endforelse
-                </div>
-            </section>
+        <div class="scanner-workspace-footer">
+            <div class="scanner-last-line" data-last-scan>
+                <i class="ti {{ $latestAttendance ? 'ti-circle-check text-success' : 'ti-clock' }}" data-last-icon aria-hidden="true"></i>
+                <span><span class="text-muted">Terakhir:</span> <span data-last-summary>{{ $latestAttendance ? ($latestAttendance->employee?->full_name ?? 'Pegawai tidak tersedia').' - '.$latestAttendance->scan_method_label.' - '.$latestAttendance->scanned_at?->format('H:i:s').' WIB' : 'Belum ada kehadiran tercatat.' }}</span></span>
+            </div>
+            <div class="scanner-secondary-actions">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#manual-attendance-modal">
+                    <i class="ti ti-user-plus" aria-hidden="true"></i> Kehadiran Manual
+                </button>
+                <button type="button" class="btn btn-light-secondary" data-bs-toggle="offcanvas" data-bs-target="#recent-attendance-panel" aria-controls="recent-attendance-panel">
+                    <i class="ti ti-history" aria-hidden="true"></i> Kehadiran Terbaru
+                </button>
+            </div>
         </div>
+    </section>
 
-        <div class="col-12">
-            <section class="card scanner-manual-panel mb-0">
-                <div class="card-header scanner-manual-toggle-wrap">
-                    <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#manual-attendance-panel" aria-expanded="{{ $errors->any() ? 'true' : 'false' }}" aria-controls="manual-attendance-panel">
-                        <span><i class="ti ti-user-plus" aria-hidden="true"></i> Kehadiran Manual</span>
-                        <i class="ti ti-chevron-down" aria-hidden="true"></i>
-                    </button>
+    <div class="modal fade scanner-manual-modal" id="manual-attendance-modal" tabindex="-1" aria-labelledby="manual-attendance-title" data-reopen="{{ $manualHasErrors ? 'true' : 'false' }}">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="manual-attendance-title">Kehadiran Manual</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
-                <div id="manual-attendance-panel" class="collapse {{ $errors->any() ? 'show' : '' }}">
-                    <div class="card-body">
-                        @if ($manualEmployees->isNotEmpty())
-                            <form method="POST" action="{{ route('events.attendances.manual', $event) }}">
-                                @csrf
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-12 col-lg-5">
-                                        <label for="employee_id" class="form-label">Pilih Pegawai</label>
-                                        <select id="employee_id" name="employee_id" class="form-select" required>
-                                            <option value="">Pilih pegawai</option>
-                                            @foreach ($manualEmployees as $employee)
-                                                <option value="{{ $employee->id }}">{{ $employee->full_name }} - {{ $employee->employee_number }}{{ $employee->institution ? ' - '.$employee->institution->name : '' }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-lg-5">
-                                        <label for="note" class="form-label">Catatan</label>
-                                        <input id="note" name="note" class="form-control" maxlength="1000" placeholder="Contoh: QR Code tidak terbaca atau scanner bermasalah">
-                                    </div>
-                                    <div class="col-12 col-lg-2"><button type="submit" class="btn btn-light-primary w-100"><i class="ti ti-device-floppy" aria-hidden="true"></i> Simpan Kehadiran</button></div>
-                                </div>
-                            </form>
-                        @else
-                            <div class="text-muted">Semua peserta yang memenuhi syarat sudah tercatat hadir.</div>
-                        @endif
-                    </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Gunakan jika QR Code tidak dapat dipindai atau scanner mengalami kendala.</p>
+                    @if ($manualEmployees->isNotEmpty() || $manualHasErrors)
+                        <form id="manual-attendance-form" method="POST" action="{{ route('events.attendances.manual', $event) }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="employee_id" class="form-label">Pegawai <span class="text-danger" aria-hidden="true">*</span></label>
+                                <select id="employee_id" name="employee_id" class="form-select @error('employee_id') is-invalid @enderror" required @error('employee_id') aria-invalid="true" aria-describedby="employee_id-error" @enderror>
+                                    <option value="">Pilih pegawai</option>
+                                    @foreach ($manualEmployees as $employee)
+                                        <option value="{{ $employee->id }}" @selected((string) old('employee_id') === (string) $employee->id)>{{ $employee->full_name }} - {{ $employee->employee_number }}{{ $employee->institution ? ' - '.$employee->institution->name : '' }}</option>
+                                    @endforeach
+                                </select>
+                                @error('employee_id')<div id="employee_id-error" class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <label for="note" class="form-label">Alasan / Catatan</label>
+                            <textarea id="note" name="note" class="form-control @error('note') is-invalid @enderror" rows="3" maxlength="1000" placeholder="Contoh: QR Code tidak terbaca" @error('note') aria-invalid="true" aria-describedby="note-error" @enderror>{{ old('note') }}</textarea>
+                            @error('note')<div id="note-error" class="invalid-feedback">{{ $message }}</div>@enderror
+                        </form>
+                    @else
+                        <p class="text-muted mb-0">Semua peserta yang memenuhi syarat sudah tercatat hadir.</p>
+                    @endif
                 </div>
-            </section>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
+                    @if ($manualEmployees->isNotEmpty() || $manualHasErrors)
+                        <button type="submit" form="manual-attendance-form" class="btn btn-primary"><i class="ti ti-device-floppy" aria-hidden="true"></i> Simpan Kehadiran</button>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
+
+    <aside class="offcanvas offcanvas-end scanner-recent-panel" id="recent-attendance-panel" tabindex="-1" aria-labelledby="recent-scan-heading">
+        <div class="offcanvas-header">
+            <h2 id="recent-scan-heading" class="offcanvas-title h5">Kehadiran Terbaru</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="list-group list-group-flush" data-recent-scans>
+                @forelse ($recentAttendances as $attendance)
+                    <div class="list-group-item scanner-recent-item">
+                        <strong>{{ $attendance->employee?->full_name ?? 'Pegawai tidak tersedia' }}</strong>
+                        <small>NUP {{ $attendance->employee?->formatted_employee_number ?? 'Belum diisi' }} &middot; {{ $attendance->employee?->institution?->name ?? 'Unit belum diisi' }}</small>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-2"><span class="badge {{ $attendance->scan_method === 'manual' ? 'bg-light-warning text-warning' : 'bg-light-success text-success' }}">{{ $attendance->scan_method_label }}</span><small>{{ $attendance->scanned_at?->format('H:i:s') ?? '-' }} WIB</small></div>
+                    </div>
+                @empty
+                    <div class="list-group-item text-muted py-3" data-recent-empty>Belum ada data kehadiran pada kegiatan ini.</div>
+                @endforelse
+            </div>
+        </div>
+        <div class="p-3 border-top"><a href="{{ route('events.attendances.index', $event) }}" class="btn btn-light-primary w-100">Lihat Daftar Kehadiran</a></div>
+    </aside>
 @endsection
 
 @push('scripts')
-    <script>
-        (() => {
-            const qrPayloadInput = document.getElementById('qr_payload');
-            const scanForm = document.getElementById('qr-scan-form');
-            const scanSubmitButton = scanForm?.querySelector('[data-scan-submit]');
-            const statePanel = document.querySelector('[data-scanner-state]');
-            const stateTitle = document.querySelector('[data-state-title]');
-            const stateMessage = document.querySelector('[data-state-message]');
-            const stateIcon = document.querySelector('[data-state-icon]');
-            const lastScan = document.querySelector('[data-last-scan]');
-            const lastScanEmpty = document.querySelector('[data-last-scan-empty]');
-            const recentScans = document.querySelector('[data-recent-scans]');
-
-            const focusScannerInput = () => {
-                qrPayloadInput?.focus({ preventScroll: true });
-                qrPayloadInput?.select();
-            };
-
-            const setState = (state, title, message) => {
-                if (!statePanel) return;
-
-                statePanel.classList.remove('is-ready', 'is-processing', 'is-success', 'is-warning', 'is-error');
-                statePanel.classList.add(`is-${state}`);
-                stateTitle.textContent = title;
-                stateMessage.textContent = message;
-                stateIcon.className = state === 'processing' ? 'ti ti-loader-2 scanner-spin' : ({
-                    success: 'ti ti-circle-check',
-                    warning: 'ti ti-alert-triangle',
-                    error: 'ti ti-circle-x',
-                    ready: 'ti ti-scan',
-                }[state] || 'ti ti-scan');
-            };
-
-            const showLastScan = (employee, status, message) => {
-                if (!employee || !lastScan || !lastScanEmpty) return;
-
-                lastScanEmpty.hidden = true;
-                lastScan.hidden = false;
-                lastScan.querySelector('[data-result-name]').textContent = employee.full_name || '-';
-                lastScan.querySelector('[data-result-number]').textContent = employee.employee_number || 'Belum diisi';
-                lastScan.querySelector('[data-result-unit]').textContent = employee.institution || 'Unit belum diisi';
-                lastScan.querySelector('[data-result-position]').textContent = employee.position || 'Jabatan belum diisi';
-
-                const statusElement = lastScan.querySelector('[data-result-status]');
-                statusElement.textContent = status === 'success' ? 'Hadir' : (status === 'already_attended' ? 'Sudah Hadir' : 'Ditolak');
-                statusElement.className = `badge ${status === 'success' ? 'bg-light-success text-success' : (status === 'already_attended' ? 'bg-light-warning text-warning' : 'bg-light-danger text-danger')}`;
-                lastScan.querySelector('[data-result-time]').textContent = employee.scanned_at ? `${employee.scanned_at} WIB` : message;
-            };
-
-            const addRecentScan = (employee, status) => {
-                if (!recentScans || !employee || status !== 'success') return;
-
-                recentScans.querySelector('[data-recent-empty]')?.remove();
-                const item = document.createElement('div');
-                item.className = 'list-group-item scanner-recent-item';
-
-                const identity = document.createElement('div');
-                const name = document.createElement('strong');
-                const meta = document.createElement('small');
-                name.textContent = employee.full_name || '-';
-                meta.textContent = `NUP ${employee.employee_number || 'Belum diisi'} - ${employee.institution || 'Unit belum diisi'}`;
-                identity.append(name, meta);
-
-                const result = document.createElement('div');
-                const badge = document.createElement('span');
-                const time = document.createElement('small');
-                badge.className = 'badge bg-light-success text-success';
-                badge.textContent = 'QR Code';
-                time.textContent = employee.scanned_at ? `${employee.scanned_at} WIB` : 'Baru saja';
-                result.append(badge, time);
-
-                item.append(identity, result);
-                recentScans.prepend(item);
-                while (recentScans.children.length > 5) recentScans.lastElementChild.remove();
-            };
-
-            const updateMetrics = () => {
-                const participants = Number(document.querySelector('[data-metric="participants"]')?.textContent || 0);
-                const attendedElement = document.querySelector('[data-metric="attended"]');
-                const absentElement = document.querySelector('[data-metric="absent"]');
-                const percentageElement = document.querySelector('[data-metric="percentage"]');
-                const attended = Number(attendedElement?.textContent || 0) + 1;
-                const absent = Math.max(participants - attended, 0);
-
-                if (attendedElement) attendedElement.textContent = attended;
-                if (absentElement) absentElement.textContent = absent;
-                if (percentageElement) percentageElement.textContent = `${participants ? Math.round((attended / participants) * 1000) / 10 : 0}%`;
-            };
-
-            const resetScannerForm = () => {
-                if (scanForm) scanForm.dataset.submitting = 'false';
-                if (scanSubmitButton) scanSubmitButton.disabled = false;
-                if (qrPayloadInput) qrPayloadInput.value = '';
-                focusScannerInput();
-            };
-
-            window.addEventListener('load', resetScannerForm);
-            window.addEventListener('pageshow', resetScannerForm);
-
-            qrPayloadInput?.addEventListener('keydown', (event) => {
-                if (event.key !== 'Enter') return;
-
-                event.preventDefault();
-                scanForm?.requestSubmit();
-            });
-
-            scanForm?.addEventListener('submit', async (event) => {
-                if (!window.fetch) return;
-
-                event.preventDefault();
-                if (scanForm.dataset.submitting === 'true') return;
-
-                scanForm.dataset.submitting = 'true';
-                if (scanSubmitButton) scanSubmitButton.disabled = true;
-                setState('processing', 'Memproses QR Code...', 'Mohon tunggu, identitas sedang diverifikasi.');
-
-                try {
-                    const response = await fetch(scanForm.action, {
-                        method: 'POST',
-                        body: new FormData(scanForm),
-                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    });
-                    const data = await response.json();
-                    const status = data.status || (data.success ? 'success' : 'rejected');
-
-                    if (status === 'success') {
-                        setState('success', 'Kehadiran berhasil dicatat', data.message);
-                        updateMetrics();
-                    } else if (status === 'already_attended') {
-                        setState('warning', 'Kehadiran sudah tercatat', data.message);
-                    } else {
-                        setState('error', 'QR Code tidak dapat diproses', data.message || 'QR Code tidak dikenali.');
-                    }
-
-                    showLastScan(data.employee, status, data.message || '');
-                    addRecentScan(data.employee, status);
-                } catch (error) {
-                    setState('error', 'Koneksi bermasalah', 'QR Code tidak dapat diproses. Silakan coba kembali.');
-                } finally {
-                    resetScannerForm();
-                }
-            });
-        })();
-    </script>
+    <script src="{{ asset('assets/js/attendance-scanner.js') }}"></script>
 @endpush
