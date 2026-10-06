@@ -19,6 +19,22 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLES = ['super_admin', 'hr_admin', 'panitia', 'pegawai'];
+
+    public const STATUSES = ['active', 'inactive'];
+
+    public const ROLE_LABELS = [
+        'super_admin' => 'Super Admin',
+        'hr_admin' => 'HR Admin',
+        'panitia' => 'Panitia',
+        'pegawai' => 'Pegawai',
+    ];
+
+    public const STATUS_LABELS = [
+        'active' => 'Aktif',
+        'inactive' => 'Nonaktif',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

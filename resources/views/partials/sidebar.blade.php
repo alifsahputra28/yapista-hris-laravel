@@ -12,6 +12,7 @@
     $employeeManagementActive = request()->routeIs('employees.*', 'verifications.*', 'invitations.*', 'employee-documents.*');
     $activityActive = request()->routeIs('events.*', 'event-participants.*', 'event-attendances.*');
     $reportsActive = request()->routeIs('reports.*');
+    $userManagementActive = request()->routeIs('users.*');
 @endphp
 
 <nav class="pc-sidebar">
@@ -61,6 +62,15 @@
                             <li class="pc-item {{ request()->routeIs('invitations.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('invitations.index') }}">Undangan Pegawai</a></li>
                         </ul>
                     </li>
+
+                    @if ($user?->isSuperAdmin())
+                        <li class="pc-item {{ $userManagementActive ? 'active' : '' }}">
+                            <a href="{{ route('users.index') }}" class="pc-link">
+                                <span class="pc-micon"><i class="ti ti-user-cog"></i></span>
+                                <span class="pc-mtext">Manajemen User</span>
+                            </a>
+                        </li>
+                    @endif
 
                     <li class="pc-item pc-hasmenu {{ $activityActive ? 'active pc-trigger' : '' }}" data-nav-group="activities">
                         <a href="#!" class="pc-link" aria-expanded="{{ $activityActive ? 'true' : 'false' }}">

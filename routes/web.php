@@ -27,6 +27,7 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PositionImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserManagementController;
 use App\Support\Auth\UserRedirector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +89,14 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/positions/import/template', [PositionImportController::class, 'template'])->name('positions.import.template');
     Route::post('/positions/import', [PositionImportController::class, 'store'])->name('positions.import.store');
+
+    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+    Route::patch('/users/{user}/status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::patch('/users/{user}/password', [UserManagementController::class, 'resetPassword'])->name('users.reset-password');
 });
 
 Route::middleware(['auth', 'role:super_admin,hr_admin,panitia'])->group(function () {
