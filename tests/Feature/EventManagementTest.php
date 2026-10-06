@@ -166,6 +166,41 @@ class EventManagementTest extends TestCase
         ]);
     }
 
+    public function test_event_detail_paginates_participants_with_global_numbering(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+        [$institution, $position] = $this->institutionAndPosition('Unit Pagination', 'Anggota');
+        $event = Event::create([
+            'name' => 'Kegiatan Pagination',
+            'event_date' => '2026-10-06',
+            'target_type' => 'selected',
+            'created_by' => $admin->id,
+            'status' => 'draft',
+        ]);
+
+        foreach (range(1, 31) as $index) {
+            $employee = $this->employee($institution, $position, [
+                'full_name' => sprintf('Peserta %02d', $index),
+                'employee_number' => sprintf('8888%06d', $index),
+            ]);
+            EventParticipant::create([
+                'event_id' => $event->id,
+                'employee_id' => $employee->id,
+                'participant_status' => 'invited',
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('events.show', [$event, 'participants_page' => 2], false))
+            ->assertOk()
+            ->assertViewHas('participants', fn ($items) => $items->total() === 31
+                && $items->currentPage() === 2 && $items->count() === 15
+                && $items->first()->employee->full_name === 'Peserta 16'
+                && $items->doesntContain(fn ($participant) => $participant->employee->full_name === 'Peserta 01'))
+            ->assertSee('Menampilkan 16–30 dari 31 Peserta')
+            ->assertSee('Peserta 16');
+    }
+
     public function test_non_admin_roles_can_not_access_event_management(): void
     {
         foreach (['panitia', 'pegawai'] as $role) {

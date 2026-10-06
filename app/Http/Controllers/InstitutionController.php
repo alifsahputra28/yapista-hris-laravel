@@ -16,6 +16,9 @@ class InstitutionController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('search')->toString();
+        $perPage = in_array($request->integer('per_page'), [15, 25, 50], true)
+            ? $request->integer('per_page')
+            : 15;
 
         $institutions = Institution::query()
             ->withCount('positions')
@@ -28,7 +31,8 @@ class InstitutionController extends Controller
                 });
             })
             ->orderBy('name')
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
 
         $totalInstitutions = Institution::query()->count();
         $activeInstitutions = Institution::query()->where('status', 'active')->count();
@@ -41,7 +45,7 @@ class InstitutionController extends Controller
             'totalInstitutions',
             'activeInstitutions',
             'inactiveInstitutions',
-            'totalPositions'
+            'totalPositions', 'perPage'
         ));
     }
 

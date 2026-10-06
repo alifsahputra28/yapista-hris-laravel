@@ -23,13 +23,15 @@ class AttendanceScannerPayloadResolver
                 : ScannerPayloadResolution::rejected('QR Code tidak valid atau sudah tidak aktif.');
         }
 
-        if (preg_match('/\A\d{10}\z/D', $payload) === 1) {
+        $legacyPayload = preg_replace('/\s+/u', '', $payload);
+
+        if (is_string($legacyPayload) && preg_match('/\A\d{10}\z/D', $legacyPayload) === 1) {
             if (! config('attendance.allow_legacy_nup_qr', true)) {
                 return ScannerPayloadResolution::rejected('QR Code tidak dikenali.');
             }
 
             $employee = Employee::query()
-                ->where('employee_number', $payload)
+                ->where('employee_number', $legacyPayload)
                 ->first();
 
             return $employee

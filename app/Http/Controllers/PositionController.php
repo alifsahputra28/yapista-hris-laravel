@@ -16,6 +16,10 @@ class PositionController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('search')->toString();
+        $institutionId = $request->integer('institution_id');
+        $perPage = in_array($request->integer('per_page'), [15, 25, 50], true)
+            ? $request->integer('per_page')
+            : 15;
 
         $positions = Position::query()
             ->with('institution')
@@ -30,13 +34,16 @@ class PositionController extends Controller
                         });
                 });
             })
+            ->when($institutionId > 0, fn ($query) => $query->where('institution_id', $institutionId))
             ->orderBy('name')
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
 
         $totalPositions = Position::query()->count();
         $activePositions = Position::query()->where('status', 'active')->count();
         $inactivePositions = Position::query()->where('status', 'inactive')->count();
         $totalInstitutions = Institution::query()->count();
+        $institutions = $this->institutionOptions();
 
         return view('positions.index', compact(
             'positions',
@@ -44,7 +51,10 @@ class PositionController extends Controller
             'totalPositions',
             'activePositions',
             'inactivePositions',
-            'totalInstitutions'
+            'totalInstitutions',
+            'institutions',
+            'institutionId',
+            'perPage'
         ));
     }
 

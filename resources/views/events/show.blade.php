@@ -118,7 +118,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Total peserta</span>
-                        <strong>{{ $event->participants->count() }}</strong>
+                        <strong>{{ $participants->total() }}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Diundang</span>
@@ -148,7 +148,7 @@
                             </a>
                         @endif
 
-                        @if ($event->isDraft() && $event->participants->count() > 0)
+                        @if ($event->isDraft() && $participants->total() > 0)
                             <form method="POST" action="{{ route('events.activate', $event) }}" data-confirm-title="Aktifkan Kegiatan?" data-confirm-message="Kegiatan akan mulai menerima pencatatan kehadiran peserta.">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
@@ -299,9 +299,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($event->participants as $participant)
+                        @forelse ($participants as $participant)
                             <tr>
-                                <td class="ps-4">{{ $loop->iteration }}</td>
+                                <td class="ps-4">{{ $participants->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $participant->employee?->full_name ?? '-' }}</div>
                                     <div class="data-meta">{{ $participant->employee?->employee_number ?? '-' }}</div>
@@ -349,6 +349,12 @@
                 </table>
             </div>
         </div>
+        @if ($participants->hasPages())
+            <div class="card-footer d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
+                <span class="text-muted small">Menampilkan {{ $participants->firstItem() }}–{{ $participants->lastItem() }} dari {{ $participants->total() }} Peserta</span>
+                {{ $participants->links() }}
+            </div>
+        @endif
     </div>
 @endsection
 

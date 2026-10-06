@@ -102,19 +102,21 @@ class EventController extends Controller
 
     public function show(Event $event): View
     {
-        $event->load([
-            'creator',
-            'participants' => fn ($query) => $query
-                ->with(['employee.institution', 'employee.position'])
-                ->orderBy('id'),
-        ]);
-
-        $participantCounts = $event->participants->countBy('participant_status');
+        $event->load('creator');
+        $participants = $event->participants()
+            ->with(['employee.institution', 'employee.position'])
+            ->orderBy('id')
+            ->paginate(15, ['*'], 'participants_page')
+            ->withQueryString();
+        $participantCounts = $event->participants()
+            ->selectRaw('participant_status, COUNT(*) as aggregate')
+            ->groupBy('participant_status')
+            ->pluck('aggregate', 'participant_status');
         $eligibleEmployees = $this->employeeOptions();
         $institutions = Institution::query()->where('status', 'active')->orderBy('name')->get();
         $positions = Position::query()->with('institution')->where('status', 'active')->orderBy('name')->get();
 
-        return view('events.show', compact('event', 'participantCounts', 'eligibleEmployees', 'institutions', 'positions'));
+        return view('events.show', compact('event', 'participants', 'participantCounts', 'eligibleEmployees', 'institutions', 'positions'));
     }
 
     public function edit(Event $event): View|RedirectResponse

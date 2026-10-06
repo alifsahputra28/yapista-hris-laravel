@@ -6,6 +6,9 @@
     'requiredColumns' => [],
     'optionalColumns' => [],
     'acceptedFormats' => 'XLSX, XLS, CSV',
+    'accept' => '.xlsx,.xls,.csv',
+    'maxSize' => '5 MB',
+    'submitLabel' => 'Import Data',
 ])
 
 <div class="modal fade" id="{{ $modalId }}" tabindex="-1" aria-labelledby="{{ $modalId }}-title" aria-hidden="true">
@@ -31,13 +34,13 @@
                             type="file"
                             name="file"
                             class="form-control @error('file') is-invalid @enderror"
-                            accept=".xlsx,.xls,.csv"
+                            accept="{{ $accept }}"
                             required
                         >
                         @error('file')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="form-text">Format yang didukung: {{ $acceptedFormats }}. Ukuran maksimal 5 MB.</div>
+                        <div class="form-text">Format yang didukung: {{ $acceptedFormats }}. Ukuran maksimal {{ $maxSize }}.</div>
                     </div>
 
                     <div class="border rounded p-3 mb-3">
@@ -61,7 +64,7 @@
                     <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2">
                         <i class="ti ti-file-upload" aria-hidden="true"></i>
-                        <span>Import Data</span>
+                        <span>{{ $submitLabel }}</span>
                     </button>
                 </div>
             </form>

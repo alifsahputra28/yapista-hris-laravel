@@ -24,6 +24,7 @@ use App\Http\Controllers\EventParticipantController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\PegawaiIdCardController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PositionImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Support\Auth\UserRedirector;
@@ -82,6 +83,11 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
     Route::post('/events/{event}/participants/generate', [EventParticipantController::class, 'generate'])->name('events.participants.generate');
     Route::post('/events/{event}/participants/manual', [EventParticipantController::class, 'storeManual'])->name('events.participants.manual');
     Route::delete('/event-participants/{participant}', [EventParticipantController::class, 'destroy'])->name('event-participants.destroy');
+});
+
+Route::middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/positions/import/template', [PositionImportController::class, 'template'])->name('positions.import.template');
+    Route::post('/positions/import', [PositionImportController::class, 'store'])->name('positions.import.store');
 });
 
 Route::middleware(['auth', 'role:super_admin,hr_admin,panitia'])->group(function () {

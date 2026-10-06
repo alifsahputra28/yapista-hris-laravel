@@ -331,6 +331,28 @@ class EventAttendanceHardeningTest extends TestCase
         $this->assertNull($attendance->qr_token_id);
     }
 
+    public function test_scanner_normalizes_unicode_whitespace_for_legacy_nup_only(): void
+    {
+        $scanner = $this->user('panitia');
+        foreach ([
+            ['7770930031', '77709 30031'],
+            ['7770930032', "77709\t30032"],
+            ['7770930033', " 77709 30033\r\n"],
+            ['0123456790', "01234\u{00A0}56790"],
+        ] as [$number, $payload]) {
+            $event = $this->event();
+            $employee = $this->employee(['employee_number' => $number]);
+            $this->participant($event, $employee);
+
+            $this->actingAs($scanner)->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => $payload])
+                ->assertOk()->assertJsonPath('employee.employee_number', $number);
+        }
+
+        $event = $this->event();
+        $this->actingAs($scanner)->postJson(route('events.scan', $event, absolute: false), ['qr_payload' => '77709-30031'])
+            ->assertUnprocessable()->assertJsonPath('message', 'QR Code tidak dikenali.');
+    }
+
     public function test_legacy_nup_qr_requires_exactly_ten_digits_and_known_employee(): void
     {
         $scanner = $this->user('panitia');
