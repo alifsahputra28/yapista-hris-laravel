@@ -77,6 +77,9 @@
         </x-slot:meta>
         <x-slot:actions>
             <a href="{{ route('employees.index') }}" class="btn btn-light-secondary">Kembali</a>
+            @if (! $employee->user_id && auth()->user()->isSuperAdmin())
+                <a href="{{ route('employees.account.create', $employee) }}" class="btn btn-light-primary"><i class="ti ti-user-plus" aria-hidden="true"></i> Buat Akun Login</a>
+            @endif
             <a href="{{ route('employees.id-card.show', $employee) }}" class="btn btn-light-primary">
                 <i class="ti ti-id" aria-hidden="true"></i> ID Card
             </a>
@@ -123,6 +126,7 @@
             <section class="content-section h-100 mb-0" aria-labelledby="contact-address-heading">
                 <div class="content-section-header"><h2 id="contact-address-heading">Kontak &amp; Alamat</h2></div>
                 <div class="content-section-body detail-grid">
+                    <div class="detail-item"><span class="detail-label">Akun HRIS</span>{{ $employee->user ? ($employee->user->isActive() ? 'Aktif' : 'Nonaktif') : 'Belum terhubung' }}</div>
                     <div class="detail-item"><span class="detail-label">Email Akun</span>{{ $display($employee->user?->email) }}</div>
                     <div class="detail-item"><span class="detail-label">Email Pribadi</span>{{ $display($employee->email) }}</div>
                     <div class="detail-item"><span class="detail-label">Nomor HP</span>{{ $display($employee->phone) }}</div>

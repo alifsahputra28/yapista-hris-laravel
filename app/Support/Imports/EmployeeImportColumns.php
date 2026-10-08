@@ -6,14 +6,14 @@ final class EmployeeImportColumns
 {
     /** @var array<string, array{label: string, required: bool}> */
     public const DEFINITIONS = [
-        'employee_number' => ['label' => 'NUP', 'required' => false],
         'full_name' => ['label' => 'Nama Lengkap', 'required' => true],
-        'login_email' => ['label' => 'Email Login', 'required' => true],
-        'personal_email' => ['label' => 'Email Pribadi', 'required' => false],
         'institution_name' => ['label' => 'Unit Kerja', 'required' => true],
         'position_name' => ['label' => 'Jabatan', 'required' => true],
         'employee_type' => ['label' => 'Jenis Pegawai', 'required' => true],
         'employment_status' => ['label' => 'Status Kerja', 'required' => true],
+        'employee_number' => ['label' => 'NUP', 'required' => false],
+        'login_email' => ['label' => 'Email Login', 'required' => false],
+        'personal_email' => ['label' => 'Email Pribadi', 'required' => false],
         'join_date' => ['label' => 'Tanggal Masuk', 'required' => false],
     ];
 

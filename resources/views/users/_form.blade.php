@@ -8,8 +8,9 @@
     </div>
 
     <div class="col-md-6">
-        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-        <input id="email" type="email" name="email" value="{{ old('email', $managedUser->email) }}" class="form-control @error('email') is-invalid @enderror" maxlength="255" autocomplete="email" required>
+        <label for="email" class="form-label">Email Login <span class="text-muted">(opsional jika NUP valid)</span></label>
+        <input id="email" type="email" name="email" value="{{ old('email', $managedUser->email) }}" class="form-control @error('email') is-invalid @enderror" maxlength="255" autocomplete="email">
+        <div class="form-text">Pegawai dengan NUP valid dapat login tanpa email.</div>
         @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 

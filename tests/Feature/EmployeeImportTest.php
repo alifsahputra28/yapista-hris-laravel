@@ -56,7 +56,10 @@ class EmployeeImportTest extends TestCase
             ->assertSee('Unduh Template')
             ->assertSee('name="file"', false)
             ->assertSee('accept=".xlsx,.xls,.csv"', false)
-            ->assertSee('ti-file-import', false);
+            ->assertSee('ti-file-import', false)
+            ->assertSee('Email Login')
+            ->assertSee('Import pegawai tidak otomatis membuat akun login.')
+            ->assertSee('Akun dapat dibuat melalui Manajemen User');
     }
 
     public function test_import_routes_are_protected_from_unauthorized_roles_and_guests(): void
@@ -92,11 +95,12 @@ class EmployeeImportTest extends TestCase
         $this->assertNotContains('Password', $headers);
         $this->assertNotContains('QR Token', $headers);
         $this->assertSame('Petunjuk', $spreadsheet->getSheet(1)->getTitle());
+        $this->assertSame('@', $spreadsheet->getSheetByName('Data Pegawai')->getStyle('F2')->getNumberFormat()->getFormatCode());
         $spreadsheet->disconnectWorksheets();
         @unlink($path);
     }
 
-    public function test_valid_xlsx_import_creates_verified_employee_invitation_and_qr(): void
+    public function test_valid_xlsx_import_creates_verified_employee_without_account_or_invitation_and_qr(): void
     {
         $upload = $this->spreadsheetUpload('xlsx', [$this->validRow()]);
 
@@ -113,15 +117,9 @@ class EmployeeImportTest extends TestCase
         $this->assertSame($this->admin->id, $employee->verified_by);
         $this->assertNotNull($employee->verified_at);
         $this->assertTrue($employee->activeQrToken()->exists());
-        $this->assertDatabaseHas('employee_invitations', [
-            'employee_id' => $employee->id,
-            'email' => 'pegawai.import@yapista.test',
-            'status' => 'unused',
-        ]);
-        $this->assertMatchesRegularExpression(
-            '/\AYAPISTA-REG-[A-Z0-9]{32}\z/',
-            $employee->invitations()->firstOrFail()->invitation_code,
-        );
+        $this->assertNull($employee->user_id);
+        $this->assertSame(1, User::count());
+        $this->assertSame(1, EmployeeInvitation::count());
         $this->assertNull($employee->nik);
         $this->assertNull($employee->getRawOriginal('nik_encrypted'));
     }
@@ -129,8 +127,8 @@ class EmployeeImportTest extends TestCase
     public function test_employee_without_nup_is_imported_as_draft_without_qr(): void
     {
         $row = $this->validRow();
-        $row[0] = '';
-        $row[2] = 'pegawai.baru@yapista.test';
+        $row[5] = '';
+        $row[6] = '';
 
         $this->actingAs($this->admin)
             ->post(route('employees.import.store', absolute: false), ['file' => $this->spreadsheetUpload('xlsx', [$row])])
@@ -140,7 +138,26 @@ class EmployeeImportTest extends TestCase
         $this->assertNull($employee->employee_number);
         $this->assertSame('draft', $employee->verification_status);
         $this->assertFalse($employee->activeQrToken()->exists());
-        $this->assertSame('pegawai.baru@yapista.test', $employee->invitations()->firstOrFail()->email);
+        $this->assertNull($employee->user_id);
+        $this->assertSame(0, EmployeeInvitation::count());
+    }
+
+    public function test_import_without_login_email_succeeds_without_creating_user_or_invitation(): void
+    {
+        $row = $this->validRow();
+        $row[6] = '';
+
+        $this->actingAs($this->admin)
+            ->post(route('employees.import.store', absolute: false), ['file' => $this->spreadsheetUpload('xlsx', [$row])])
+            ->assertRedirect(route('employees.index', absolute: false))
+            ->assertSessionHas('import_summary', fn (array $summary): bool => $summary['created'] === 1
+                && $summary['failed'] === 0
+                && $summary['invitations_created'] === 0);
+
+        $employee = Employee::where('employee_number', '7770923991')->firstOrFail();
+        $this->assertNull($employee->user_id);
+        $this->assertSame(1, User::count());
+        $this->assertSame(0, EmployeeInvitation::count());
     }
 
     public function test_xls_and_csv_files_are_supported(): void
@@ -149,10 +166,10 @@ class EmployeeImportTest extends TestCase
 
         foreach (['xls', 'csv'] as $index => $extension) {
             $row = $this->validRow();
-            $row[0] = '77709239'.str_pad((string) ($index + 92), 2, '0', STR_PAD_LEFT);
-            $row[1] = 'Pegawai '.strtoupper($extension);
-            $row[2] = "pegawai.{$extension}@yapista.test";
-            $row[3] = "pribadi.{$extension}@yapista.test";
+            $row[5] = '77709239'.str_pad((string) ($index + 92), 2, '0', STR_PAD_LEFT);
+            $row[0] = 'Pegawai '.strtoupper($extension);
+            $row[6] = "pegawai.{$extension}@yapista.test";
+            $row[7] = "pribadi.{$extension}@yapista.test";
 
             $this->actingAs($this->admin)
                 ->post(route('employees.import.store', absolute: false), ['file' => $this->spreadsheetUpload($extension, [$row])])
@@ -211,7 +228,7 @@ class EmployeeImportTest extends TestCase
     public function test_invalid_row_is_reported_without_importing_partial_data(): void
     {
         $row = $this->validRow();
-        $row[4] = 'Unit Tidak Ada';
+        $row[1] = 'Unit Tidak Ada';
 
         $this->actingAs($this->admin)
             ->post(route('employees.import.store', absolute: false), ['file' => $this->spreadsheetUpload('xlsx', [$row])])
@@ -261,13 +278,13 @@ class EmployeeImportTest extends TestCase
     {
         $first = $this->validRow();
         $duplicate = $this->validRow();
-        $duplicate[1] = 'Duplikat Dalam File';
-        $duplicate[2] = 'duplikat-file@yapista.test';
-        $duplicate[3] = 'duplikat-pribadi@yapista.test';
+        $duplicate[0] = 'Duplikat Dalam File';
+        $duplicate[6] = 'duplikat-file@yapista.test';
+        $duplicate[7] = 'duplikat-pribadi@yapista.test';
 
         $this->actingAs($this->admin)
             ->post(route('employees.import.store', absolute: false), [
-                'file' => $this->spreadsheetUpload('xlsx', [array_fill(0, 9, ''), $first, $duplicate]),
+                'file' => $this->spreadsheetUpload('xlsx', [array_fill(0, 8, ''), $first, $duplicate]),
             ])
             ->assertSessionHas('import_summary', fn (array $summary): bool => $summary['processed'] === 2
                 && $summary['created'] === 1
@@ -275,7 +292,7 @@ class EmployeeImportTest extends TestCase
 
         $this->assertSame(1, Employee::where('employee_number', '7770923991')->count());
         $this->assertDatabaseMissing('employees', ['full_name' => 'Duplikat Dalam File']);
-        $this->assertDatabaseMissing('employee_invitations', ['email' => 'duplikat-file@yapista.test']);
+        $this->assertSame(1, EmployeeInvitation::count());
     }
 
     public function test_import_handles_one_hundred_valid_rows_without_duplicate_state(): void
@@ -284,10 +301,10 @@ class EmployeeImportTest extends TestCase
 
         for ($index = 1; $index <= 100; $index++) {
             $row = $this->validRow();
-            $row[0] = (string) (7_770_970_000 + $index);
-            $row[1] = "Pegawai Smoke {$index}";
-            $row[2] = "pegawai.smoke.{$index}@yapista.test";
-            $row[3] = "pribadi.smoke.{$index}@yapista.test";
+            $row[5] = (string) (7_770_970_000 + $index);
+            $row[0] = "Pegawai Smoke {$index}";
+            $row[6] = "pegawai.smoke.{$index}@yapista.test";
+            $row[7] = "pribadi.smoke.{$index}@yapista.test";
             $rows[] = $row;
         }
 
@@ -310,14 +327,14 @@ class EmployeeImportTest extends TestCase
     private function validRow(): array
     {
         return [
-            '7770923991',
             'Pegawai Import',
-            'pegawai.import@yapista.test',
-            'pribadi.import@yapista.test',
             $this->institution->name,
             $this->position->name,
             'Guru',
             'Aktif',
+            '7770923991',
+            'pegawai.import@yapista.test',
+            'pribadi.import@yapista.test',
             '2026-08-01',
         ];
     }

@@ -63,6 +63,7 @@
                 <span>Dilewati: <strong>{{ $importSummary['skipped'] }}</strong></span>
                 <span>Gagal: <strong>{{ $importSummary['failed'] }}</strong></span>
                 <span>QR dibuat: <strong>{{ $importSummary['qr_tokens_created'] }}</strong></span>
+                <span>Akun dibuat: <strong>0</strong></span>
             </div>
             @if ($importSummary['errors'])
                 <details class="mt-2">
@@ -280,10 +281,12 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if ($employee->user_id)
-                                        <span class="badge bg-light-success text-success">Sudah Registrasi</span>
+                                    @if (! $employee->user)
+                                        <span class="badge bg-light-warning text-warning">Belum terhubung</span>
+                                    @elseif ($employee->user->isActive())
+                                        <span class="badge bg-light-success text-success">Aktif</span>
                                     @else
-                                        <span class="badge bg-light-warning text-warning">Belum Registrasi</span>
+                                        <span class="badge bg-light-secondary text-secondary">Nonaktif</span>
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
@@ -302,6 +305,13 @@
                                                     <i class="ti ti-edit me-2"></i>
                                                     Edit
                                                 </a>
+
+                                                @if ($employee->user_id === null && auth()->user()->isSuperAdmin())
+                                                    <a class="dropdown-item" href="{{ route('employees.account.create', $employee) }}">
+                                                        <i class="ti ti-user-plus me-2"></i>
+                                                        Buat Akun Login
+                                                    </a>
+                                                @endif
 
                                                 @if ($employee->user_id === null)
                                                     <form action="{{ route('employees.invitations.generate', $employee) }}" method="POST">

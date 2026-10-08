@@ -88,6 +88,8 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/employees/{employee}/account/create', [UserManagementController::class, 'createEmployeeAccount'])->name('employees.account.create');
+    Route::post('/employees/{employee}/account', [UserManagementController::class, 'storeEmployeeAccount'])->name('employees.account.store');
     Route::get('/options', OptionsController::class)->name('options.index');
     Route::get('/positions/import/template', [PositionImportController::class, 'template'])->name('positions.import.template');
     Route::post('/positions/import', [PositionImportController::class, 'store'])->name('positions.import.store');

@@ -48,6 +48,8 @@ class LoginEntryPointTest extends TestCase
             ->assertSee('name="_token"', escape: false)
             ->assertSee('Ingat Saya')
             ->assertSee('Lupa Password?')
+            ->assertSee('NUP atau Email')
+            ->assertSee('Masukkan NUP atau email')
             ->assertSee(route('password.request', absolute: false), escape: false)
             ->assertDontSee('Register')
             ->assertDontSee('Daftar')

@@ -53,6 +53,7 @@ class EmployeeImportTemplateService
         $sheet->getColumnDimension('C')->setWidth(30);
         $sheet->getColumnDimension('D')->setWidth(30);
         $sheet->getStyle('A:A')->getNumberFormat()->setFormatCode('@');
+        $sheet->getStyle('F1:F1000')->getNumberFormat()->setFormatCode('@');
         $sheet->getStyle('C:D')->getNumberFormat()->setFormatCode('@');
 
         $guide = $spreadsheet->createSheet();

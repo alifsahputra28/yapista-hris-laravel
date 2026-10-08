@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Employee;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -28,9 +30,29 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'login' => trim((string) ($this->filled('login') ? $this->input('login') : $this->input('email'))),
+        ]);
+    }
+
+    protected function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator): void {
+            if (! $this->has('email') || ! $validator->errors()->has('login')) {
+                return;
+            }
+
+            foreach ($validator->errors()->get('login') as $message) {
+                $validator->errors()->add('email', $message);
+            }
+        });
     }
 
     /**
@@ -42,12 +64,26 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $identifier = $this->string('login')->toString();
+        $credentials = ['password' => $this->input('password')];
+
+        if (preg_match('/^\d{10}$/', $identifier) === 1) {
+            $employee = Employee::query()
+                ->where('employee_number', $identifier)
+                ->whereNotNull('user_id')
+                ->first();
+
+            if ($employee?->user_id) {
+                $credentials['id'] = $employee->user_id;
+            }
+        } else {
+            $credentials['email'] = Str::lower($identifier);
+        }
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+            $this->failLogin();
         }
 
         if (! Auth::user()?->isActive()) {
@@ -56,9 +92,7 @@ class LoginRequest extends FormRequest
             $this->session()->invalidate();
             $this->session()->regenerateToken();
 
-            throw ValidationException::withMessages([
-                'email' => 'Akun Anda tidak aktif. Silakan hubungi administrator.',
-            ]);
+            $this->failLogin();
         }
 
         RateLimiter::clear($this->throttleKey());
@@ -80,6 +114,10 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
+            'login' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
             'email' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
@@ -92,6 +130,15 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
+    }
+
+    /** @throws ValidationException */
+    private function failLogin(): never
+    {
+        throw ValidationException::withMessages([
+            'login' => 'NUP/email atau password tidak sesuai.',
+            'email' => 'NUP/email atau password tidak sesuai.',
+        ]);
     }
 }

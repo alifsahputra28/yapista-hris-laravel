@@ -91,25 +91,29 @@ class EmployeeImportService
                         'verified_at' => $verified ? now() : null,
                     ]);
 
-                    EmployeeInvitation::create([
-                        'employee_id' => $employee->id,
-                        'invitation_code' => $this->generateInvitationCode(),
-                        'email' => $prepared['login_email'],
-                        'status' => 'unused',
-                        'expired_at' => now()->addDays(14),
-                        'created_by' => $creator->id,
-                    ]);
+                    $invitationCreated = false;
+                    if ($prepared['login_email'] !== null) {
+                        EmployeeInvitation::create([
+                            'employee_id' => $employee->id,
+                            'invitation_code' => $this->generateInvitationCode(),
+                            'email' => $prepared['login_email'],
+                            'status' => 'unused',
+                            'expired_at' => now()->addDays(14),
+                            'created_by' => $creator->id,
+                        ]);
+                        $invitationCreated = true;
+                    }
 
                     if ($verified) {
                         $this->qrTokenService->generate($employee, $creator);
                     }
 
-                    return ['verified' => $verified];
+                    return ['verified' => $verified, 'invitation_created' => $invitationCreated];
                 });
 
                 $summary['created']++;
                 $summary[$result['verified'] ? 'verified' : 'draft']++;
-                $summary['invitations_created']++;
+                $summary['invitations_created'] += $result['invitation_created'] ? 1 : 0;
                 $summary['qr_tokens_created'] += $result['verified'] ? 1 : 0;
             } catch (EmployeeImportRowException $exception) {
                 $summary[$exception->skipped ? 'skipped' : 'failed']++;
@@ -208,8 +212,8 @@ class EmployeeImportService
         }
 
         $values['employee_number'] = $values['employee_number'] === '' ? null : $values['employee_number'];
+        $values['login_email'] = $values['login_email'] === '' ? null : mb_strtolower($values['login_email']);
         $values['personal_email'] = $values['personal_email'] === '' ? null : mb_strtolower($values['personal_email']);
-        $values['login_email'] = mb_strtolower($values['login_email']);
         $values['join_date'] = $this->normalizeDate($row[array_search('join_date', $columnMap, true)] ?? null);
         $values['employee_type'] = EmployeeImportColumns::normalizeChoice($values['employee_type'], EmployeeImportColumns::EMPLOYEE_TYPES);
         $values['employment_status'] = EmployeeImportColumns::normalizeChoice($values['employment_status'], EmployeeImportColumns::EMPLOYMENT_STATUSES);
@@ -217,7 +221,7 @@ class EmployeeImportService
         $validator = Validator::make($values, [
             'employee_number' => ['nullable', 'regex:/^\d{10}$/'],
             'full_name' => ['required', 'string', 'max:255'],
-            'login_email' => ['required', 'email', 'max:255'],
+            'login_email' => ['nullable', 'email', 'max:255'],
             'personal_email' => ['nullable', 'email', 'max:255'],
             'institution_name' => ['required', 'string', 'max:255'],
             'position_name' => ['required', 'string', 'max:255'],
@@ -271,8 +275,9 @@ class EmployeeImportService
             throw new EmployeeImportRowException('NUP sudah terdaftar dan data dilewati.', true);
         }
 
-        if (User::query()->where('email', $row['login_email'])->exists()
-            || EmployeeInvitation::query()->where('email', $row['login_email'])->where('status', 'unused')->exists()) {
+        if ($row['login_email'] !== null
+            && (User::query()->where('email', $row['login_email'])->exists()
+                || EmployeeInvitation::query()->where('email', $row['login_email'])->where('status', 'unused')->exists())) {
             throw new EmployeeImportRowException('Email Login sudah digunakan atau memiliki undangan aktif.', true);
         }
 

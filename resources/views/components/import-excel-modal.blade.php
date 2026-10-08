@@ -52,6 +52,9 @@
                         @if ($optionalColumns)
                             <div class="small text-muted"><span class="fw-medium">Opsional:</span> {{ implode(', ', $optionalColumns) }}.</div>
                         @endif
+                        @if ($modalId === 'importEmployeeModal')
+                            <div class="small text-info mt-2"><i class="ti ti-info-circle me-1" aria-hidden="true"></i>Import pegawai tidak otomatis membuat akun login. Akun dapat dibuat melalui Manajemen User setelah data pegawai berhasil diimport.</div>
+                        @endif
                     </div>
 
                     <a href="{{ $templateRoute }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">

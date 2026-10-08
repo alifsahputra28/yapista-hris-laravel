@@ -18,9 +18,11 @@ class UpdateUserRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $email = Str::lower(trim((string) $this->input('email')));
+
         $this->merge([
             'name' => trim((string) $this->input('name')),
-            'email' => Str::lower(trim((string) $this->input('email'))),
+            'email' => $email !== '' ? $email : null,
             'employee_id' => $this->filled('employee_id') ? $this->input('employee_id') : null,
         ]);
     }
@@ -33,7 +35,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
-                'required',
+                'nullable',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($managedUser),
@@ -61,13 +63,19 @@ class UpdateUserRequest extends FormRequest
             }
 
             $managedUser = $this->route('user');
-            $duplicate = User::query()
+            $duplicate = filled($this->input('email')) && User::query()
                 ->whereRaw('LOWER(email) = ?', [$this->string('email')->toString()])
                 ->when($managedUser, fn ($query) => $query->whereKeyNot($managedUser->id))
                 ->exists();
 
             if ($duplicate) {
                 $validator->errors()->add('email', 'Email sudah digunakan.');
+            }
+
+            $employeeId = $this->input('employee_id');
+            $employee = $employeeId ? \App\Models\Employee::find($employeeId) : null;
+            if (blank($this->input('email')) && (! $employee || ! $employee->hasValidEmployeeNumber())) {
+                $validator->errors()->add('email', 'Email wajib diisi jika pegawai belum memiliki NUP yang valid.');
             }
         }];
     }

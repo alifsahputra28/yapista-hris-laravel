@@ -19,9 +19,11 @@ class StoreUserRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $email = Str::lower(trim((string) $this->input('email')));
+
         $this->merge([
             'name' => trim((string) $this->input('name')),
-            'email' => Str::lower(trim((string) $this->input('email'))),
+            'email' => $email !== '' ? $email : null,
             'employee_id' => $this->filled('employee_id') ? $this->input('employee_id') : null,
         ]);
     }
@@ -31,7 +33,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')],
             'role' => ['required', Rule::in(User::ROLES)],
             'employee_id' => [
                 'nullable',
@@ -53,8 +55,13 @@ class StoreUserRequest extends FormRequest
                 return;
             }
 
-            if (User::query()->whereRaw('LOWER(email) = ?', [$this->string('email')->toString()])->exists()) {
+            if (filled($this->input('email')) && User::query()->whereRaw('LOWER(email) = ?', [$this->string('email')->toString()])->exists()) {
                 $validator->errors()->add('email', 'Email sudah digunakan.');
+            }
+
+            $employee = $this->input('employee_id') ? \App\Models\Employee::find($this->input('employee_id')) : null;
+            if (blank($this->input('email')) && (! $employee || ! $employee->hasValidEmployeeNumber())) {
+                $validator->errors()->add('email', 'Email wajib diisi jika pegawai belum memiliki NUP yang valid.');
             }
         }];
     }

@@ -91,6 +91,7 @@
                         <tr>
                             <th class="ps-4" style="width: 70px;">No</th>
                             <th>Nama</th>
+                            <th>NUP</th>
                             <th>Email</th>
                             <th>Role</th>
                             <th>Pegawai Terkait</th>
@@ -103,7 +104,8 @@
                             <tr>
                                 <td class="ps-4">{{ $users->firstItem() + $loop->index }}</td>
                                 <td class="fw-semibold">{{ $managedUser->name }}</td>
-                                <td>{{ $managedUser->email }}</td>
+                                <td>{{ $managedUser->employee?->employee_number ?: '—' }}</td>
+                                <td>{{ $managedUser->email ?: '—' }}</td>
                                 <td><span class="badge bg-light-primary text-primary">{{ $roleLabels[$managedUser->role] ?? $managedUser->role }}</span></td>
                                 <td>
                                     @if ($managedUser->employee)
@@ -155,7 +157,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="avtar avtar-l bg-light-secondary text-secondary"><i class="ti ti-users-off f-28"></i></div>
                                         <h5 class="mb-1">Tidak ada user yang sesuai.</h5>

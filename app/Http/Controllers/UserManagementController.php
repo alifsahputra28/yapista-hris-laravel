@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ResetUserPasswordRequest;
+use App\Http\Requests\CreateEmployeeAccountRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Employee;
@@ -93,6 +94,46 @@ class UserManagementController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', 'User berhasil ditambahkan.');
+    }
+
+    public function createEmployeeAccount(Employee $employee): View
+    {
+        $employee->load('institution');
+
+        return view('users.employee-account-create', [
+            'employee' => $employee,
+            'roleLabels' => User::ROLE_LABELS,
+        ]);
+    }
+
+    public function storeEmployeeAccount(CreateEmployeeAccountRequest $request, Employee $employee): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        DB::transaction(function () use ($validated, $employee): void {
+            $lockedEmployee = Employee::query()->lockForUpdate()->findOrFail($employee->id);
+
+            if ($lockedEmployee->user_id !== null) {
+                throw ValidationException::withMessages([
+                    'employee' => 'Pegawai sudah terhubung ke akun lain.',
+                ]);
+            }
+
+            $user = User::create([
+                'name' => $lockedEmployee->full_name,
+                'email' => $validated['email'] ?? null,
+                'role' => $validated['role'],
+                'status' => 'active',
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            $lockedEmployee->update(['user_id' => $user->id]);
+            $lockedEmployee->invitations()->where('status', 'unused')->update(['status' => 'revoked']);
+        });
+
+        return redirect()
+            ->route('employees.show', $employee)
+            ->with('success', 'Akun login pegawai berhasil dibuat.');
     }
 
     public function edit(User $user): View
