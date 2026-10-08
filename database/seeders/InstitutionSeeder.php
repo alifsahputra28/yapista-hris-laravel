@@ -13,13 +13,13 @@ class InstitutionSeeder extends Seeder
     public function run(): void
     {
         $institutions = [
-            ['name' => 'TK Ibnu Sina', 'level' => 'TK'],
-            ['name' => 'SD Ibnu Sina', 'level' => 'SD'],
-            ['name' => 'SMP Ibnu Sina', 'level' => 'SMP'],
-            ['name' => 'SMK Ibnu Sina', 'level' => 'SMK'],
-            ['name' => 'STAI Ibnu Sina', 'level' => 'Perguruan Tinggi'],
-            ['name' => 'Universitas Ibnu Sina', 'level' => 'Perguruan Tinggi'],
-            ['name' => 'Kantor Yayasan', 'level' => 'Yayasan'],
+            ['name' => 'TK Ibnu Sina', 'level' => 'U2'],
+            ['name' => 'SD Ibnu Sina', 'level' => 'U2'],
+            ['name' => 'SMP Ibnu Sina', 'level' => 'U2'],
+            ['name' => 'SMK Ibnu Sina', 'level' => 'U2'],
+            ['name' => 'STAI Ibnu Sina', 'level' => 'U2'],
+            ['name' => 'Universitas Ibnu Sina', 'level' => 'U2'],
+            ['name' => 'Kantor Yayasan', 'level' => 'U1'],
         ];
 
         foreach ($institutions as $institution) {

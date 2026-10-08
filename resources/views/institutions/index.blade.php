@@ -18,7 +18,7 @@
 
     <x-page-header
         title="Unit Kerja"
-        subtitle="Kelola master data lembaga, sekolah, perguruan tinggi, dan kantor yayasan."
+        subtitle="Kelola master data unit organisasi berdasarkan Level Unit Kerja."
         :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Master Data'], ['label' => 'Unit Kerja']]"
     >
         <x-slot:actions>
@@ -60,9 +60,18 @@
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('institutions.index') }}" class="row g-3 align-items-end">
-                <div class="col-lg-8">
+                <div class="col-lg-6">
                     <label for="search" class="form-label">Cari Unit Kerja</label>
-                    <div class="filter-search-wrap"><i class="ti ti-search" aria-hidden="true"></i><input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, level, alamat, atau status..." aria-label="Cari unit kerja"></div>
+                    <div class="filter-search-wrap"><i class="ti ti-search" aria-hidden="true"></i><input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, level unit kerja, alamat, atau status..." aria-label="Cari unit kerja"></div>
+                </div>
+                <div class="col-lg-2">
+                    <label for="level" class="form-label">Level Unit Kerja</label>
+                    <select id="level" name="level" class="form-select">
+                        <option value="">Semua Level Unit Kerja</option>
+                        @foreach ($unitLevels as $code => $option)
+                            <option value="{{ $code }}" @selected($level === $code)>{{ $code }} — {{ $option['name'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-lg-1">
                     <label for="per_page" class="form-label">Tampil</label>
@@ -74,7 +83,7 @@
                 </div>
                 <div class="col-lg-3 filter-primary-actions">
                     <button type="submit" class="btn btn-primary flex-fill"><i class="ti ti-filter" aria-hidden="true"></i> Terapkan Filter</button>
-                    @if (request()->filled('search') || request('per_page', 15) != 15)<a href="{{ route('institutions.index') }}" class="btn btn-light-secondary">Reset</a>@endif
+                    @if (request()->filled('search') || request()->filled('level') || request('per_page', 15) != 15)<a href="{{ route('institutions.index') }}" class="btn btn-light-secondary">Reset</a>@endif
                 </div>
             </form>
         </div>
@@ -109,7 +118,7 @@
                                 <td class="ps-4">{{ $institutions->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $institution->name }}</div>
-                                    <div class="data-meta">{{ $institution->level ?? 'Level belum diisi' }}</div>
+                                    <div class="data-meta">{{ \App\Support\OrganizationOptions::unitLevelLabel($institution->level) }}</div>
                                 </td>
                                 <td class="text-wrap" style="min-width: 220px;">{{ $institution->address ?? '-' }}</td>
                                 <td>
@@ -141,8 +150,8 @@
                                         <div class="avtar avtar-l bg-light-secondary text-secondary">
                                             <i class="ti ti-database-off f-28"></i>
                                         </div>
-                                        <h5 class="mb-1">{{ request()->filled('search') ? 'Tidak ada unit kerja yang sesuai dengan pencarian.' : 'Belum ada data unit kerja.' }}</h5>
-                                        <p class="text-muted mb-3">{{ request()->filled('search') ? 'Ubah pencarian untuk melihat data lainnya.' : 'Silakan tambahkan unit kerja terlebih dahulu.' }}</p>
+                                        <h5 class="mb-1">{{ request()->filled('search') || request()->filled('level') ? 'Tidak ada unit kerja yang sesuai dengan pencarian atau filter.' : 'Belum ada data unit kerja.' }}</h5>
+                                        <p class="text-muted mb-3">{{ request()->filled('search') || request()->filled('level') ? 'Ubah pencarian atau filter untuk melihat data lainnya.' : 'Silakan tambahkan unit kerja terlebih dahulu.' }}</p>
                                         <a href="{{ route('institutions.create') }}" class="btn btn-primary">
                                             <i class="ti ti-plus"></i>
                                             Tambah Unit Kerja

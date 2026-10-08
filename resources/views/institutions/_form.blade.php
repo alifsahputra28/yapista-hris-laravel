@@ -22,12 +22,12 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="level" class="form-label">Level</label>
-            <select id="level" name="level" class="form-select @error('level') is-invalid @enderror">
-                <option value="">Pilih level</option>
-                @foreach (['TK', 'SD', 'SMP', 'SMK', 'Perguruan Tinggi', 'Yayasan'] as $level)
-                    <option value="{{ $level }}" @selected(old('level', $institution->level) === $level)>
-                        {{ $level }}
+            <label for="level" class="form-label">Level Unit Kerja <span class="text-danger">*</span></label>
+            <select id="level" name="level" class="form-select @error('level') is-invalid @enderror" required>
+                <option value="">Pilih Level Unit Kerja</option>
+                @foreach ($unitLevels as $code => $option)
+                    <option value="{{ $code }}" @selected(old('level', \App\Support\OrganizationOptions::normalizeUnitLevel($institution->level)) === $code)>
+                        {{ $code }} — {{ $option['name'] }}
                     </option>
                 @endforeach
             </select>

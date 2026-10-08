@@ -65,14 +65,14 @@ class PaginationAndPositionImportTest extends TestCase
             ->assertOk()->assertDownload('template-import-jabatan.xlsx');
 
         $validRows = array_map(
-            fn (int $index): array => [sprintf('Jabatan Import %02d', $index), 'TK Ibnu Sina', 'administratif', 'active'],
+            fn (int $index): array => [sprintf('Jabatan Import %02d', $index), 'ADM', 'TK Ibnu Sina', 'Aktif'],
             range(1, 16),
         );
         $upload = $this->spreadsheet([
             ...$validRows,
-            ['Guru', 'TK Ibnu Sina', 'fungsional', 'active'],
-            ['Jabatan Salah', 'Unit Tidak Ada', 'teknis', 'active'],
-            ['Kategori Salah', 'TK Ibnu Sina', 'tidak-valid', 'active'],
+            ['Guru', 'FNG', 'TK Ibnu Sina', 'Aktif'],
+            ['Jabatan Salah', 'OPS', 'Unit Tidak Ada', 'Aktif'],
+            ['Kategori Salah', 'BAD', 'TK Ibnu Sina', 'Aktif'],
             [null, null, null, null],
         ]);
 
@@ -114,7 +114,7 @@ class PaginationAndPositionImportTest extends TestCase
     {
         $spreadsheet = new Spreadsheet;
         $spreadsheet->getActiveSheet()->fromArray([
-            ['Nama Jabatan', 'Unit Kerja', 'Kategori', 'Status'], ...$rows,
+            ['Nama Jabatan', 'Tipe Jabatan', 'Unit Kerja', 'Status'], ...$rows,
         ]);
         $path = tempnam(sys_get_temp_dir(), 'position-import-').'.xlsx';
         (new Xlsx($spreadsheet))->save($path);

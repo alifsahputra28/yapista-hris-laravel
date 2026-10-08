@@ -8,7 +8,7 @@
                 <option value="">Pilih unit kerja</option>
                 @foreach ($institutions as $institution)
                     <option value="{{ $institution->id }}" @selected((int) old('institution_id', $position->institution_id) === $institution->id)>
-                        {{ $institution->name }}{{ $institution->level ? ' - '.$institution->level : '' }}
+                        {{ $institution->name }}{{ $institution->level ? ' - '.\App\Support\OrganizationOptions::unitLevelLabel($institution->level) : '' }}
                     </option>
                 @endforeach
             </select>
@@ -40,12 +40,12 @@
 
     <div class="col-md-6">
         <div class="form-group mb-3">
-            <label for="type" class="form-label">Tipe</label>
-            <select id="type" name="type" class="form-select @error('type') is-invalid @enderror">
-                <option value="">Pilih tipe</option>
-                @foreach (['struktural', 'fungsional', 'administratif', 'teknis'] as $type)
-                    <option value="{{ $type }}" @selected(old('type', $position->type) === $type)>
-                        {{ ucfirst($type) }}
+            <label for="type" class="form-label">Tipe Jabatan <span class="text-danger">*</span></label>
+            <select id="type" name="type" class="form-select @error('type') is-invalid @enderror" required>
+                <option value="">Pilih Tipe Jabatan</option>
+                @foreach ($positionTypes as $code => $option)
+                    <option value="{{ $code }}" @selected(old('type', \App\Support\OrganizationOptions::normalizePositionType($position->type, $position->name)) === $code)>
+                        {{ $code }} — {{ $option['name'] }}
                     </option>
                 @endforeach
             </select>

@@ -25,7 +25,7 @@ class MasterDataTest extends TestCase
         $this->actingAs($admin)
             ->post('/institutions', [
                 'name' => 'MI Ibnu Sina',
-                'level' => 'SD',
+                'level' => 'U2',
                 'address' => 'Jl. Pendidikan',
                 'status' => 'active',
             ])
@@ -36,7 +36,7 @@ class MasterDataTest extends TestCase
         $this->actingAs($admin)
             ->put("/institutions/{$institution->id}", [
                 'name' => 'MI Ibnu Sina Terpadu',
-                'level' => 'SD',
+                'level' => 'U2',
                 'address' => 'Jl. Pendidikan 2',
                 'status' => 'inactive',
             ])
@@ -63,7 +63,7 @@ class MasterDataTest extends TestCase
         ]);
         $institution = Institution::create([
             'name' => 'SMP Ibnu Sina',
-            'level' => 'SMP',
+            'level' => 'U2',
             'status' => 'active',
         ]);
 
@@ -75,7 +75,7 @@ class MasterDataTest extends TestCase
             ->post('/positions', [
                 'institution_id' => $institution->id,
                 'name' => 'Guru',
-                'type' => 'fungsional',
+                'type' => 'FNG',
                 'status' => 'active',
             ])
             ->assertRedirect(route('positions.index', absolute: false));
@@ -88,7 +88,7 @@ class MasterDataTest extends TestCase
             ->put("/positions/{$position->id}", [
                 'institution_id' => $institution->id,
                 'name' => 'Guru Produktif',
-                'type' => 'fungsional',
+                'type' => 'FNG',
                 'status' => 'inactive',
             ])
             ->assertRedirect(route('positions.index', absolute: false));

@@ -23,6 +23,11 @@ class UserManagementTest extends TestCase
             ->get(route('users.index', absolute: false))
             ->assertOk()
             ->assertSee('Manajemen User')
+            ->assertSee('ti ti-user-check', escape: false)
+            ->assertSee('data-user-action-toggle', escape: false)
+            ->assertSee('aria-expanded="false"', escape: false)
+            ->assertSee('aria-label="Aksi untuk ', escape: false)
+            ->assertSee("strategy: 'fixed'", escape: false)
             ->assertSee(route('users.create', absolute: false), escape: false);
 
         foreach (['hr_admin', 'panitia', 'pegawai'] as $role) {

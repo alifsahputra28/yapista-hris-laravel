@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Institution;
 use App\Models\Position;
+use App\Support\OrganizationOptions;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +18,7 @@ class PositionController extends Controller
     {
         $search = $request->string('search')->toString();
         $institutionId = $request->integer('institution_id');
+        $type = OrganizationOptions::normalizePositionType($request->string('type')->toString());
         $perPage = in_array($request->integer('per_page'), [15, 25, 50], true)
             ? $request->integer('per_page')
             : 15;
@@ -35,6 +37,7 @@ class PositionController extends Controller
                 });
             })
             ->when($institutionId > 0, fn ($query) => $query->where('institution_id', $institutionId))
+            ->when($type, fn ($query) => $query->whereIn('type', OrganizationOptions::positionTypeDatabaseValues($type)))
             ->orderBy('name')
             ->paginate($perPage)
             ->withQueryString();
@@ -44,6 +47,7 @@ class PositionController extends Controller
         $inactivePositions = Position::query()->where('status', 'inactive')->count();
         $totalInstitutions = Institution::query()->count();
         $institutions = $this->institutionOptions();
+        $positionTypes = OrganizationOptions::POSITION_TYPES;
 
         return view('positions.index', compact(
             'positions',
@@ -54,7 +58,9 @@ class PositionController extends Controller
             'totalInstitutions',
             'institutions',
             'institutionId',
-            'perPage'
+            'perPage',
+            'type',
+            'positionTypes'
         ));
     }
 
@@ -65,7 +71,11 @@ class PositionController extends Controller
         ]);
         $institutions = $this->institutionOptions();
 
-        return view('positions.create', compact('position', 'institutions'));
+        return view('positions.create', [
+            'position' => $position,
+            'institutions' => $institutions,
+            'positionTypes' => OrganizationOptions::POSITION_TYPES,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -87,7 +97,11 @@ class PositionController extends Controller
     {
         $institutions = $this->institutionOptions();
 
-        return view('positions.edit', compact('position', 'institutions'));
+        return view('positions.edit', [
+            'position' => $position,
+            'institutions' => $institutions,
+            'positionTypes' => OrganizationOptions::POSITION_TYPES,
+        ]);
     }
 
     public function update(Request $request, Position $position): RedirectResponse
@@ -131,6 +145,7 @@ class PositionController extends Controller
      */
     private function validatedData(Request $request, ?Position $position = null): array
     {
+        $request->merge(['type' => strtoupper(trim((string) $request->input('type')))]);
         $nameRule = Rule::unique('positions', 'name')
             ->where(fn ($query) => $query->where('institution_id', $request->integer('institution_id')));
 
@@ -158,7 +173,7 @@ class PositionController extends Controller
                 },
                 $nameRule,
             ],
-            'type' => ['nullable', Rule::in(['struktural', 'fungsional', 'administratif', 'teknis'])],
+            'type' => ['required', Rule::in(OrganizationOptions::positionTypeCodes())],
             'status' => ['required', 'in:active,inactive'],
         ]);
     }

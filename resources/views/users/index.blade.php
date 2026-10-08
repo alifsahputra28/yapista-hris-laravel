@@ -120,8 +120,8 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-light-secondary btn-icon" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false" aria-label="Aksi untuk {{ $managedUser->name }}">
-                                            <i class="ti ti-dots-vertical"></i>
+                                        <button class="btn btn-sm btn-light-secondary btn-icon" type="button" data-bs-toggle="dropdown" data-user-action-toggle aria-expanded="false" aria-haspopup="true" aria-label="Aksi untuk {{ $managedUser->name }}">
+                                            <i class="ti ti-dots-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a href="{{ route('users.edit', $managedUser) }}" class="dropdown-item"><i class="ti ti-edit me-2"></i>Edit User</a>
@@ -215,6 +215,18 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-user-action-toggle]').forEach((toggle) => {
+                bootstrap.Dropdown.getOrCreateInstance(toggle, {
+                    boundary: 'viewport',
+                    popperConfig(defaultConfig) {
+                        return {
+                            ...defaultConfig,
+                            strategy: 'fixed',
+                        };
+                    },
+                });
+            });
+
             const modalElement = document.getElementById('reset-password-modal');
             const form = modalElement?.querySelector('[data-reset-password-form]');
             const userLabel = modalElement?.querySelector('[data-reset-password-user]');

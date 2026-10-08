@@ -18,7 +18,7 @@
 
     <x-page-header
         title="Jabatan"
-        subtitle="Kelola jabatan struktural, fungsional, administratif, dan teknis pada tiap unit kerja."
+        subtitle="Kelola jabatan berdasarkan Tipe Jabatan pada tiap unit kerja."
         :breadcrumbs="[['label' => 'Dashboard', 'url' => route('dashboard')], ['label' => 'Master Data'], ['label' => 'Jabatan']]"
     >
         <x-slot:actions>
@@ -64,7 +64,7 @@
     @if (auth()->user()->isSuperAdmin())
         <x-import-excel-modal modal-id="importPositionModal" title="Import Data Jabatan"
             :upload-route="route('positions.import.store')" :template-route="route('positions.import.template')"
-            :required-columns="['Nama Jabatan', 'Unit Kerja', 'Status']" :optional-columns="['Kategori']"
+            :required-columns="['Nama Jabatan', 'Tipe Jabatan', 'Unit Kerja', 'Status']"
             accepted-formats="XLSX" accept=".xlsx" max-size="2 MB" submit-label="Import Jabatan" />
     @endif
 
@@ -94,16 +94,25 @@
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('positions.index') }}" class="row g-3 align-items-end">
-                <div class="col-lg-5">
+                <div class="col-lg-4">
                     <label for="search" class="form-label">Cari Jabatan</label>
                     <div class="filter-search-wrap"><i class="ti ti-search" aria-hidden="true"></i><input id="search" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Cari jabatan, tipe, status, atau unit kerja..." aria-label="Cari jabatan"></div>
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-2">
                     <label for="institution_id" class="form-label">Unit Kerja</label>
                     <select id="institution_id" name="institution_id" class="form-select">
                         <option value="">Semua Unit Kerja</option>
                         @foreach ($institutions as $institution)
                             <option value="{{ $institution->id }}" @selected($institutionId === $institution->id)>{{ $institution->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <label for="type" class="form-label">Tipe Jabatan</label>
+                    <select id="type" name="type" class="form-select">
+                        <option value="">Semua Tipe Jabatan</option>
+                        @foreach ($positionTypes as $code => $option)
+                            <option value="{{ $code }}" @selected($type === $code)>{{ $code }} — {{ $option['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -117,7 +126,7 @@
                 </div>
                 <div class="col-lg-3 filter-primary-actions">
                     <button type="submit" class="btn btn-primary flex-fill"><i class="ti ti-filter" aria-hidden="true"></i> Terapkan Filter</button>
-                    @if (request()->filled('search') || request()->filled('institution_id') || request('per_page', 15) != 15)<a href="{{ route('positions.index') }}" class="btn btn-light-secondary">Reset</a>@endif
+                    @if (request()->filled('search') || request()->filled('institution_id') || request()->filled('type') || request('per_page', 15) != 15)<a href="{{ route('positions.index') }}" class="btn btn-light-secondary">Reset</a>@endif
                 </div>
             </form>
         </div>
@@ -151,11 +160,11 @@
                                 <td class="ps-4">{{ $positions->firstItem() + $loop->index }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $position->name }}</div>
-                                    <div class="data-meta">{{ $position->type ? ucfirst($position->type) : 'Tipe belum diisi' }}</div>
+                                    <div class="data-meta">{{ \App\Support\OrganizationOptions::positionTypeLabel($position->type, $position->name) }}</div>
                                 </td>
                                 <td>
                                     <div>{{ $position->institution?->name ?? '-' }}</div>
-                                    <div class="data-meta">{{ $position->institution?->level ?? '-' }}</div>
+                                    <div class="data-meta">{{ \App\Support\OrganizationOptions::unitLevelLabel($position->institution?->level) }}</div>
                                 </td>
                                 <td>
                                     <span class="badge {{ $status['class'] }}">{{ $status['label'] }}</span>
@@ -183,8 +192,8 @@
                                         <div class="avtar avtar-l bg-light-secondary text-secondary">
                                             <i class="ti ti-database-off f-28"></i>
                                         </div>
-                                        <h5 class="mb-1">{{ request()->filled('search') || request()->filled('institution_id') ? 'Tidak ada jabatan yang sesuai dengan pencarian atau filter.' : 'Belum ada data jabatan.' }}</h5>
-                                        <p class="text-muted mb-3">{{ request()->filled('search') || request()->filled('institution_id') ? 'Ubah pencarian atau filter untuk melihat data lainnya.' : 'Silakan tambahkan jabatan terlebih dahulu.' }}</p>
+                                        <h5 class="mb-1">{{ request()->filled('search') || request()->filled('institution_id') || request()->filled('type') ? 'Tidak ada jabatan yang sesuai dengan pencarian atau filter.' : 'Belum ada data jabatan.' }}</h5>
+                                        <p class="text-muted mb-3">{{ request()->filled('search') || request()->filled('institution_id') || request()->filled('type') ? 'Ubah pencarian atau filter untuk melihat data lainnya.' : 'Silakan tambahkan jabatan terlebih dahulu.' }}</p>
                                         <a href="{{ route('positions.create') }}" class="btn btn-primary">
                                             <i class="ti ti-plus"></i>
                                             Tambah Jabatan

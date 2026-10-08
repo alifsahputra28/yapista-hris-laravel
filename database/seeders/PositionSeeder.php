@@ -14,32 +14,32 @@ class PositionSeeder extends Seeder
     public function run(): void
     {
         $this->seedForInstitution('Kantor Yayasan', [
-            ['name' => 'Ketua Yayasan', 'type' => 'struktural'],
-            ['name' => 'Sekretaris', 'type' => 'administratif'],
-            ['name' => 'Bendahara', 'type' => 'administratif'],
-            ['name' => 'HR Admin', 'type' => 'administratif'],
-            ['name' => 'Staff Yayasan', 'type' => 'administratif'],
-            ['name' => 'Staff IT', 'type' => 'teknis'],
-            ['name' => 'Staff Sarpras', 'type' => 'teknis'],
+            ['name' => 'Ketua Yayasan', 'type' => 'STR'],
+            ['name' => 'Sekretaris', 'type' => 'ADM'],
+            ['name' => 'Bendahara', 'type' => 'ADM'],
+            ['name' => 'HR Admin', 'type' => 'ADM'],
+            ['name' => 'Staff Yayasan', 'type' => 'ADM'],
+            ['name' => 'Staff IT', 'type' => 'ADM'],
+            ['name' => 'Staff Sarpras', 'type' => 'OPS'],
         ]);
 
         foreach (['TK Ibnu Sina', 'SD Ibnu Sina', 'SMP Ibnu Sina', 'SMK Ibnu Sina'] as $schoolName) {
             $this->seedForInstitution($schoolName, [
-                ['name' => 'Kepala Sekolah', 'type' => 'struktural'],
-                ['name' => 'Wakil Kepala Sekolah', 'type' => 'struktural'],
-                ['name' => 'Guru', 'type' => 'fungsional'],
-                ['name' => 'Staff TU', 'type' => 'administratif'],
-                ['name' => 'Operator Sekolah', 'type' => 'administratif'],
+                ['name' => 'Kepala Sekolah', 'type' => 'STR'],
+                ['name' => 'Wakil Kepala Sekolah', 'type' => 'STR'],
+                ['name' => 'Guru', 'type' => 'FNG'],
+                ['name' => 'Staff TU', 'type' => 'ADM'],
+                ['name' => 'Operator Sekolah', 'type' => 'ADM'],
             ]);
         }
 
         foreach (['STAI Ibnu Sina', 'Universitas Ibnu Sina'] as $collegeName) {
             $this->seedForInstitution($collegeName, [
-                ['name' => 'Rektor', 'type' => 'struktural'],
-                ['name' => 'Dekan', 'type' => 'struktural'],
-                ['name' => 'Kaprodi', 'type' => 'struktural'],
-                ['name' => 'Dosen', 'type' => 'fungsional'],
-                ['name' => 'Staff Akademik', 'type' => 'administratif'],
+                ['name' => 'Rektor', 'type' => 'STR'],
+                ['name' => 'Dekan', 'type' => 'STR'],
+                ['name' => 'Kaprodi', 'type' => 'STR'],
+                ['name' => 'Dosen', 'type' => 'FNG'],
+                ['name' => 'Staff Akademik', 'type' => 'ADM'],
             ]);
         }
     }

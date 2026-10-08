@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Institution;
 use App\Models\Position;
+use App\Support\OrganizationOptions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +35,7 @@ class PositionImportService
         }
 
         $headers = array_map(fn ($value) => $this->key((string) $value), array_shift($rows));
-        $expected = ['nama jabatan', 'unit kerja', 'kategori', 'status'];
+        $expected = ['nama jabatan', 'tipe jabatan', 'unit kerja', 'status'];
         if ($headers !== $expected) {
             throw ValidationException::withMessages(['file' => 'Kolom file tidak sesuai template Jabatan terbaru.']);
         }
@@ -52,20 +53,21 @@ class PositionImportService
             }
             $summary['processed']++;
             $line = $index + 2;
-            $institution = $institutions->get($this->key($values[1]));
+            $institution = $institutions->get($this->key($values[2]));
             $validator = Validator::make([
                 'name' => $values[0], 'institution' => $institution?->id,
-                'type' => $values[2] === '' ? null : mb_strtolower($values[2]),
-                'status' => mb_strtolower($values[3]),
+                'type' => strtoupper($values[1]),
+                'status' => $this->status($values[3]),
             ], [
                 'name' => ['required', 'string', 'max:255'],
                 'institution' => ['required', 'integer'],
-                'type' => ['nullable', Rule::in(['struktural', 'fungsional', 'administratif', 'teknis'])],
+                'type' => ['required', Rule::in(OrganizationOptions::positionTypeCodes())],
                 'status' => ['required', Rule::in(['active', 'inactive'])],
             ], [
                 'name.required' => 'Nama Jabatan wajib diisi.',
                 'institution.required' => 'Unit Kerja tidak ditemukan.',
-                'type.in' => 'Kategori Jabatan tidak valid.',
+                'type.required' => 'Tipe Jabatan wajib diisi.',
+                'type.in' => 'Tipe Jabatan tidak valid. Gunakan ORG, STR, FNG, ADM, atau OPS.',
                 'status.required' => 'Status wajib diisi.',
                 'status.in' => 'Status harus active atau inactive.',
             ]);
@@ -90,8 +92,8 @@ class PositionImportService
             DB::transaction(fn () => Position::create([
                 'institution_id' => $institution->id,
                 'name' => $name,
-                'type' => $values[2] === '' ? null : mb_strtolower($values[2]),
-                'status' => mb_strtolower($values[3]),
+                'type' => strtoupper($values[1]),
+                'status' => $this->status($values[3]),
             ]));
             $summary['created']++;
         }
@@ -106,6 +108,15 @@ class PositionImportService
     private function key(string $value): string
     {
         return mb_strtolower(trim(preg_replace('/\s+/u', ' ', $value) ?? $value));
+    }
+
+    private function status(string $value): string
+    {
+        return match (mb_strtolower(trim($value))) {
+            'aktif', 'active' => 'active',
+            'nonaktif', 'inactive' => 'inactive',
+            default => mb_strtolower(trim($value)),
+        };
     }
 
     /** @param array{errors:list<string>} $summary */

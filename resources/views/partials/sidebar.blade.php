@@ -8,7 +8,7 @@
     $isAdmin = $user?->isSuperAdmin() || $user?->isHrAdmin();
     $isPanitia = $user?->isPanitia();
     $isPegawai = $user?->isPegawai();
-    $organizationActive = request()->routeIs('institutions.*', 'positions.*');
+    $organizationActive = request()->routeIs('institutions.*', 'positions.*', 'options.*');
     $employeeManagementActive = request()->routeIs('employees.*', 'verifications.*', 'invitations.*', 'employee-documents.*');
     $activityActive = request()->routeIs('events.*', 'event-participants.*', 'event-attendances.*');
     $reportsActive = request()->routeIs('reports.*');
@@ -47,6 +47,9 @@
                         <ul class="pc-submenu">
                             <li class="pc-item {{ request()->routeIs('institutions.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('institutions.index') }}">Unit Kerja</a></li>
                             <li class="pc-item {{ request()->routeIs('positions.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('positions.index') }}">Jabatan</a></li>
+                            @if ($user?->isSuperAdmin())
+                                <li class="pc-item {{ request()->routeIs('options.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('options.index') }}">Options</a></li>
+                            @endif
                         </ul>
                     </li>
 
@@ -66,7 +69,7 @@
                     @if ($user?->isSuperAdmin())
                         <li class="pc-item {{ $userManagementActive ? 'active' : '' }}">
                             <a href="{{ route('users.index') }}" class="pc-link">
-                                <span class="pc-micon"><i class="ti ti-user-cog"></i></span>
+                                <span class="pc-micon"><i class="ti ti-user-check" aria-hidden="true"></i></span>
                                 <span class="pc-mtext">Manajemen User</span>
                             </a>
                         </li>

@@ -25,6 +25,7 @@ use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\PegawaiIdCardController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PositionImportController;
+use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserManagementController;
@@ -87,6 +88,7 @@ Route::middleware(['auth', 'role:super_admin,hr_admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/options', OptionsController::class)->name('options.index');
     Route::get('/positions/import/template', [PositionImportController::class, 'template'])->name('positions.import.template');
     Route::post('/positions/import', [PositionImportController::class, 'store'])->name('positions.import.store');
 

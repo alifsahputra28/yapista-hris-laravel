@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Institution;
 use App\Models\Position;
+use App\Support\OrganizationOptions;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ class InstitutionController extends Controller
     public function index(Request $request): View
     {
         $search = $request->string('search')->toString();
+        $level = OrganizationOptions::normalizeUnitLevel($request->string('level')->toString());
         $perPage = in_array($request->integer('per_page'), [15, 25, 50], true)
             ? $request->integer('per_page')
             : 15;
@@ -30,6 +32,7 @@ class InstitutionController extends Controller
                         ->orWhere('status', 'like', "%{$search}%");
                 });
             })
+            ->when($level, fn ($query) => $query->whereIn('level', OrganizationOptions::unitLevelDatabaseValues($level)))
             ->orderBy('name')
             ->paginate($perPage)
             ->withQueryString();
@@ -38,6 +41,7 @@ class InstitutionController extends Controller
         $activeInstitutions = Institution::query()->where('status', 'active')->count();
         $inactiveInstitutions = Institution::query()->where('status', 'inactive')->count();
         $totalPositions = Position::query()->count();
+        $unitLevels = OrganizationOptions::UNIT_LEVELS;
 
         return view('institutions.index', compact(
             'institutions',
@@ -45,7 +49,10 @@ class InstitutionController extends Controller
             'totalInstitutions',
             'activeInstitutions',
             'inactiveInstitutions',
-            'totalPositions', 'perPage'
+            'totalPositions',
+            'perPage',
+            'level',
+            'unitLevels'
         ));
     }
 
@@ -55,7 +62,10 @@ class InstitutionController extends Controller
             'status' => 'active',
         ]);
 
-        return view('institutions.create', compact('institution'));
+        return view('institutions.create', [
+            'institution' => $institution,
+            'unitLevels' => OrganizationOptions::UNIT_LEVELS,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -75,7 +85,10 @@ class InstitutionController extends Controller
 
     public function edit(Institution $institution): View
     {
-        return view('institutions.edit', compact('institution'));
+        return view('institutions.edit', [
+            'institution' => $institution,
+            'unitLevels' => OrganizationOptions::UNIT_LEVELS,
+        ]);
     }
 
     public function update(Request $request, Institution $institution): RedirectResponse
@@ -119,6 +132,7 @@ class InstitutionController extends Controller
      */
     private function validatedData(Request $request, ?Institution $institution = null): array
     {
+        $request->merge(['level' => strtoupper(trim((string) $request->input('level')))]);
         $nameRule = Rule::unique('institutions', 'name');
 
         if ($institution) {
@@ -143,9 +157,10 @@ class InstitutionController extends Controller
                 },
                 $nameRule,
             ],
-            'level' => ['nullable', 'string', 'max:100'],
+            'level' => ['required', Rule::in(OrganizationOptions::unitLevelCodes())],
             'address' => ['nullable', 'string'],
             'status' => ['required', 'in:active,inactive'],
         ]);
     }
+
 }
